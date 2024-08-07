@@ -1,10 +1,25 @@
+import { useQueryClient } from '@tanstack/react-query'
+import { RouterProvider } from 'react-router-dom'
+import { useMemo } from 'react'
 
-import './App.css'
+import { createRouter } from './routers'
+
+import './index.css'
+import { AppProvider } from './provider/main-provider'
+
+const AppRouter = () => {
+  const queryClient = useQueryClient()
+
+  const router = useMemo(() => createRouter(queryClient), [queryClient])
+
+  return <RouterProvider router={router} />
+}
 
 function App() {
-
   return (
-   <h1>home page</h1>
+    <AppProvider>
+      <AppRouter />
+    </AppProvider>
   )
 }
 
