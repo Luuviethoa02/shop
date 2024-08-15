@@ -1,9 +1,9 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 
-import { formSchemaLogin } from '../validators'
-import { Link } from 'react-router-dom'
+import { formSchemaLogin } from "../validators"
+import { Link, useNavigate } from "react-router-dom"
 import {
   Form,
   FormControl,
@@ -11,21 +11,37 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { useLogin } from "@/lib/auth"
+import { SpokeSpinner } from "@/components/ui/spinner"
+import { useAuthStore } from "@/store"
+import { User } from "@/types/client"
 
 const FormLogin = () => {
+  const login = useLogin()
+  const navigate = useNavigate()
+  const { setUser } = useAuthStore()
   const form = useForm<z.infer<typeof formSchemaLogin>>({
     resolver: zodResolver(formSchemaLogin),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
   })
 
   function onSubmit(values: z.infer<typeof formSchemaLogin>) {
-    console.log(values)
+    login.mutate(values, {
+      onSuccess(data) {
+        setUser(data as User)
+        if (data?.admin) {
+          navigate("/admin", { replace: true })
+        } else {
+          navigate("/", { replace: true })
+        }
+      },
+    })
   }
 
   return (
@@ -58,11 +74,14 @@ const FormLogin = () => {
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+          <Button disabled={login.isPending} className="gap-2" type="submit">
+            {login.isPending && <SpokeSpinner size="lg" />}
+            Đăng nhập
+          </Button>
         </form>
       </Form>
       <div className="mt-4 text-center text-sm">
-        Bạn chưa có tài khoản?{' '}
+        Bạn chưa có tài khoản?{" "}
         <Link to="/auth/register" className="underline">
           Đăng ký
         </Link>

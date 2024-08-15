@@ -1,6 +1,10 @@
+import SEO from "@/components/seo"
+import { Link } from "react-router-dom"
+
 export const NotFoundRoute = () => {
   return (
     <main>
+      <SEO title="404 Not Found" description="404 Not Found in Shop" />
       <div className="max-w-screen-xl mx-auto px-4 flex items-center justify-start h-screen md:px-8">
         <div className="max-w-lg mx-auto space-y-3 text-center">
           <h3 className="text-indigo-600 font-semibold">404 Lỗi !!!!</h3>
@@ -11,12 +15,12 @@ export const NotFoundRoute = () => {
             Xin lỗi, trang bạn đang tìm kiếm không thể tìm thấy hoặc đã bị xóa.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            <a
-              href="javascript:void(0)"
-              className="block py-2 px-4 text-white font-medium bg-indigo-600 duration-150 hover:bg-indigo-500 active:bg-indigo-700 rounded-lg"
+            <Link
+              to="/"
+              className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
             >
-              Quay lại
-            </a>
+              Trở lại trang chủ
+            </Link>
             <a
               href="javascript:void(0)"
               className="block py-2 px-4 text-gray-700 hover:bg-gray-50 font-medium duration-150 active:bg-gray-100 border rounded-lg"

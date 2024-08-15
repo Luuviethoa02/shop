@@ -1,0 +1,15 @@
+export const settingsSlider = {
+  dots: false,
+  className: "center",
+  centerMode: true,
+  infinite: true,
+  centerPadding: "60px",
+  slidesToShow: 3,
+  speed: 500,
+  rows: 2,
+  slidesPerRow: 1,
+  autoplaySpeed: 2000,
+  autoplay: true,
+  cssEase: "linear",
+  arrows: true,
+}
