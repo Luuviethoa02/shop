@@ -1,11 +1,14 @@
-import { useQueryClient } from '@tanstack/react-query'
-import { RouterProvider } from 'react-router-dom'
-import { useMemo } from 'react'
+import { useQueryClient } from "@tanstack/react-query"
+import { RouterProvider } from "react-router-dom"
+import { useMemo } from "react"
 
-import { createRouter } from './routers'
+import { createRouter } from "./routers"
 
-import './index.css'
-import { AppProvider } from './provider/main-provider'
+import { AppProvider } from "./provider/main-provider"
+
+import "./index.css"
+import "slick-carousel/slick/slick.css"
+import "slick-carousel/slick/slick-theme.css"
 
 const AppRouter = () => {
   const queryClient = useQueryClient()
