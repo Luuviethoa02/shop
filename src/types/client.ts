@@ -9,5 +9,27 @@ export type User = {
 export type Category = {
   _id: string
   name: string
-  img: string
+  img_cover: string
+}
+
+export type Product = {
+  _id: string
+  name: string
+  brand_id: string | Category
+  price: string
+  sizes: Size[]
+  colors: Color[]
+  des: string
+  publish: boolean
+  slug: string
+}
+
+export type Color = {
+  name: string
+  image: FileList
+}
+
+export type Size = {
+  name: string
+  weight: string
 }

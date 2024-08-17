@@ -2,7 +2,6 @@ import { Link, Navigate } from "react-router-dom"
 import LayoutWapper from "../warper/layout.wrapper"
 import Logo from "../share/Logo"
 import { Footer } from "../sections"
-import { useUser } from "@/lib/auth"
 import Progress from "../share/Progress"
 
 interface Iprops {
