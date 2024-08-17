@@ -1,11 +1,10 @@
 import Slider from "react-slick"
-import Category from "./category"
 import LayoutWapper from "@/components/warper/layout.wrapper"
-import { cn } from "@/lib/utils"
 import { settingsSlider } from "../constants"
 import SampleNextArrow from "./ui/SampleNextArrow"
 import SamplePrevArrow from "./ui/SamplePrevArrow"
 import { useCategories } from "../api/get-categories"
+import CategoryItem from "./category"
 
 const CategoryList = () => {
   const settings = {
@@ -22,13 +21,16 @@ const CategoryList = () => {
 
   return (
     <LayoutWapper>
-      <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+      <h2 className="scroll-m-20 mb-5 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
         Danh Mục sản phẩm
       </h2>
       {data && (
         <div className="slider-container">
           <Slider {...settings}>
-            {data && data?.data?.map((_, index) => <Category key={index} />)}
+            {data &&
+              data?.data?.map((category, index) => (
+                <CategoryItem category={category} key={index} />
+              ))}
           </Slider>
         </div>
       )}

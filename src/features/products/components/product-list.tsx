@@ -1,8 +1,14 @@
-import React from "react"
+import { useState } from "react"
 import Product from "./product"
 import LayoutWapper from "@/components/warper/layout.wrapper"
+import { useProducts } from "../api/get-products"
 
 const ProductList = () => {
+  const [page, setPage] = useState(1)
+  const limit = 4
+
+  const { data: productsApi, status: statusGet } = useProducts({ page, limit })
+
   return (
     <LayoutWapper>
       <section className="text-gray-600 body-font">
@@ -11,9 +17,10 @@ const ProductList = () => {
         </h2>
         <div className="container px-5 py-14 mx-auto">
           <div className="flex flex-wrap -m-4">
-            {Array.from({ length: 12 }).map((_, index) => (
-              <Product key={index} />
-            ))}
+            {productsApi?.data &&
+              productsApi?.data?.map((product, index) => (
+                <Product product={product} key={index} />
+              ))}
           </div>
         </div>
       </section>

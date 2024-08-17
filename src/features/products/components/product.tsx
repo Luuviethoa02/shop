@@ -1,29 +1,36 @@
+import useFormatNumberToVND from "@/hooks/useFormatNumberToVND"
+import { productRespose } from "@/types/api"
 import { Link } from "react-router-dom"
 
-function Product() {
+interface Iprops {
+  product: productRespose
+}
+
+function Product({ product }: Iprops) {
+  const { formatNumberToVND } = useFormatNumberToVND()
+
+  const { brand_id, slug, _id, colors, name, price } = product
   return (
-    <div className="lg:w-1/4 md:w-1/2 p-4 w-full cursor-pointer">
+    <div className="lg:w-1/4 md:w-1/2 p-4 w-full">
       <div className="relative w-full max-w-sm overflow-hidden rounded-lg shadow-lg transition-all duration-300 ease-in-out hover:shadow-xl hover:scale-105">
         <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-2 py-1 rounded-md text-xs font-medium">
           20% OFF
         </div>
-        <Link to="#" className="block">
+        <Link to={`product/${slug}`} className="block">
           <img
-            src={
-              "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            }
-            alt="Product Image"
+            src={colors[0]?.image || ""}
+            alt={`this is image ${colors[0].name}`}
             width={500}
             height={500}
-            className="w-full h-64 object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
+            className="w-full max-h-44 object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
             style={{ aspectRatio: "500/500", objectFit: "cover" }}
           />
         </Link>
         <div className="p-4 bg-background">
-          <h3 className="text-lg font-semibold">Acme Wireless Headphones</h3>
+          <h5 className="text-base font-semibold line-clamp-3">{name}</h5>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <p className="text-2xl font-bold">$99.99</p>
+              <p className="text-xl font-bold">{formatNumberToVND(price)}</p>
               <p className="text-sm text-muted-foreground line-through">
                 $124.99
               </p>

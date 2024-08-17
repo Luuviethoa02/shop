@@ -8,12 +8,17 @@ function authRequestInterceptor(config: InternalAxiosRequestConfig) {
     config.headers.Accept = "application/json"
   }
 
+  if (config.data instanceof FormData) {
+    config.headers["Content-Type"] = "multipart/form-data"
+  }
+
   const accessToken = localStorage.getItem("accessToken")
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`
   }
 
   config.withCredentials = true
+
   return config
 }
 

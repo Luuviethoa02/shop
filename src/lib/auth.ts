@@ -5,7 +5,7 @@ import { api } from "./api-client"
 import { AuthResponse, ResponseError } from "@/types/api"
 import { User } from "@/types/client"
 import toast from "react-hot-toast"
-import { AxiosError, AxiosResponse } from "axios"
+import { AxiosError } from "axios"
 
 // api call definitions for auth (types, schemas, requests):
 // these are not part of features as this is a module shared across features

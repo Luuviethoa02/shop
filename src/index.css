@@ -59,6 +59,20 @@
   }
 }
 
+::-webkit-scrollbar {
+  width: 0.35rem;
+  height: 0.35rem;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #69696969;
+  border-radius: 0.25rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 @layer base {
   * {
     @apply border-border;

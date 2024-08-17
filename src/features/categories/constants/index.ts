@@ -6,7 +6,7 @@ export const settingsSlider = {
   centerPadding: "60px",
   slidesToShow: 3,
   speed: 500,
-  rows: 2,
+  rows: 1,
   slidesPerRow: 1,
   autoplaySpeed: 2000,
   autoplay: true,
