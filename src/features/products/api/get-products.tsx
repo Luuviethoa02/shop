@@ -23,7 +23,10 @@ export const getAllProducts = (
 }
 
 export const getProductsQueryOptions = (
-  { page, limit }: { page: number | undefined; limit: number | undefined } = { page: undefined, limit: undefined }
+  { page, limit }: { page: number | undefined; limit: number | undefined } = {
+    page: undefined,
+    limit: undefined,
+  }
 ) => {
   return {
     queryKey: ["products", page, limit],

@@ -9,7 +9,6 @@ import {
 } from "../ui/navigation-menu"
 import Logo from "../share/Logo"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,14 +17,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
-import { useUser } from "@/lib/auth"
 import DialogLogout from "@/features/auth/components/form-logout"
 import { useState } from "react"
+import { useAuthStore } from "@/store"
 
 const Header = () => {
   const [open, setOpen] = useState<boolean>(false)
 
-  const { data: user, isLoading } = useUser()
+  const user = useAuthStore((state) => state.user)
 
   return (
     <div className="container mx-auto px-4 md:px-6 lg:px-8">

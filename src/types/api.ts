@@ -37,3 +37,8 @@ export type productRespose = Omit<Product, "brand_id" | "colors"> & {
 }
 
 export type producstResponse = ResponseData<productRespose>
+
+export type productDetailResponse = ResponseSuccess<{
+  productDetail: productRespose,
+  productSimilars: productRespose[]
+}>
