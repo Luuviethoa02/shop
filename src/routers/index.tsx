@@ -73,7 +73,6 @@ export const createRouter = (queryClient: QueryClient) =>
         },
         {
           path: "product/:slug",
-
           lazy: async () => {
             const { ProductDetailRoute } = await import(
               "./products/product-detail"

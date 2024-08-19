@@ -17,7 +17,6 @@ const CategoryList = () => {
   if (isPending) {
     return <h3>loading....</h3>
   }
-  console.log(data)
 
   return (
     <LayoutWapper>

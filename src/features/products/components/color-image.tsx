@@ -21,6 +21,7 @@ function getImageUrl(file: FileList | undefined): string | null {
 }
 
 export const ColorImage = ({ colors, setColors }: Iprops) => {
+  
   const handleDelete = (index: number) => {
     const newColors = colors.filter((_, i) => i !== index)
     setColors(newColors)
