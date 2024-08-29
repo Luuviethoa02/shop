@@ -3,6 +3,7 @@ import LayoutWapper from "../warper/layout.wrapper"
 import Logo from "../share/Logo"
 import { Footer } from "../sections"
 import Progress from "../share/Progress"
+import ProgressBar from "../share/ProgressBar"
 
 interface Iprops {
   children: React.ReactNode
@@ -16,9 +17,9 @@ const AuthLayout = ({ children, title }: Iprops) => {
   }
 
   return (
-    <div className="scrollbar-thumb-sky-700 scrollbar-track-sky-300">
-      <Progress />
+    <div>
       <LayoutWapper>
+        <ProgressBar />
         <div className="flex items-center justify-between gap">
           <div className="flex items-center gap-3">
             <Logo />

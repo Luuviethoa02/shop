@@ -57,6 +57,8 @@ api.interceptors.response.use(
         }
       } catch (error) {
         window.location.href = "/auth/login"
+        localStorage.removeItem("accessToken")
+        localStorage.removeItem("refreshToken")
       }
     }
 

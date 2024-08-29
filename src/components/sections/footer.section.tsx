@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import Logo from "../share/Logo"
 
 const Footer = () => {
@@ -14,8 +15,8 @@ const Footer = () => {
               Making football look better to the world and a more respecful
               game.
             </p>
-            <div className="flex space-x-6">
-              <a href="#" className="text-gray-400 hover:text-gray-500">
+            <div className="flex space-x-6 items-center">
+              <Link to="#" className="text-gray-400 hover:text-gray-500">
                 <span className="sr-only">Facebook</span>
                 <svg
                   className="h-6 w-6"
@@ -29,34 +30,9 @@ const Footer = () => {
                     clipRule="evenodd"
                   />
                 </svg>
-              </a>
-              <a href="#" className="text-yellow-500 hover:text-gray-500">
-                <span className="sr-only">the team is on fire</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M8.074.945A4.993 4.993 0 0 0 6 5v.032c.004.6.114 1.176.311 1.709.16.428-.204.91-.61.7a5.023 5.023 0 0 1-1.868-1.677c-.202-.304-.648-.363-.848-.058a6 6 0 1 0 8.017-1.901l-.004-.007a4.98 4.98 0 0 1-2.18-2.574c-.116-.31-.477-.472-.744-.28Zm.78 6.178a3.001 3.001 0 1 1-3.473 4.341c-.205-.365.215-.694.62-.59a4.008 4.008 0 0 0 1.873.03c.288-.065.413-.386.321-.666A3.997 3.997 0 0 1 8 8.999c0-.585.126-1.14.351-1.641a.42.42 0 0 1 .503-.235Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </a>
-              <a href="#" className="text-gray-400 hover:text-blue-4      00">
-                <span className="sr-only">X</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path d="M2.75 2a.75.75 0 0 0-.75.75v10.5a.75.75 0 0 0 1.5 0v-2.624l.33-.083A6.044 6.044 0 0 1 8 11c1.29.645 2.77.807 4.17.457l1.48-.37a.462.462 0 0 0 .35-.448V3.56a.438.438 0 0 0-.544-.425l-1.287.322C10.77 3.808 9.291 3.646 8 3a6.045 6.045 0 0 0-4.17-.457l-.34.085A.75.75 0 0 0 2.75 2Z" />
-                </svg>
-              </a>
-              <a href="#" className="text-gray-400 hover:text-gray-500">
+              </Link>
+
+              <Link to="#" className="text-gray-400 hover:text-gray-500">
                 <span className="sr-only">GitHub</span>
                 <svg
                   className="h-6 w-6"
@@ -70,8 +46,8 @@ const Footer = () => {
                     clipRule="evenodd"
                   />
                 </svg>
-              </a>
-              <a href="#" className="text-gray-400 hover:text-gray-500">
+              </Link>
+              <Link to="#" className="text-gray-400 hover:text-gray-500">
                 <span className="sr-only">YouTube</span>
                 <svg
                   className="h-6 w-6"
@@ -85,7 +61,7 @@ const Footer = () => {
                     clipRule="evenodd"
                   />
                 </svg>
-              </a>
+              </Link>
             </div>
           </div>
           <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
@@ -96,36 +72,36 @@ const Footer = () => {
                 </h3>
                 <ul role="list" className="mt-6 space-y-4">
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       Marketing
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       Analytics
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       Commerce
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       Insights
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </div>
@@ -135,36 +111,36 @@ const Footer = () => {
                 </h3>
                 <ul role="list" className="mt-6 space-y-4">
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       Pricing
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       Documentation
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       Guides
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       API Status
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </div>
@@ -176,44 +152,44 @@ const Footer = () => {
                 </h3>
                 <ul role="list" className="mt-6 space-y-4">
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       About
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       Blog
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       Jobs
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       Press
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       Partners
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </div>
@@ -223,28 +199,28 @@ const Footer = () => {
                 </h3>
                 <ul role="list" className="mt-6 space-y-4">
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       Claim
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       Privacy
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       Terms
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </div>

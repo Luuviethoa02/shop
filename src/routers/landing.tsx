@@ -11,7 +11,6 @@ export const LandingRoute = () => {
         title="Shop Landing Page"
         description="this is the landing page of the shop"
       />
-
       <div className="space-y-14">
         <Banner />
         <CategoryList />

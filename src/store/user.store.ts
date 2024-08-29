@@ -5,6 +5,7 @@ import { devtools, persist } from "zustand/middleware"
 interface UserState {
   user: User | null | undefined
   setUser: (user: User) => void
+  logout: () => void
 }
 
 const useAuthStore = create<UserState>()(
@@ -12,7 +13,8 @@ const useAuthStore = create<UserState>()(
     persist(
       (set) => ({
         user: { _id: "", username: "", email: "", img: "", admin: false },
-        setUser: (user) => set((state) => ({ user: user })),
+        setUser: (user) => set((state) => ({ ...state, user: user })),
+        logout: () => set((state) => ({ user: undefined })),
       }),
       { name: "AuthStore" }
     )

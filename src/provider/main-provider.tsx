@@ -6,6 +6,7 @@ import React, { Suspense } from "react"
 import { Toaster } from "react-hot-toast"
 import { queryClient } from "@/lib/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
+import MainError from "@/components/errors/main.error"
 
 type AppProviderProps = {
   children: React.ReactNode
@@ -23,11 +24,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       <QueryClientProvider client={queryClient}>
         <HelmetProvider>
           <AuthLoader
-            renderError={(error) => (
-              <div className="flex h-screen w-screen items-center justify-center">
-                <div className="text-red-500">{"lỗi không xác đinh"}</div>
-              </div>
-            )}
+            renderError={(error) => <MainError error={error} />}
             renderLoading={() => (
               <div className="flex h-screen w-screen items-center justify-center">
                 <SpokeSpinner size="xl" />

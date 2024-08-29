@@ -1,8 +1,8 @@
-import { useUser } from "@/lib/auth"
+import { useAuthStore } from "@/store"
 
 const useIsAdmin = (): boolean | null | undefined => {
-  const { data } = useUser()
-  return data && data.admin
+  const { user } = useAuthStore()
+  return user && user.admin
 }
 
 export default useIsAdmin

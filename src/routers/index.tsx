@@ -81,6 +81,33 @@ export const createRouter = (queryClient: QueryClient) =>
           },
         },
         {
+          path: "category/:slug",
+          lazy: async () => {
+            const { CategoriesRoute } = await import("./products/categories")
+            return { Component: CategoriesRoute }
+          },
+        },
+        {
+          path: "carts",
+          lazy: async () => {
+            const { CartRoutes } = await import("./products/carts")
+            return { Component: CartRoutes }
+          },
+        },
+        {
+          path: "checkout",
+          lazy: async () => {
+            const { CheckoutRoute } = await import("./products/checkout")
+            return {
+              Component: () => (
+                <ProtectedRoute>
+                  <CheckoutRoute />
+                </ProtectedRoute>
+              ),
+            }
+          },
+        },
+        {
           path: "/profile",
           lazy: async () => {
             const { ProfileRoute } = await import("./profile")

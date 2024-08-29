@@ -30,8 +30,14 @@ export type UserResponse = ResponseSuccess<User>
 
 export type CategoryResponse = ResponseSuccess<Category[]>
 
+export type ColorIpi = {
+  _id: string
+  name: string
+  image: string
+}
+
 export type productRespose = Omit<Product, "brand_id" | "colors"> & {
-  colors: { name: string; image: string }[]
+  colors: ColorIpi[]
   brand_id: { _id: string; img_cover: string; name: string; slug: string }
   createdAt: string
 }
@@ -39,6 +45,6 @@ export type productRespose = Omit<Product, "brand_id" | "colors"> & {
 export type producstResponse = ResponseData<productRespose>
 
 export type productDetailResponse = ResponseSuccess<{
-  productDetail: productRespose,
+  productDetail: productRespose
   productSimilars: productRespose[]
 }>
