@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useLogout } from "@/lib/auth"
+import { useAuthStore } from "@/store"
 import toast from "react-hot-toast"
 interface Iprops {
   open: boolean
@@ -15,9 +16,11 @@ interface Iprops {
 }
 function DialogLogout({ open, setOpen }: Iprops) {
   const logout = useLogout()
+  const { logout: logoutUsers } = useAuthStore()
 
   const handleLogout = () => {
     logout.mutate({})
+    logoutUsers()
     toast.success("Đăng xuất thành công")
     setOpen(false)
   }

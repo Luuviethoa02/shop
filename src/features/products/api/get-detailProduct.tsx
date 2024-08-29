@@ -5,24 +5,27 @@ import { QueryConfig } from "@/lib/react-query"
 import { productDetailResponse } from "@/types/api"
 
 type UseProductOptions = {
-  slug: string
+  slug: string | undefined
   queryConfig?: QueryConfig<typeof getProductDetailQueryOptions>
 }
 
-export const getDetailProduct = (slug: string): Promise<productDetailResponse> => {
+export const getDetailProduct = (
+  slug: string
+): Promise<productDetailResponse> => {
   return api.get(`/product/detail/${slug}`)
 }
 
-export const getProductDetailQueryOptions = (slug: string) => {
+export const getProductDetailQueryOptions = (slug: string | undefined) => {
   return {
     queryKey: ["productDetail", slug],
-    queryFn: () => getDetailProduct(slug),
+    queryFn: () => getDetailProduct(slug as string),
+    enabled: !!slug,
   }
 }
 
 export const useDetailProduct = ({ slug, queryConfig }: UseProductOptions) => {
   return useQuery({
     ...getProductDetailQueryOptions(slug),
-    ...queryConfig
+    ...queryConfig,
   })
 }

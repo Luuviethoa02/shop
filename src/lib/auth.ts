@@ -16,9 +16,10 @@ const getUser = async (): Promise<User | null> => {
     return null
   }
   try {
-    return api.get("/auth/me")
+    return await api.get("/auth/me")
   } catch (error) {
-    throw error
+    console.error("Failed to get user data", error)
+    return null
   }
 }
 
@@ -61,16 +62,16 @@ const authConfig = {
         throw new AxiosError(response?.message)
       }
       if (response.data.user && response.statusCode === 200) {
-        localStorage.setItem("accessToken", response.data.jwt.accessToken)
-        localStorage.setItem("refreshToken", response.data.jwt.refreshToken)
-        toast.success(response.message)
-        return response.data.user
+        localStorage.setItem("accessToken", response?.data?.jwt?.accessToken)
+        localStorage.setItem("refreshToken", response?.data?.jwt?.refreshToken)
+        toast.success(response?.message)
+        return response?.data?.user
       }
     } catch (error) {
       let errorMessage = "Đã xảy ra lỗi không xác định"
       if (error instanceof AxiosError) {
         if (error.message) {
-          errorMessage = error.response?.data?.message
+          errorMessage = error?.response?.data?.message
         } else {
           errorMessage = "Có lỗi xảy ra"
         }
@@ -82,18 +83,18 @@ const authConfig = {
   registerFn: async (data: RegisterInput) => {
     try {
       const response = await registerWithEmailAndPassword(data)
-      if (response.statusCode === 400) {
+      if (response?.statusCode === 400) {
         throw new AxiosError(response?.message)
       }
-      if (response?.data?.user && response.statusCode === 200) {
+      if (response?.data?.user && response?.statusCode === 200) {
         toast.success(response.message)
         return response?.data?.user
       }
     } catch (error) {
       let errorMessage = "Đã xảy ra lỗi không xác định"
       if (error instanceof AxiosError) {
-        if (error.message) {
-          errorMessage = error.message
+        if (error?.message) {
+          errorMessage = error?.message
         } else {
           errorMessage = "Có lỗi xảy ra"
         }

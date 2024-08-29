@@ -1,3 +1,5 @@
+import { ColorIpi, producstResponse } from "./api"
+
 export type User = {
   _id: string
   username: string
@@ -10,6 +12,7 @@ export type Category = {
   _id: string
   name: string
   img_cover: string
+  slug: string
 }
 
 export type Product = {
@@ -32,4 +35,15 @@ export type Color = {
 export type Size = {
   name: string
   weight: string
+}
+
+export type CartItem = {
+  product: {
+    name: string
+    price: string
+    brand: string
+  }
+  color: ColorIpi
+  size: Size
+  quantity: number
 }

@@ -20,6 +20,7 @@ import { useEffect, useState } from "react"
 import { LucideIcon } from "lucide-react"
 import Progress from "../share/Progress"
 import DialogLogout from "@/features/auth/components/form-logout"
+import ProgressBar from "../share/ProgressBar"
 
 const AdminLayout = () => {
   const [modalLogout, setModalLogout] = useState<boolean>(false)
@@ -49,11 +50,11 @@ const AdminLayout = () => {
 
   return (
     <>
-      <Progress />
       <SEO
         title={`admin | ${navLinkActive?.lable}`}
         description={`this is page admin shop tab ${navLinkActive?.lable}`}
       />
+      <ProgressBar />
       <div className="flex min-h-screen w-full overflow-hidden">
         <aside className="hidden min-h-screen border-r bg-muted/40 lg:block">
           <div className="flex h-[60px] items-center px-6">
