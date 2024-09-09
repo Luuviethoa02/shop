@@ -8,19 +8,29 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useLogout } from "@/lib/auth"
-import { useAuthStore } from "@/store"
+import { useAuthStore, useGlobalStore } from "@/store"
 import toast from "react-hot-toast"
+import { googleLogout } from "@react-oauth/google"
 interface Iprops {
   open: boolean
   setOpen(value: boolean): void
 }
 function DialogLogout({ open, setOpen }: Iprops) {
+  const currentUser = useAuthStore((state) => state.user)
   const logout = useLogout()
   const { logout: logoutUsers } = useAuthStore()
+  const { setSellerCreated } = useGlobalStore()
 
   const handleLogout = () => {
-    logout.mutate({})
+    if (currentUser?.loginGoogle) {
+      googleLogout()
+      localStorage.removeItem("accessToken")
+      localStorage.removeItem("refreshToken")
+    } else {
+      logout.mutate({})
+    }
     logoutUsers()
+    setSellerCreated(false)
     toast.success("Đăng xuất thành công")
     setOpen(false)
   }

@@ -183,7 +183,7 @@ export const ProductRoute = () => {
           </PaginationContent>
         </Pagination>
       </div>
-      <ProductDialog open={showModal} setOpen={setShowModalAdd} />
+      {/* <ProductDialog open={showModal} setOpen={setShowModalAdd} /> */}
       <DialogDetail
         productDetail={productDetail}
         open={showModalDetail}

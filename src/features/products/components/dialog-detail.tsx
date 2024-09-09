@@ -1,5 +1,5 @@
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -28,18 +28,21 @@ export default function DialogDetail({ open, setOpen, productDetail }: Iprops) {
       <DialogContent className="sm:max-w-[800px]">
         <div className="grid md:grid-cols-2 gap-2 lg:gap-12 items-start">
           <div className="grid gap-4">
-            <div className="max-h-60 max-w-60">
+            <div className="max-h-60 min-h-60 max-w-full">
               <img
-                src={productDetail?.colors[0].image}
+                src={productDetail?.colors[0]?.image}
                 alt="Product Image"
                 width={300}
                 height={300}
                 className="aspect-square w-full rounded-lg object-cover"
               />
             </div>
-            <div className="grid grid-cols-3 gap-3">
-              {productDetail?.colors.map((color) => (
-                <button className="border hover:border-primary rounded-lg overflow-hidden">
+            <div className="grid grid-cols-3 gap-3 mt-[6.25rem]">
+              {productDetail?.colors?.map((color) => (
+                <button
+                  key={color._id}
+                  className="border hover:border-primary rounded-lg overflow-hidden"
+                >
                   <img
                     src={color.image}
                     alt={`this is a image color ${color.name}`}
@@ -76,104 +79,66 @@ export default function DialogDetail({ open, setOpen, productDetail }: Iprops) {
                   {formatNumberToVND(productDetail?.price)}
                 </div>
               </div>
-              <p className="text-muted-foreground line-clamp-6">
-                {productDetail?.des}
-              </p>
             </div>
             <form className="grid gap-2">
               <div className="grid gap-2">
                 <Label htmlFor="color" className="text-base">
-                  Màu
+                  Màu sắc
                 </Label>
                 <RadioGroup
                   id="color"
-                  defaultChecked={false}
-                  disabled
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 flex-wrap"
                 >
-                  <Label
-                    htmlFor="color-black"
-                    className="border cursor-pointer rounded-md p-2 flex items-center gap-2 [&:has(:checked)]:bg-muted"
-                  >
-                    <RadioGroupItem id="color-black" value="black" />
-                    Black
-                  </Label>
-                  <Label
-                    htmlFor="color-white"
-                    className="border cursor-pointer rounded-md p-2 flex items-center gap-2 [&:has(:checked)]:bg-muted"
-                  >
-                    <RadioGroupItem id="color-white" value="white" />
-                    White
-                  </Label>
-                  <Label
-                    htmlFor="color-blue"
-                    className="border cursor-pointer rounded-md p-2 flex items-center gap-2 [&:has(:checked)]:bg-muted"
-                  >
-                    <RadioGroupItem id="color-blue" value="blue" />
-                    Blue
-                  </Label>
-                </RadioGroup>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="size" className="text-base">
-                  Kích cỡ
-                </Label>
-                <RadioGroup
-                  id="size"
-                  defaultValue="m"
-                  className="flex items-center gap-2"
-                >
-                  {productDetail?.sizes.map((size) => (
+                  {productDetail?.colors?.map((color) => (
                     <Label
-                      htmlFor="size-xs"
-                      className="border cursor-pointer rounded-md p-2 flex items-center gap-2 [&:has(:checked)]:bg-muted"
+                      key={color._id}
+                      htmlFor={color._id}
+                      className="border rounded-md p-1 flex items-center gap-2 [&:has(:checked)]:bg-muted"
                     >
                       <RadioGroupItem
-                        id="size-xs"
-                        className="flex items-center gap-1"
-                        value="xs"
+                        disabled
+                        id={color._id}
+                        value={color._id}
                       />
-                      <span className="uppercase">{size.name}</span>
-                      <span className="text-nowrap">{`<${size.weight}>`}</span>
+                      <div className="size-11">
+                        <img
+                          src={color.image}
+                          alt={color.name}
+                          className="h-full w-full object-cover rounded"
+                        />
+                      </div>
+                      {color.name}
                     </Label>
                   ))}
                 </RadioGroup>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="quantity" className="text-base">
-                  Quantity
+                <Label htmlFor="size" className="text-base">
+                  Kích thước
                 </Label>
-                <Select defaultValue="1">
-                  <SelectTrigger className="w-24">
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1</SelectItem>
-                    <SelectItem value="2">2</SelectItem>
-                    <SelectItem value="3">3</SelectItem>
-                    <SelectItem value="4">4</SelectItem>
-                    <SelectItem value="5">5</SelectItem>
-                  </SelectContent>
-                </Select>
+                <RadioGroup id="size" className="flex items-center gap-2">
+                  {productDetail?.sizes?.map((size) => (
+                    <Label
+                      key={size.name}
+                      htmlFor={`size-${size}`}
+                      className="border rounded-md p-2 flex flex-wrap items-center gap-2 [&:has(:checked)]:bg-muted"
+                    >
+                      <RadioGroupItem
+                        id={`size-${size}`}
+                        disabled
+                        value={size.name}
+                      />
+                      <p className="text-nowrap">{`${size.name.toUpperCase()}<${size.weight}kg>`}</p>
+                    </Label>
+                  ))}
+                </RadioGroup>
               </div>
             </form>
           </div>
         </div>
-        <Separator className="my-2" />
-        <div className="grid gap-4 text-sm leading-loose">
-          <p>
-            Introducing the Acme Prism T-Shirt, a perfect blend of style and
-            comfort for the modern individual. This tee is crafted with a
-            meticulous composition of 60% combed ringspun cotton and 40%
-            polyester jersey, ensuring a soft and breathable fabric that feels
-            gentle against the skin.
-          </p>
-          <p>
-            The design of the Acme Prism T-Shirt is as striking as it is
-            comfortable. The shirt features a unique prism-inspired pattern that
-            adds a modern and eye-catching touch to your ensemble.
-          </p>
-        </div>
+        <p className="text-muted-foreground line-clamp-6">
+          {productDetail?.des}
+        </p>
       </DialogContent>
     </Dialog>
   )

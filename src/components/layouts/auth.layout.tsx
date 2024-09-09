@@ -23,7 +23,7 @@ const AuthLayout = ({ children, title }: Iprops) => {
         <div className="flex items-center justify-between gap">
           <div className="flex items-center gap-3">
             <Logo />
-            <h1 className="text-2xl text-primary font-bold">{title}</h1>
+            <h1 className="text-2xl ml-8 text-primary font-bold">{title}</h1>
           </div>
           <Link to={"/help"} className="text-red-400 hover:underline">
             Bạn cần giúp đỡ?
@@ -34,7 +34,7 @@ const AuthLayout = ({ children, title }: Iprops) => {
         <div className="flex items-center justify-center py-2">
           <div className="mx-auto grid w-[350px] gap-6">{children}</div>
         </div>
-        <div className="hidden bg-muted lg:block">
+        <div className="hidden max-h-[600px] bg-muted lg:block">
           <img
             src="/banner/banner_login_right.png"
             alt="Image"

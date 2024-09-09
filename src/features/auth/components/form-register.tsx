@@ -32,9 +32,7 @@ const ForRegister = () => {
   function onSubmit(values: z.infer<typeof formSchemaRegister>) {
     register.mutate(values, {
       onSuccess(data, variables, context) {
-        console.log(data)
-
-        // navigate('/auth/login', { replace: true })
+        navigate("/auth/login", { replace: true })
       },
       onError(error, variables, context) {
         console.log(error)
