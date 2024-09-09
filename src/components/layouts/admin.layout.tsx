@@ -1,7 +1,6 @@
 import { Link, Navigate, NavLink, Outlet, useLocation } from "react-router-dom"
 import { useIsAdmin } from "@/hooks"
 
-import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
@@ -18,7 +17,6 @@ import { navLinkAdmin } from "@/constants"
 import SEO from "../seo"
 import { useEffect, useState } from "react"
 import { LucideIcon } from "lucide-react"
-import Progress from "../share/Progress"
 import DialogLogout from "@/features/auth/components/form-logout"
 import ProgressBar from "../share/ProgressBar"
 
@@ -60,7 +58,6 @@ const AdminLayout = () => {
           <div className="flex h-[60px] items-center px-6">
             <Link to="/admin" className="flex items-center gap-2 font-semibold">
               <Logo />
-              <span>Cửa hàng</span>
             </Link>
           </div>
           <nav className="grid items-start px-4 text-sm font-medium">

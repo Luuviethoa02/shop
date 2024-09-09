@@ -2,7 +2,7 @@ import { configureAuth } from "react-query-auth"
 import { z } from "zod"
 
 import { api } from "./api-client"
-import { AuthResponse, ResponseError } from "@/types/api"
+import { AuthResponse, RegisterResponse } from "@/types/api"
 import { User } from "@/types/client"
 import toast from "react-hot-toast"
 import { AxiosError } from "axios"
@@ -30,8 +30,18 @@ const logout = (): Promise<void> => {
 }
 
 export const loginInputSchema = z.object({
-  email: z.string().min(1, "Required").email("Invalid email"),
-  password: z.string().min(5, "Required"),
+  email: z
+    .string({
+      required_error: "Email bắt buộc nhập",
+    })
+    .email({
+      message: "Email không hợp lệ",
+    }),
+  password: z
+    .string({
+      required_error: "Password bắt buộc nhập",
+    })
+    .min(6, "Password phải có ít nhất 6 ký tự"),
 })
 
 export type LoginInput = z.infer<typeof loginInputSchema>
@@ -40,16 +50,30 @@ const loginWithEmailAndPassword = (data: LoginInput): Promise<AuthResponse> => {
 }
 
 export const registerInputSchema = z.object({
-  username: z.string().min(1, "Required"),
-  email: z.string().min(1, "Required"),
-  password: z.string().min(1, "Required"),
+  username: z
+    .string({
+      required_error: "Username bắt buộc nhập",
+    })
+    .min(5, "Username phải có ít nhất 5 ký tự"),
+  email: z
+    .string({
+      required_error: "Email bắt buộc nhập",
+    })
+    .email({
+      message: "Email không hợp lệ",
+    }),
+  password: z
+    .string({
+      required_error: "Password bắt buộc nhập",
+    })
+    .min(6, "Password phải có ít nhất 6 ký tự"),
 })
 
 export type RegisterInput = z.infer<typeof registerInputSchema>
 
 const registerWithEmailAndPassword = (
   data: RegisterInput
-): Promise<AuthResponse> => {
+): Promise<RegisterResponse> => {
   return api.post("/auth/register", data)
 }
 
@@ -86,9 +110,9 @@ const authConfig = {
       if (response?.statusCode === 400) {
         throw new AxiosError(response?.message)
       }
-      if (response?.data?.user && response?.statusCode === 200) {
+      if (response?.data && response?.statusCode === 200) {
         toast.success(response.message)
-        return response?.data?.user
+        return response?.data
       }
     } catch (error) {
       let errorMessage = "Đã xảy ra lỗi không xác định"

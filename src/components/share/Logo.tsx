@@ -10,7 +10,10 @@ const Logo = ({ className }: Iprops) => {
       <div
         className={cn(`size-20 flex items-center justify-center`, className)}
       >
-        <img src="/logo.png" alt="logo" />
+        <img className="block" src="/logo.png" alt="logo" />
+        <blockquote className="text-primary pl-0 text-xl italic">
+          Shopvh
+        </blockquote>
       </div>
     </Link>
   )

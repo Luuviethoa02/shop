@@ -5,7 +5,7 @@ function SampleNextArrow(props: any) {
   return (
     <div
       className={cn(
-        "hover:scale-150 flex items-center justify-center hover:-translate-y-1/2 transition-all duration-200",
+        "hover:scale-150 flex bg-red-300 p-3 items-center justify-center hover:-translate-y-1/2 transition-all duration-200",
         className
       )}
       onClick={onClick}

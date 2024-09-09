@@ -1,27 +1,40 @@
+import commentSound from "@/assets/sounds/comments-notification.mp3"
 import { useEffect, useState } from "react"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { ColorIpi, producstResponse, productDetailResponse } from "@/types/api"
+import { ColorIpi, productDetailResponse } from "@/types/api"
 import useFormatNumberToVND from "@/hooks/useFormatNumberToVND"
 import LayoutWapper from "@/components/warper/layout.wrapper"
 import { CartItem, Size } from "@/types/client"
-import cartStore from "@/store/cart.store"
+import cartStore from "@/store/global.store"
 import toast from "react-hot-toast"
 import { Textarea } from "@/components/ui/textarea"
 import { ToggleGroup } from "@radix-ui/react-toggle-group"
 import { ToggleGroupItem } from "@/components/ui/toggle-group"
-import { generRateCartdId } from "@/lib/utils"
-import io from "socket.io-client"
+import { generRateCartdId, getInitials } from "@/lib/utils"
 import { z } from "zod"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useAuthStore } from "@/store"
-import { socket } from "@/lib/api-io"
+import { useAuthStore, useCartStore } from "@/store"
 import { commentSchema } from "@/features/comments/validators"
 import { useCreateComment } from "@/features/comments/api/create-comment"
+import { useNotificationSound } from "@/hooks"
+import { EllipsisVertical, MinusIcon, PlusIcon, StarIcon } from "lucide-react"
+import { useCommentsByProductId } from "@/features/comments/api/get-comments"
+import { SpokeSpinner } from "@/components/ui/spinner"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useDeleteComment } from "@/features/comments/api/delete-comment"
+import { useLocation } from "react-router-dom"
+import useSocket from "@/hooks/useSocket"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface Iprops {
   data: productDetailResponse | undefined
@@ -31,26 +44,28 @@ interface Iprops {
 type ReviewFormValues = z.infer<typeof commentSchema>
 
 export const ProductDetail = ({ data, status }: Iprops) => {
-  if (status === "pending") {
-    return <h3>loading....</h3>
-  }
+  const auth = useAuthStore()
+  const userId = auth?.user?._id!
+  const location = useLocation()
+  const socket = useSocket(userId)
+  const createComment = useCreateComment()
+  const deleteComents = useDeleteComment({
+    productId: data?.data?.productDetail?._id!,
+    page: 1,
+    limit: 5,
+  })
+  const playCommentSound = useNotificationSound(commentSound)
+  const commentsRessponse = useCommentsByProductId({
+    productId: data?.data?.productDetail?._id!,
+    page: 1,
+    limit: 5,
+  })
 
   const [selectedColor, setSelectedColor] = useState<string>()
   const [selectedSize, setSelectedSize] = useState<string>()
+  const [avatar, setAvatar] = useState<string>()
   const [quantity, setQuantity] = useState<number>(1)
-  const { setCart, updateQuantity } = cartStore()
-  const [comments, setComments] = useState<
-    (
-      | string
-      | {
-          text: string
-          user: string | undefined
-          productId: string | undefined
-        }
-    )[]
-  >([])
-  const auth = useAuthStore()
-  const createComment = useCreateComment()
+  const { setCart, updateQuantity } = useCartStore()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -59,12 +74,33 @@ export const ProductDetail = ({ data, status }: Iprops) => {
   useEffect(() => {
     if (data?.data) {
       setSelectedColor(data.data.productDetail.colors[0]._id)
+      setAvatar(data.data.productDetail.colors[0].image)
       setSelectedSize(data.data.productDetail.sizes[0].name)
     }
   }, [data?.data])
 
-  const handleColorChange = (color: string) => {
-    setSelectedColor(color)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const commentId = params.get("commentId")
+    if (commentId) {
+      const element = document.getElementById(commentId)
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        })
+      }
+    }
+  }, [location])
+
+  const handleColorChange = (id: string) => {
+    setSelectedColor(id)
+    const color = data?.data?.productDetail.colors.find(
+      (color) => color._id === id
+    )
+    if (color) {
+      setAvatar(color.image)
+    }
   }
   const handleSizeChange = (name: string) => {
     setSelectedSize(name)
@@ -74,6 +110,7 @@ export const ProductDetail = ({ data, status }: Iprops) => {
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<ReviewFormValues>({
     resolver: zodResolver(commentSchema),
     defaultValues: {
@@ -84,21 +121,40 @@ export const ProductDetail = ({ data, status }: Iprops) => {
 
   const onSubmit = (values: ReviewFormValues) => {
     const productId = data?.data?.productDetail._id!
-    const userId = auth.user?._id!
+    const userId = auth?.user?._id!
 
-    // Gửi bình luận mới lên server
     createComment.mutate(
       { data: { ...values, productId, userId } },
       {
         onSuccess: () => {
-          toast.success("Bình luận của bạn đã được gửi thành công!")
+          playCommentSound()
+          toast.success("Đã gửi đánh giá!")
+          reset()
+        },
+        onError: () => {
+          toast.error("Có lỗi xảy ra! vui lòng thử lại.")
+        },
+      }
+    )
+  }
+
+  const handleBtnClickDeleteComment = (commentId: string) => {
+    deleteComents.mutate(
+      { commentId: commentId },
+      {
+        onSuccess: () => {
+          playCommentSound()
+          toast.success("Đã xóa bình luận!")
+        },
+        onError: () => {
+          toast.error("Có lỗi xảy ra!")
         },
       }
     )
   }
 
   const handleAddToCart = () => {
-    if (data?.data.productDetail) {
+    if (data?.data?.productDetail) {
       const { name, price, colors, _id, brand_id, sizes } =
         data?.data?.productDetail
       const Cart: CartItem = {
@@ -117,16 +173,51 @@ export const ProductDetail = ({ data, status }: Iprops) => {
         selectedSize as string,
         selectedColor as string
       )
-      if (cartStore.getState().carts[cartId]) {
+      if (useCartStore.getState().carts[cartId]) {
         updateQuantity(
           cartId,
-          quantity + cartStore.getState().carts[cartId].quantity
+          quantity + useCartStore.getState().carts[cartId].quantity
         )
       } else {
         setCart(Cart, cartId)
       }
       toast.success("Sản phẩm đã đươc thêm vào giỏ hàng!")
     }
+  }
+
+  useEffect(() => {
+    if (!socket) return
+
+    if (socket) {
+      socket.on("newNotification", (notification) => {
+        toast(`${notification.fromUserId} has liked your product`)
+      })
+    }
+
+    return () => {
+      socket.off("newNotification")
+    }
+  }, [socket, userId, data?.data?.productDetail?._id])
+
+  if (status === "pending") {
+    return (
+      <LayoutWapper>
+        <div className="flex min-w-full gap-5 py-12 pb-6">
+          <div className="basis-1/2">
+            <Skeleton className="basis-1/2 min-h-[500px] rounded-xl"></Skeleton>
+            <Skeleton className="w-8/12 min-h-12 mt-12 rounded-xl"></Skeleton>
+          </div>
+          <div className="basis-1/2 min-h-[500px]">
+            <Skeleton className="h-10 min-w-full" />
+            <Skeleton className="h-6 mt-4 w-10/12" />
+            <Skeleton className="h-6 mt-4 w-1/3" />
+            <Skeleton className="h-72 mt-4 w-10/12" />
+            <Skeleton className="h-14 mt-4 w-10/12" />
+          </div>
+        </div>
+        <Skeleton className="min-w-full h-40"></Skeleton>
+      </LayoutWapper>
+    )
   }
 
   if (data?.data) {
@@ -143,7 +234,7 @@ export const ProductDetail = ({ data, status }: Iprops) => {
             <div className="grid grid-cols-1 ">
               <div className="aspect-[4/3] overflow-hidden rounded-lg bg-gray-100">
                 <img
-                  src={colors[0].image}
+                  src={avatar}
                   alt="Product image"
                   width={800}
                   height={600}
@@ -152,7 +243,7 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                 />
               </div>
               <div className="grid grid-cols-4 gap-5 mt-5">
-                {colors.map((color) => (
+                {colors?.map((color) => (
                   <button
                     key={color._id}
                     className="aspect-[4/3] overflow-hidden rounded-lg bg-gray-100"
@@ -160,25 +251,26 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                     <img
                       src={color.image}
                       alt={color.name}
+                      onClick={() => handleColorChange(color._id)}
                       width={200}
                       height={150}
-                      className="h-full w-full object-cover object-center transition-opacity duration-300 ease-in-out hover:opacity-80"
+                      className={`h-full w-full rounded-lg object-cover object-center transition-opacity duration-300 ease-in-out hover:opacity-80 ${avatar === color.image ? "border-2 border-primary border-collapse opacity-60" : ""}`}
                       style={{ aspectRatio: "200/150", objectFit: "cover" }}
                     />
                   </button>
                 ))}
               </div>
             </div>
-            <div className="grid ">
-              <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
+            <div className="grid">
+              <h4 className="scroll-m-20 h-0 text-xl font-semibold tracking-tight">
                 {name}
               </h4>
-              <p className="text-xl text-muted-foreground">
+              <p className="text-xl h-0 text-muted-foreground">
                 Danh mục: {brand_id.name}
               </p>
-              <div className="grid gap-4">
-                <div>
-                  <span className="text-2xl font-bold">
+              <div className="grid gap-2">
+                <div className="h-auto">
+                  <span className="text-2xl font-bold h-0">
                     {formatNumberToVND(price)}
                   </span>
                   <span className="ml-2 text-gray-500 line-through">
@@ -200,7 +292,7 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                       onValueChange={(id) => handleColorChange(id)}
                       className="flex items-center gap-2 flex-wrap"
                     >
-                      {colors.map((color) => (
+                      {colors?.map((color) => (
                         <Label
                           key={color._id}
                           htmlFor={color._id}
@@ -229,7 +321,7 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                       className="flex items-center gap-2"
                       onValueChange={(name) => handleSizeChange(name)}
                     >
-                      {sizes.map((size) => (
+                      {sizes?.map((size) => (
                         <Label
                           key={size.name}
                           htmlFor={`size-${size}`}
@@ -280,70 +372,87 @@ export const ProductDetail = ({ data, status }: Iprops) => {
             </div>
           </div>
           <div className="mt-12">
-            <Tabs defaultValue="details">
-              <TabsList>
+            <Tabs defaultValue="reviews">
+              <TabsList className="mb-5">
+                <TabsTrigger value="reviews">Bài đánh giá</TabsTrigger>
                 <TabsTrigger value="details">Chi tiết sản phẩm</TabsTrigger>
-                <TabsTrigger value="reviews">Đánh giá</TabsTrigger>
                 <TabsTrigger value="comments">Bình luận</TabsTrigger>
               </TabsList>
+              <TabsContent value="reviews">
+                <div className="space-y-8">
+                  {commentsRessponse?.data?.data?.length == 0 && (
+                    <p className="leading-7 [&:not(:first-child)]:mt-6">
+                      Hiện chưa có bài đánh giá nào về sản phẩm !
+                    </p>
+                  )}
+                  {commentsRessponse?.data?.data &&
+                    commentsRessponse?.data?.data?.map((comment) => (
+                      <div
+                        id={comment._id}
+                        key={comment._id}
+                        className="flex justify-between"
+                      >
+                        <div className="flex gap-4 ">
+                          <Avatar className="size-10 border">
+                            <AvatarImage
+                              src={comment.userId.img}
+                              alt={comment.userId.username}
+                            />
+                            <AvatarFallback>
+                              {" "}
+                              {getInitials(comment.userId.username)}
+                            </AvatarFallback>
+                          </Avatar>
+
+                          <div className="grid gap-2">
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-base font-medium">
+                                {comment.userId.username}
+                              </h4>
+                              <div className="flex items-center gap-1">
+                                {[...Array(5)].map((_, index) => (
+                                  <StarIcon
+                                    key={index}
+                                    className={`h-5 w-5 ${index < comment.rating ? "fill-primary" : "fill-muted stroke-muted-foreground"}`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {comment.comment}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger>
+                              <EllipsisVertical />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              {comment.userId._id === auth.user?._id && (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleBtnClickDeleteComment(comment._id)
+                                  }
+                                >
+                                  Xóa
+                                </DropdownMenuItem>
+                              )}
+                              {comment.userId._id !== auth.user?._id && (
+                                <DropdownMenuItem>Báo cáo</DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                          <time>{comment.relativeTime}</time>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </TabsContent>
               <TabsContent value="details">
                 <div className="prose max-w-none">
                   <h2>Thông tin chi tiết về sản phảm</h2>
                   <p>{des}</p>
-                </div>
-              </TabsContent>
-              <TabsContent value="reviews">
-                <div className="space-y-8">
-                  <div className="flex gap-4">
-                    <Avatar className="h-10 w-10 shrink-0">
-                      <AvatarImage src="/placeholder-user.jpg" alt="@shadcn" />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                    <div className="grid gap-2">
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-base font-medium">Sarah Johnson</h4>
-                        <div className="flex items-center gap-1">
-                          <StarIcon className="h-5 w-5 fill-primary" />
-                          <StarIcon className="h-5 w-5 fill-primary" />
-                          <StarIcon className="h-5 w-5 fill-primary" />
-                          <StarIcon className="h-5 w-5 fill-muted stroke-muted-foreground" />
-                          <StarIcon className="h-5 w-5 fill-muted stroke-muted-foreground" />
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        I've been wearing the Acme Prism T-Shirt for a few weeks
-                        now, and it's quickly become one of my favorite tees.
-                        The fabric is incredibly soft and comfortable, and the
-                        unique design really sets it apart from other basic
-                        t-shirts. Highly recommend!
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    <Avatar className="h-10 w-10 shrink-0">
-                      <AvatarImage src="/placeholder-user.jpg" alt="@shadcn" />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                    <div className="grid gap-2">
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-base font-medium">Alex Smith</h4>
-                        <div className="flex items-center gap-1">
-                          <StarIcon className="h-5 w-5 fill-primary" />
-                          <StarIcon className="h-5 w-5 fill-primary" />
-                          <StarIcon className="h-5 w-5 fill-primary" />
-                          <StarIcon className="h-5 w-5 fill-muted stroke-muted-foreground" />
-                          <StarIcon className="h-5 w-5 fill-muted stroke-muted-foreground" />
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        The Acme Prism T-Shirt is a great addition to my
-                        wardrobe. The quality is top-notch, and the fit is
-                        perfect. I love the unique design, and it's become a
-                        go-to for me when I want to look stylish but still be
-                        comfortable. Definitely worth the investment.
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </TabsContent>
               <TabsContent value="comments">
@@ -358,17 +467,29 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                       className="grid gap-4"
                       onSubmit={handleSubmit(onSubmit)}
                     >
-                      <Controller
-                        name="commentText"
-                        control={control}
-                        render={({ field }) => (
-                          <Textarea
-                            {...field}
-                            placeholder="Nhập đánh giá của bạn..."
-                            className="min-h-[100px]"
+                      <div className="flex gap-3">
+                        <Avatar className="size-10 border">
+                          <AvatarImage
+                            src={auth?.user?.img}
+                            alt={auth?.user?.username}
                           />
-                        )}
-                      />
+                          <AvatarFallback>
+                            {" "}
+                            {getInitials(auth.user?.username)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <Controller
+                          name="commentText"
+                          control={control}
+                          render={({ field }) => (
+                            <Textarea
+                              {...field}
+                              placeholder="Nhập đánh giá của bạn..."
+                              className="min-h-[100px]"
+                            />
+                          )}
+                        />
+                      </div>
                       {errors.commentText && (
                         <span>{errors.commentText.message}</span>
                       )}
@@ -416,86 +537,16 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                       </div>
                       {errors.rating && <span>{errors.rating.message}</span>}
 
-                      <Button type="submit">Gửi</Button>
+                      <Button
+                        disabled={createComment.status === "pending"}
+                        type="submit"
+                      >
+                        {createComment.status === "pending" && (
+                          <SpokeSpinner size="lg" />
+                        )}
+                        Gửi
+                      </Button>
                     </form>
-                    <div className="space-y-6">
-                      <div className="flex items-start gap-4">
-                        <Avatar className="w-10 h-10 border">
-                          <AvatarImage
-                            src="/placeholder-user.jpg"
-                            alt="@shadcn"
-                          />
-                          <AvatarFallback>AC</AvatarFallback>
-                        </Avatar>
-                        <div className="grid gap-2">
-                          <div className="flex items-center gap-2">
-                            <div className="font-semibold">Sarah Johnson</div>
-                            <div className="flex items-center gap-0.5">
-                              <StarIcon className="w-5 h-5 fill-primary" />
-                              <StarIcon className="w-5 h-5 fill-primary" />
-                              <StarIcon className="w-5 h-5 fill-primary" />
-                              <StarIcon className="w-5 h-5 fill-muted stroke-muted-foreground" />
-                              <StarIcon className="w-5 h-5 fill-muted stroke-muted-foreground" />
-                            </div>
-                          </div>
-                          <div className="text-muted-foreground">
-                            I really love the design and functionality of this
-                            product. It's been a great addition to my home.
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-4">
-                        <Avatar className="w-10 h-10 border">
-                          <AvatarImage
-                            src="/placeholder-user.jpg"
-                            alt="@shadcn"
-                          />
-                          <AvatarFallback>AC</AvatarFallback>
-                        </Avatar>
-                        <div className="grid gap-2">
-                          <div className="flex items-center gap-2">
-                            <div className="font-semibold">Alex Smith</div>
-                            <div className="flex items-center gap-0.5">
-                              <StarIcon className="w-5 h-5 fill-primary" />
-                              <StarIcon className="w-5 h-5 fill-primary" />
-                              <StarIcon className="w-5 h-5 fill-primary" />
-                              <StarIcon className="w-5 h-5 fill-primary" />
-                              <StarIcon className="w-5 h-5 fill-muted stroke-muted-foreground" />
-                            </div>
-                          </div>
-                          <div className="text-muted-foreground">
-                            This product exceeded my expectations. The quality
-                            is outstanding, and it's been a game-changer in my
-                            daily routine.
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-4">
-                        <Avatar className="w-10 h-10 border">
-                          <AvatarImage
-                            src="/placeholder-user.jpg"
-                            alt="@shadcn"
-                          />
-                          <AvatarFallback>AC</AvatarFallback>
-                        </Avatar>
-                        <div className="grid gap-2">
-                          <div className="flex items-center gap-2">
-                            <div className="font-semibold">Emily Parker</div>
-                            <div className="flex items-center gap-0.5">
-                              <StarIcon className="w-5 h-5 fill-primary" />
-                              <StarIcon className="w-5 h-5 fill-primary" />
-                              <StarIcon className="w-5 h-5 fill-primary" />
-                              <StarIcon className="w-5 h-5 fill-muted stroke-muted-foreground" />
-                              <StarIcon className="w-5 h-5 fill-muted stroke-muted-foreground" />
-                            </div>
-                          </div>
-                          <div className="text-muted-foreground">
-                            The product is decent, but I was hoping for a bit
-                            more. It's still a good value for the price.
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 )}
               </TabsContent>
@@ -505,62 +556,6 @@ export const ProductDetail = ({ data, status }: Iprops) => {
       </LayoutWapper>
     )
   }
-}
 
-function MinusIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M5 12h14" />
-    </svg>
-  )
-}
-
-function PlusIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M5 12h14" />
-      <path d="M12 5v14" />
-    </svg>
-  )
-}
-
-function StarIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  )
+  return null
 }

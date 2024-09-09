@@ -12,9 +12,17 @@ const useAuthStore = create<UserState>()(
   devtools(
     persist(
       (set) => ({
-        user: { _id: "", username: "", email: "", img: "", admin: false },
+        user: {
+          _id: "",
+          sellerId: null,
+          username: "",
+          email: "",
+          img: "",
+          admin: false,
+          loginGoogle: false,
+        },
         setUser: (user) => set((state) => ({ ...state, user: user })),
-        logout: () => set((state) => ({ user: undefined })),
+        logout: () => set((state) => ({ ...state, user: undefined })),
       }),
       { name: "AuthStore" }
     )

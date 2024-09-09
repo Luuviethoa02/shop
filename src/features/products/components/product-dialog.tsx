@@ -11,8 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Color, Size } from "@/types/client"
-import { useRef, useState } from "react"
+import { Color, Seller, Size } from "@/types/client"
+import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import FormData from "form-data"
@@ -37,20 +37,114 @@ import { useCreateProduct } from "../api/create-product"
 import { SpokeSpinner } from "@/components/ui/spinner"
 import toast from "react-hot-toast"
 import { useCategories } from "@/features/categories/api/get-categories"
+import { useAuthStore } from "@/store"
+import { LIMIT_PAE_PRODUCT_LIST } from "../constants"
+import { ColorIpi, productRespose } from "@/types/api"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { ImageIcon } from "lucide-react"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+} from "@/components/ui/alert-dialog"
+import { useUpdateColor } from "../api/update-color-img"
 
 interface Iprops {
   open: boolean
   setOpen: (value: boolean) => void
+  product: productRespose | undefined
 }
 
-export const ProductDialog = ({ open, setOpen }: Iprops) => {
+type ColorEditCardItem = {
+  _id: string
+  name: string
+  image: string
+}
+
+export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
+  const updateColor = useUpdateColor({
+    page: 1,
+    limit: LIMIT_PAE_PRODUCT_LIST,
+    sellerId: (useAuthStore()?.user?.sellerId as Seller)._id,
+  })
+
+  const [colorEdits, setColorEdits] = useState<ColorIpi[]>()
+  const [colorActive, setColorActive] = useState<{
+    _id: string
+    name: string
+    image: FileList
+  }>()
+
+  useEffect(() => {
+    setColorEdits(product?.colors)
+  }, [product])
+
+  const handleEditColor = (e: ChangeEvent<HTMLInputElement>, _id: string) => {
+    if (e.target?.files) {
+      const img = getImageUrl(e.target.files)!
+      const colorUpdate = colorEdits?.map((color) => {
+        if (color._id == _id) {
+          const colorActive = {
+            ...color,
+            image: img,
+          }
+          setColorActive({ ...colorActive, image: e.target.files! })
+          return colorActive
+        }
+        return color
+      })
+      setColorEdits(colorUpdate)
+    }
+  }
+
+  const handleBtnClickUpdateColor = () => {
+    if (colorActive) {
+      console.log(colorActive)
+
+      const formData = new FormData() as unknown as globalThis.FormData
+      formData.append("img", colorActive.image[0])
+      formData.append("productId", product?._id!)
+      toast.promise(
+        updateColor.mutateAsync(
+          { data: formData, colorEditId: colorActive._id },
+          {
+            onSuccess: () => {
+              console.log("success")
+            },
+            onError: () => {
+              console.log("error")
+            },
+          }
+        ),
+        {
+          loading: "Đang cập nhật ảnh sản phẩm...",
+          success: "Cập nhật ảnh sản phẩm thành công!",
+          error: "Có lỗi xảy ra.",
+        }
+      )
+    }
+  }
+
   const { data: categories } = useCategories()
+  const currentUser = useAuthStore()
 
   const [colors, setColors] = useState<Color[]>([])
   const [sizes, setSizes] = useState<Size[]>([])
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
-  const productAdd = useCreateProduct()
+  const productAdd = useCreateProduct({
+    sellerId: (currentUser?.user?.sellerId as Seller)?._id,
+    limit: LIMIT_PAE_PRODUCT_LIST,
+    page: 1,
+  })
 
   const [sizeModalAdd, setSizeModalAdd] = useState(false)
   const [colorModalAdd, setColorModalAdd] = useState(false)
@@ -74,13 +168,10 @@ export const ProductDialog = ({ open, setOpen }: Iprops) => {
   const formProduct = useForm<z.infer<typeof formProductSchema>>({
     resolver: zodResolver(formProductSchema),
     defaultValues: {
-      name: "",
+      ...product,
       brand_id: "",
-      price: "",
       sizes: sizes,
       colors: colors,
-      des: "",
-      publish: false,
     },
   })
 
@@ -97,6 +188,17 @@ export const ProductDialog = ({ open, setOpen }: Iprops) => {
     setSizeModalAdd(false)
     formWeight.reset()
   }
+
+  useEffect(() => {
+    if (product) {
+      console.log(product)
+      formProduct.setValue("name", product.name)
+      formProduct.setValue("brand_id", product.brand_id._id)
+      formProduct.setValue("des", product.des)
+      formProduct.setValue("price", product.price.toString())
+      formProduct.setValue("publish", product.publish)
+    }
+  }, [open])
 
   const onSubmitProduct = (values: z.infer<typeof formProductSchema>) => {
     const form = new FormData() as unknown as globalThis.FormData
@@ -120,6 +222,8 @@ export const ProductDialog = ({ open, setOpen }: Iprops) => {
       }
     }
 
+    form.append("sellerId", (currentUser?.user?.sellerId as Seller)?._id)
+
     toast.promise(
       productAdd.mutateAsync(
         { data: form },
@@ -135,9 +239,15 @@ export const ProductDialog = ({ open, setOpen }: Iprops) => {
       {
         loading: "Đang Thêm sản phẩm...",
         success: "Thêm sản phẩm thành công!",
-        error: "Có lỗi <x></x>ảy ra.",
+        error: "Có lỗi xảy ra.",
       }
     )
+  }
+
+  function getImageUrl(file: FileList | undefined): string | null {
+    if (!file) return null
+
+    return URL.createObjectURL(file[0])
   }
 
   const handleReset = () => {
@@ -195,6 +305,7 @@ export const ProductDialog = ({ open, setOpen }: Iprops) => {
                                   <SelectItem
                                     className="capitalize"
                                     value={category._id}
+                                    key={category._id}
                                   >
                                     {category?.name}
                                   </SelectItem>
@@ -240,7 +351,7 @@ export const ProductDialog = ({ open, setOpen }: Iprops) => {
                           className="w-full"
                           onClick={() => setColorModalAdd(true)}
                         >
-                          Thêm màu sắc
+                          {product ? "Sửa màu sắc" : "  Thêm màu sắc"}
                         </Button>
                       </FormControl>
                       <FormMessage />
@@ -261,9 +372,10 @@ export const ProductDialog = ({ open, setOpen }: Iprops) => {
                       <FormControl>
                         <Button
                           type="button"
+                          className="w-full"
                           onClick={() => setSizeModalAdd(true)}
                         >
-                          Thêm kích cỡ
+                          {product ? "Sửa kích cỡ" : "  Thêm kích cỡ"}
                         </Button>
                       </FormControl>
                       <FormMessage />
@@ -282,7 +394,11 @@ export const ProductDialog = ({ open, setOpen }: Iprops) => {
                     <FormItem>
                       <FormLabel>Chi tiết sản phẩm</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Nhập tên sản phẩm" {...field} />
+                        <Textarea
+                          className="min-h-44"
+                          placeholder="Nhập tên sản phẩm"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -296,7 +412,7 @@ export const ProductDialog = ({ open, setOpen }: Iprops) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center mt-3 space-x-2">
                           <Switch
                             {...field}
                             defaultChecked={formProduct.watch("publish")}
@@ -325,12 +441,13 @@ export const ProductDialog = ({ open, setOpen }: Iprops) => {
                   {productAdd.status === "pending" && (
                     <SpokeSpinner size="lg" />
                   )}
-                  {productAdd.status === "pending"
-                    ? "Đang thêm"
-                    : "Thêm sản phẩm"}
-                </Button>
-                <Button type="button" variant="outline">
-                  Hủy
+                  {product
+                    ? productAdd.status === "pending"
+                      ? "Đang sửa"
+                      : "Sửa sản phẩm"
+                    : productAdd.status === "pending"
+                      ? "Đang thêm"
+                      : "Thêm sản phẩm"}
                 </Button>
               </div>
             </form>
@@ -338,56 +455,145 @@ export const ProductDialog = ({ open, setOpen }: Iprops) => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={colorModalAdd} onOpenChange={setColorModalAdd}>
-        <DialogContent className="sm:max-w-[600px]">
-          <Form {...formColor}>
-            <form
-              onSubmit={formColor.handleSubmit(onSubmit)}
-              className="space-y-5"
-            >
-              <FormField
-                control={formColor.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tên màu sắc</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nhập tên màu sắc" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={formColor.control}
-                name="image"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Hình ảnh</FormLabel>
-                    <FormControl>
-                      <Input
-                        ref={fileInputRef}
-                        onChange={(e) => field.onChange(e?.target?.files)}
-                        type="file"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit">Thêm màu sắc</Button>
-              <Button
-                type="button"
-                className="ml-2"
-                onClick={handleReset}
-                variant="outline"
+      <AlertDialog open={colorModalAdd} onOpenChange={setColorModalAdd}>
+        <AlertDialogContent className="max-w-4xl overflow-hidden">
+          {!product && (
+            <Form {...formColor}>
+              <form
+                onSubmit={formColor.handleSubmit(onSubmit)}
+                className="space-y-5"
               >
-                Hủy
-              </Button>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+                <FormField
+                  control={formColor.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tên màu sắc</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nhập tên màu sắc" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={formColor.control}
+                  name="image"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Hình ảnh</FormLabel>
+                      <FormControl>
+                        <Input
+                          ref={fileInputRef}
+                          onChange={(e) => field.onChange(e?.target?.files)}
+                          type="file"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit">Thêm màu sắc</Button>
+                <Button
+                  type="button"
+                  className="ml-2"
+                  onClick={handleReset}
+                  variant="outline"
+                >
+                  Hủy
+                </Button>
+              </form>
+            </Form>
+          )}
+
+          {product && (
+            <>
+              <div className="">
+                <h1 className="text-2xl font-bold mb-4">Danh sách màu</h1>
+                <Carousel
+                  opts={{
+                    align: "start",
+                  }}
+                  className="w-full max-w-4xl overflow-hidden"
+                >
+                  <CarouselContent className="-mr-20">
+                    {colorEdits &&
+                      colorEdits.map((card, index) => (
+                        <CarouselItem
+                          key={card._id}
+                          className="md:basis-1/2 lg:basis-1/3"
+                        >
+                          <Card className="w-full">
+                            <CardContent className="pt-6">
+                              <div className="w-full relative size-44 rounded-md mb-4">
+                                <img
+                                  src={card.image}
+                                  alt={card.name}
+                                  className="w-full h-full object-cover rounded-md"
+                                />
+                                <Input
+                                  type="file"
+                                  onChange={(e) => handleEditColor(e, card._id)}
+                                  className="size-10 absolute right-2 bottom-1 bg-transparent text-transparent opacity-0 z-10 cursor-pointer"
+                                />
+                                <ImageIcon className="absolute right-2 bottom-1 text-white cursor-pointer" />
+                              </div>
+                              <Button
+                                onClick={handleBtnClickUpdateColor}
+                                disabled={
+                                  card._id !== colorActive?._id ||
+                                  updateColor.status == "pending"
+                                }
+                                className="mt-3 w-full"
+                              >
+                                Thay đổi ảnh
+                              </Button>
+                            </CardContent>
+                            <CardFooter className="flex flex-col items-start gap-4">
+                              <div className="w-full">
+                                <Label htmlFor={`name-${card._id}`}>Tên</Label>
+                                <Input
+                                  id={`name-${card._id}`}
+                                  type="text"
+                                  value={card.name}
+                                  className="w-full"
+                                />
+                              </div>
+                              <div className="w-full">
+                                <Label htmlFor={`imageUrl-${card._id}`}>
+                                  Đườn dẫn ảnh
+                                </Label>
+                                <Input
+                                  id={`imageUrl-${card._id}`}
+                                  type="text"
+                                  value={card.image}
+                                  disabled
+                                  className="w-full"
+                                />
+                              </div>
+                              <Button disabled className="w-full">
+                                Cập nhật
+                              </Button>
+                              <Button
+                                variant={"destructive"}
+                                className="w-full"
+                              >
+                                Xóa
+                              </Button>
+                            </CardFooter>
+                          </Card>
+                        </CarouselItem>
+                      ))}
+                  </CarouselContent>
+                </Carousel>
+              </div>
+            </>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog open={sizeModalAdd} onOpenChange={setSizeModalAdd}>
         <DialogContent className="sm:max-w-[600px]">

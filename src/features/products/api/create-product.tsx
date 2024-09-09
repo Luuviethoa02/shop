@@ -5,7 +5,7 @@ import { api } from "@/lib/api-client"
 import { MutationConfig } from "@/lib/react-query"
 
 import { formProductSchema } from "../validators"
-import { getProductsQueryOptions } from "./get-products"
+import { getProductsQueryOptions } from "./get-sellerIdProduct"
 import { productRespose } from "@/types/api"
 
 export type CreateProductInput = z.infer<typeof formProductSchema>
@@ -20,11 +20,18 @@ export const createProduct = ({
 
 type UseCreateProductOptions = {
   mutationConfig?: MutationConfig<typeof createProduct>
+  page?: number
+  limit?: number
+  sellerId: string
 }
 
-export const useCreateProduct = ({
-  mutationConfig,
-}: UseCreateProductOptions = {}) => {
+export const useCreateProduct = (
+  { mutationConfig, page, limit, sellerId }: UseCreateProductOptions = {
+    page: 0,
+    limit: 0,
+    sellerId: "",
+  }
+) => {
   const queryClient = useQueryClient()
 
   const { onSuccess, ...restConfig } = mutationConfig || {}
@@ -32,7 +39,7 @@ export const useCreateProduct = ({
   return useMutation({
     onSuccess: (...args) => {
       queryClient.invalidateQueries({
-        queryKey: getProductsQueryOptions().queryKey,
+        queryKey: getProductsQueryOptions({ limit, page, sellerId }).queryKey,
       })
       onSuccess?.(...args)
     },

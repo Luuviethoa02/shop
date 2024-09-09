@@ -1,6 +1,6 @@
 import { QueryClient } from "@tanstack/react-query"
 import { createBrowserRouter } from "react-router-dom"
-import { AdminLayout, MainLayout } from "@/components/layouts"
+import { AdminLayout, MainLayout, SellerLayout } from "@/components/layouts"
 import { ProtectedRoute } from "@/components/layouts/main.layout"
 
 export const createRouter = (queryClient: QueryClient) =>
@@ -56,6 +56,69 @@ export const createRouter = (queryClient: QueryClient) =>
           lazy: async () => {
             const { SettingRoute } = await import("./admin/setting")
             return { Component: SettingRoute }
+          },
+        },
+      ],
+    },
+    {
+      path: "/seller",
+      element: <SellerLayout />,
+      children: [
+        {
+          path: "",
+          lazy: async () => {
+            const { DashboardRoute } = await import("./seller/dashboard")
+            return { Component: DashboardRoute }
+          },
+        },
+
+        {
+          path: "dashboard",
+          lazy: async () => {
+            const { DashboardRoute } = await import("./seller/dashboard")
+            return { Component: DashboardRoute }
+          },
+        },
+        {
+          path: "oders",
+          lazy: async () => {
+            const { OderRoute } = await import("./seller/oder")
+            return { Component: OderRoute }
+          },
+        },
+        {
+          path: "products",
+          lazy: async () => {
+            const { ProductRoute } = await import("./seller/product")
+            return { Component: ProductRoute }
+          },
+        },
+        {
+          path: "stocks",
+          lazy: async () => {
+            const { StockRoute } = await import("./seller/stock")
+            return { Component: StockRoute }
+          },
+        },
+        {
+          path: "customers",
+          lazy: async () => {
+            const { CustomerRoute } = await import("./seller/customer")
+            return { Component: CustomerRoute }
+          },
+        },
+        {
+          path: "analytics",
+          lazy: async () => {
+            const { AnalysticRoute } = await import("./seller/analystic")
+            return { Component: AnalysticRoute }
+          },
+        },
+        {
+          path: "profile",
+          lazy: async () => {
+            const { ProfileRoute } = await import("./seller/profile")
+            return { Component: ProfileRoute }
           },
         },
       ],
@@ -145,10 +208,38 @@ export const createRouter = (queryClient: QueryClient) =>
       },
     },
     {
+      path: "auth/forgot-password",
+      lazy: async () => {
+        const { ForgotPasswordRoute } = await import("./auth/forgot-password")
+        return { Component: ForgotPasswordRoute }
+      },
+    },
+    {
+      path: "auth/authenticate/:userId",
+      lazy: async () => {
+        const { AuthenticationRoute } = await import("./auth/authentication")
+        return { Component: AuthenticationRoute }
+      },
+    },
+    {
       path: "/forbidden",
       lazy: async () => {
         const { ForbiddenRoute } = await import("./forbidden")
         return { Component: ForbiddenRoute }
+      },
+    },
+    {
+      path: "auth/seller/register",
+      lazy: async () => {
+        const { RegisterRoute } = await import("./seller/register")
+        return { Component: RegisterRoute }
+      },
+    },
+    {
+      path: "auth/seller/waiting",
+      lazy: async () => {
+        const { WaitingRoute } = await import("./seller/waiting")
+        return { Component: WaitingRoute }
       },
     },
   ])

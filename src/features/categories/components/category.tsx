@@ -1,8 +1,9 @@
 import { Category } from "@/types/client"
 import nProgress from "nprogress"
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useCategoryDetail } from "../api/get-category"
+import toast from "react-hot-toast"
 
 interface Iprops {
   category: Category
@@ -25,7 +26,7 @@ const CategoryItem = ({ category }: Iprops) => {
       nProgress.done()
     }
     if (error) {
-      console.error("Failed to load product detail:", error)
+      toast.error("Đã xảy ra lỗi!, thử lại sau")
       nProgress.done()
     }
   }, [response, error, slug])
@@ -35,18 +36,22 @@ const CategoryItem = ({ category }: Iprops) => {
   }
 
   return (
-    <div
-      onClick={() => handleCardItemClick(category.slug)}
-      className="cursor-pointer flex flex-col items-center gap-3 max-h-72 min-h-72 ml-3 h-44 mb-3"
-    >
+    <div className="relative mx-4 group grid [grid-template-areas:stack] overflow-hidden rounded-lg">
       <img
-        src={category?.img_cover || ""}
-        className="w-full h-[90%] block object-cover"
-        alt={category.name}
+        src={category?.img_cover}
+        alt={category?._id}
+        width={300}
+        height={200}
+        className="[grid-area:stack] object-cover w-full aspect-square"
       />
-      <h4 className="scroll-m-20 capitalize text-lg font-semibold tracking-tight">
-        {category.name}
-      </h4>
+      <div className="flex-1 [grid-area:stack] bg-black/40 text-destructive-foreground group-hover:opacity-90 transition-opacity p-6 pb-2 justify-end flex flex-col gap-2">
+        <h3
+          onClick={() => handleCardItemClick(category?.slug)}
+          className="font-semibold hover:text-secondary-foreground transition-all cursor-pointer capitalize text-lg tracking-tight text-center"
+        >
+          {category?.name}
+        </h3>
+      </div>
     </div>
   )
 }

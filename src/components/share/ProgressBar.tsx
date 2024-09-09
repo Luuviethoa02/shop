@@ -6,7 +6,7 @@ import useMounted from "@/hooks/useMounted"
 
 const ProgressBar = (props: any) => {
   props = {
-    color: "red",
+    color: "#F97316",
     height: "2px",
     spinner: "20px",
     ...props,

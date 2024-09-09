@@ -4,6 +4,9 @@ const createEnv = () => {
   const EnvSchema = z.object({
     API_URL: z.string(),
     API_IO_URL: z.string(),
+    CLIENT_ID: z.string(),
+    API_GOOGLE_USER_INFO: z.string(),
+    API_SERVER_PROVINCES_URL: z.string(),
     ENABLE_API_MOCKING: z
       .string()
       .refine((s) => s === "true" || s === "false")

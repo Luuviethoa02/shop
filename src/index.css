@@ -81,11 +81,11 @@
     @apply bg-background text-foreground;
   }
 }
-
+/* 
 .slick-next {
   background: url("./images/nextArrow.png") center center no-repeat !important;
-  width: 30px !important;
-  height: 30px !important;
+  width: 50px !important;
+  height: 50px !important;
   &::before {
     display: none;
   }
@@ -98,4 +98,4 @@
   &::before {
     display: none;
   }
-}
+} */

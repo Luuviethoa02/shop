@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button"
 import useFormatNumberToVND from "@/hooks/useFormatNumberToVND"
-import cartStore from "@/store/cart.store"
+import { useCartStore } from "@/store"
 import { CartItem as CartItemType } from "@/types/client"
 import { X } from "lucide-react"
 import toast from "react-hot-toast"
 
 const CartItem = ({ item, id }: { id: string; item: CartItemType }) => {
   const { formatNumberToVND } = useFormatNumberToVND()
-  const { removeCart } = cartStore()
+  const { removeCart } = useCartStore()
 
   const handleRemoveCart = (id: string) => {
     removeCart(id)

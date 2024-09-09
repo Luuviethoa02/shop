@@ -6,7 +6,7 @@ export const RegisterRoute = () => {
   return (
     <AuthLayout title="Đăng ký">
       <SEO
-        title="Đăng ký | Shop"
+        title="Đăng ký | Shopvh"
         description="Đăng ký tài khoản vào hệ thống"
       />
       <FormRegister />

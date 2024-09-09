@@ -1,0 +1,56 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { z } from "zod"
+
+import { api } from "@/lib/api-client"
+import { MutationConfig } from "@/lib/react-query"
+
+import { getProductsQueryOptions } from "./get-sellerIdProduct"
+import { productRespose } from "@/types/api"
+
+const formColorSchema = z.object({
+  img: z
+    .instanceof(FileList)
+    .refine((files) => files?.length == 1, "Hình ảnh là bắt buộc."),
+})
+
+export type UpdateColorInput = z.infer<typeof formColorSchema>
+
+export const updateColor = ({
+  data,
+  colorEditId,
+}: {
+  data: FormData
+  colorEditId: string
+}): Promise<productRespose> => {
+  return api.put(`/product/color/img/${colorEditId}`, data)
+}
+
+type UseUpdateColorOptions = {
+  mutationConfig?: MutationConfig<typeof updateColor>
+  page?: number
+  limit?: number
+  sellerId: string
+}
+
+export const useUpdateColor = (
+  { mutationConfig, page, limit, sellerId }: UseUpdateColorOptions = {
+    page: 0,
+    limit: 0,
+    sellerId: "",
+  }
+) => {
+  const queryClient = useQueryClient()
+
+  const { onSuccess, ...restConfig } = mutationConfig || {}
+
+  return useMutation({
+    onSuccess: (...args) => {
+      queryClient.invalidateQueries({
+        queryKey: getProductsQueryOptions({ limit, page, sellerId }).queryKey,
+      })
+      onSuccess?.(...args)
+    },
+    ...restConfig,
+    mutationFn: updateColor,
+  })
+}

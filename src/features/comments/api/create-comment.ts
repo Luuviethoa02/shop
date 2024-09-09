@@ -9,7 +9,7 @@ import { commentSchema } from "../validators"
 
 export type CreatePCommentInput = z.infer<typeof commentSchema>
 
-export const createProduct = ({
+export const createComments = ({
   data,
 }: {
   data: CreatePCommentInput
@@ -18,7 +18,7 @@ export const createProduct = ({
 }
 
 type UseCreateCommentOptions = {
-  mutationConfig?: MutationConfig<typeof createProduct>
+  mutationConfig?: MutationConfig<typeof createComments>
 }
 
 export const useCreateComment = ({
@@ -36,6 +36,6 @@ export const useCreateComment = ({
       onSuccess?.(...args)
     },
     ...restConfig,
-    mutationFn: createProduct,
+    mutationFn: createComments,
   })
 }

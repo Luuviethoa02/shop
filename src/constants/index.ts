@@ -1,4 +1,5 @@
 import {
+  Activity,
   ChartNoAxesCombined,
   CircleUser,
   Globe,
@@ -41,3 +42,45 @@ export const navLinkAdmin: { path: string; Icon: LucideIcon; lable: string }[] =
       lable: "Cài đặt",
     },
   ]
+
+export const navLinkSeller: {
+  path: string
+  Icon: LucideIcon
+  lable: string
+}[] = [
+  {
+    path: "/seller/dashboard",
+    Icon: HomeIcon,
+    lable: "Bảng điều khiển",
+  },
+  {
+    path: "/seller/products",
+    Icon: Globe,
+    lable: "Sản phẩm",
+  },
+  {
+    path: "/seller/stocks",
+    Icon: Activity,
+    lable: "Kho hàng",
+  },
+  {
+    path: "/seller/oders",
+    Icon: ShoppingBag,
+    lable: "Đơn hàng",
+  },
+  {
+    path: "/seller/customers",
+    Icon: CircleUser,
+    lable: "Khách hàng",
+  },
+  {
+    path: "/seller/analytics",
+    Icon: ChartNoAxesCombined,
+    lable: "Thống kê",
+  },
+  {
+    path: "/seller/profile",
+    Icon: SlidersHorizontal,
+    lable: "Tài khoản",
+  },
+]
