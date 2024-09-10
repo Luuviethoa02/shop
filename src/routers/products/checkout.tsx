@@ -66,12 +66,12 @@ export function CheckoutRoute() {
 
   useEffect(() => {
     if (userAddress?.data?.data) {
-      methods.setValue("name", userAddress?.data?.data[0].name)
-      methods.setValue("phone", userAddress?.data?.data[0].phone)
-      methods.setValue("city", userAddress?.data?.data[0].city)
-      methods.setValue("district", userAddress?.data?.data[0].district)
-      methods.setValue("ward", userAddress?.data?.data[0].ward)
-      methods.setValue("address", userAddress?.data?.data[0].address)
+      methods.setValue("name", userAddress?.data?.data[0]?.name)
+      methods.setValue("phone", userAddress?.data?.data[0]?.phone)
+      methods.setValue("city", userAddress?.data?.data[0]?.city)
+      methods.setValue("district", userAddress?.data?.data[0]?.district)
+      methods.setValue("ward", userAddress?.data?.data[0]?.ward)
+      methods.setValue("address", userAddress?.data?.data[0]?.address)
     }
   }, [userAddress?.data?.data])
 
