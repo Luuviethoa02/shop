@@ -9,18 +9,22 @@ const ACCEPTED_IMAGE_TYPES = [
 ]
 
 export const formColorSchema = z.object({
-  name: z.string({
-    required_error: 'Tên màu sắc không được để trống'
-  }).nonempty("Tên màu sắc không được để trống."),
-  quantity:z.string({
-    required_error: 'Số lượng không được để trống'
-  }).min(1,{
-    message: 'Số lượng phải lớn hơn 0'
-  }),
+  name: z
+    .string({
+      required_error: "Tên màu sắc không được để trống",
+    })
+    .nonempty("Tên màu sắc không được để trống."),
+  quantity: z
+    .string({
+      required_error: "Số lượng không được để trống",
+    })
+    .min(1, {
+      message: "Số lượng phải lớn hơn 0",
+    }),
   image: z
     .any()
     .refine((files) => files instanceof FileList, {
-      message: "Định dạng tệp không hợp lệ, vui lòng chọn lại tệp hình ảnh."
+      message: "Định dạng tệp không hợp lệ, vui lòng chọn lại tệp hình ảnh.",
     })
     .refine((files) => files?.length == 1, "Hình ảnh là bắt buộc.")
     .refine(
@@ -52,7 +56,7 @@ export const formProductSchema = z.object({
   ]),
   des: z
     .string({
-      required_error: 'Mô tả không được để trống'
+      required_error: "Mô tả không được để trống",
     })
     .nonempty("Môt tả không được để trống")
     .min(10, "Mô tả phải có ít nhất 10 ký tự"),

@@ -1,6 +1,7 @@
 import {
   Category,
   Comments,
+  Discount,
   Notification,
   Product,
   Seller,
@@ -60,11 +61,13 @@ export type ColorIpi = {
 export type productRespose = Omit<Product, "brand_id" | "colors"> & {
   colors: ColorIpi[]
   brand_id: { _id: string; img_cover: string; name: string; slug: string }
-  createdAt: string,
+  createdAt: string
   updatedAt: string
 }
 
 export type producstResponse = ResponseData<productRespose>
+
+export type discountResponse = ResponseData<Discount>
 
 export type productDetailResponse = ResponseSuccess<{
   productDetail: productRespose

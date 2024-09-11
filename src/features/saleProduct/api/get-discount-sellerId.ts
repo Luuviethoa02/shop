@@ -2,7 +2,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query"
 
 import { api } from "@/lib/api-client"
 import { QueryConfig } from "@/lib/react-query"
-import { producstResponse } from "@/types/api"
+import { discountResponse } from "@/types/api"
 
 type UseDiscountOptions = {
   page: number
@@ -15,7 +15,7 @@ export const getSellerIdProducts = (
   sellerId: string,
   page: number | undefined,
   limit: number | undefined
-): Promise<producstResponse> => {
+): Promise<discountResponse> => {
   return api.get(`/discountCode/${sellerId}`, {
     params: {
       page,

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button"
 
 import {
@@ -23,8 +22,6 @@ import { QueryKey, Seller, Size } from "@/types/client"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
-
-
 export const StockRoute = () => {
   const { formatDate } = useFormatDateVN()
   const [productStock, setProductStock] = useState<ColorIpi[]>()
@@ -44,7 +41,11 @@ export const StockRoute = () => {
   const [showModal, setShowModalAdd] = useState(false)
   const [showModalDetail, setShowModaDetail] = useState(false)
 
-  const handleClickDetail = (productId: string, product: ColorIpi[], sizes: Size[]) => {
+  const handleClickDetail = (
+    productId: string,
+    product: ColorIpi[],
+    sizes: Size[]
+  ) => {
     setShowModaDetail(true)
     setProductStock(product)
     setSizeStock(sizes)
@@ -52,10 +53,12 @@ export const StockRoute = () => {
   }
 
   const totalProducts = (colors: ColorIpi[]) => {
-    const total = colors.reduce((acc, curentValue) => acc + Number(curentValue.quantity), 0)
-    return total;
+    const total = colors.reduce(
+      (acc, curentValue) => acc + Number(curentValue.quantity),
+      0
+    )
+    return total
   }
-
 
   useEffect(() => {
     if (!showModal) {
@@ -66,7 +69,11 @@ export const StockRoute = () => {
   }, [showModal])
 
   useEffect(() => {
-    setQueryKey({ page, limit: LIMIT_PAE_PRODUCT_LIST, sellerId: (currentUser?.sellerId as Seller)._id })
+    setQueryKey({
+      page,
+      limit: LIMIT_PAE_PRODUCT_LIST,
+      sellerId: (currentUser?.sellerId as Seller)._id,
+    })
   }, [page, LIMIT_PAE_PRODUCT_LIST, (currentUser?.sellerId as Seller)._id])
 
   if (statusGet == "success" && (productsApi?.data?.length ?? 0) === 0) {
@@ -75,9 +82,7 @@ export const StockRoute = () => {
         <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
           Hiện chưa có sản phẩm nào!
         </h2>
-        <Link to={'/seller/products'}>
-          Thêm mới sản phẩm
-        </Link>
+        <Link to={"/seller/products"}>Thêm mới sản phẩm</Link>
       </div>
     )
   }
@@ -168,7 +173,13 @@ export const StockRoute = () => {
                     <Button
                       size="sm"
                       variant="secondary"
-                      onClick={() => handleClickDetail(product._id, product.colors, product.sizes)}
+                      onClick={() =>
+                        handleClickDetail(
+                          product._id,
+                          product.colors,
+                          product.sizes
+                        )
+                      }
                     >
                       Xem chi tiết
                     </Button>
@@ -211,7 +222,7 @@ export const StockRoute = () => {
                 <PaginationNext
                   className={
                     page ===
-                      Math.ceil(productsApi?.total! / LIMIT_PAE_PRODUCT_LIST)
+                    Math.ceil(productsApi?.total! / LIMIT_PAE_PRODUCT_LIST)
                       ? "pointer-events-none opacity-50"
                       : "cursor-pointer"
                   }

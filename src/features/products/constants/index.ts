@@ -1,1 +1,1 @@
-export const LIMIT_PAE_PRODUCT_LIST = 1
+export const LIMIT_PAE_PRODUCT_LIST = 5

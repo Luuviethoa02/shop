@@ -56,6 +56,23 @@ export type CartItem = {
   quantity: number
 }
 
+export type Discount = {
+  _id: string
+  discount_percentage: number
+  discount_code: string
+  start_date: string
+  end_date: string
+  description: string
+  productIds: {
+    _id: string
+    name: string
+    slug: string
+  }[]
+  is_active: "active" | "inactive" | "expired"
+  createdAt: string
+  updatedAt: string
+}
+
 export type Notification = {
   _id: string
   productId: {

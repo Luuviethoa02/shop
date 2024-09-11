@@ -61,7 +61,6 @@ interface Iprops {
   product: productRespose | undefined
 }
 
-
 export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
   const updateColor = useUpdateColor({
     page: 1,
@@ -310,7 +309,9 @@ export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
                     name="price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="capitalize">giá sản phẩm</FormLabel>
+                        <FormLabel className="capitalize">
+                          giá sản phẩm
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -469,9 +470,13 @@ export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
                     <FormItem>
                       <FormLabel>Số lượng</FormLabel>
                       <FormControl>
-                        <Input 
-                      
-                        type="number" min={1} max={50000} placeholder="Nhập số lượng" {...field} />
+                        <Input
+                          type="number"
+                          min={1}
+                          max={50000}
+                          placeholder="Nhập số lượng"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

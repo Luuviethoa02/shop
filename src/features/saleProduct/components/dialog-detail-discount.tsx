@@ -1,79 +1,131 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 
-import { useMemo, useState } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { ColorIpi } from "@/types/api"
+import { productRespose } from "@/types/api"
 
-import { QueryKey, Size } from "@/types/client"
+import { QueryKey } from "@/types/client"
 
-import DialogUpdateQuantity from "@/features/products/components/dialog-update-quantity"
+import { DialogTitle } from "@radix-ui/react-dialog"
+import useFormatNumberToVND from "@/hooks/useFormatNumberToVND"
+import { useEffect, useState } from "react"
+import LoadingMain from "@/components/share/LoadingMain"
+import { TIME_LOADING } from "../constants"
 
 interface Iprops {
-    open: boolean
-    setOpen: (value: boolean) => void
-    productStock: ColorIpi[] | undefined
-    sizes: Size[] | undefined
-    productId: string | undefined
-    queryKey: QueryKey | undefined
+  open: boolean
+  setOpen: (value: boolean) => void
+  queryKey: QueryKey | undefined
+  productApply: productRespose[] | undefined
 }
 
-export default function DialogDetailDiscount({ open, setOpen, queryKey, productStock, sizes, productId }: Iprops) {
-    const [dialogUpdate, setDialogUpdate] = useState(false)
-    const [colorEdit, setColorEdit] = useState<{ colorId: string, productId: string }>()
+export default function DialogDetailDiscount({
+  open,
+  setOpen,
+  queryKey,
+  productApply,
+}: Iprops) {
+  const { formatNumberToVND } = useFormatNumberToVND()
+  const [loading, setLoading] = useState<boolean>(true)
 
-    const textSize = useMemo(() => {
-        return sizes?.map((size) => `${size.name} <${size.weight} kg>`).join(", ")
-    }, [sizes])
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setLoading(false)
+    }, TIME_LOADING)
 
-    const handleBtnclickUpdate = (colorId: string) => {
-        setDialogUpdate(true)
-        setColorEdit({ colorId, productId: productId! })
+    return () => {
+      setLoading(true)
+      clearTimeout(id)
     }
+  }, [productApply?.length])
 
-    return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="max-w-5xl">
-                <div className="container mx-auto py-10">
-                    <h1 className="text-2xl font-bold mb-4">Chi tiết kho hàng sản phẩm</h1>
-                    <ScrollArea className="h-[400px] border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-[120px]">Hình ảnh</TableHead>
-                                    <TableHead>Tên</TableHead>
-                                    <TableHead>Kích cỡ</TableHead>
-                                    <TableHead>Kho hiện có</TableHead>
-                                    <TableHead className="text-right">Hành động</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {productStock?.map((item) => (
-                                    <TableRow key={item._id}>
-                                        <TableCell>
-                                            <img src={item.image} alt={item.name} className="w-12 h-12 object-cover rounded-md" />
-                                        </TableCell>
-                                        <TableCell className="font-medium capitalize">{item.name}</TableCell>
-                                        <TableCell>{textSize}</TableCell>
-                                        <TableCell>{item.quantity}</TableCell>
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent
+        onOpenAutoFocus={(e: Event) => e.preventDefault()}
+        className="max-w-4xl"
+      >
+        <DialogTitle>Danh danh sản phẩm áp dụng mã khuyến mãi</DialogTitle>
+        <div className="w-full max-w-4xl mx-auto p">
+          <div className="border rounded-md overflow-hidden">
+            <Table>
+              <TableHeader className="sticky top-0 bg-background z-10">
+                <TableRow>
+                  <TableHead className="w-[160px]">Hình ảnh</TableHead>
+                  <TableHead className="w-[200px]">Tên sản phẩm</TableHead>
+                  <TableHead className="capitalize w-[200px]">
+                    giá gốc
+                  </TableHead>
+                  <TableHead className="capitalize ">giảm còn</TableHead>
+                  <TableHead className="text-right">Hành động</TableHead>
+                </TableRow>
+              </TableHeader>
+            </Table>
+            <ScrollArea className="h-[400px]">
+              <Table>
+                <TableBody>
+                  {loading && (
+                    <div className="flex w-full items-center justify-center pt-20">
+                      <LoadingMain />
+                    </div>
+                  )}
 
-                                        <TableCell className="text-right">
-                                            <Button onClick={() => handleBtnclickUpdate(item._id)}>Cập nhật</Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </ScrollArea>
-                </div>
-            </DialogContent>
-            <DialogUpdateQuantity
-                colorEdit={colorEdit}
-                open={dialogUpdate}
-                queryKey={queryKey}
-                setDialogDetail={setOpen}
-                setOpen={setDialogUpdate} />
-        </Dialog>
-    )
+                  {!loading && (
+                    <>
+                      {productApply?.length == 0 && (
+                        <div className="flex w-full items-center justify-center pt-20">
+                          <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+                            Hiện chưa có sản phẩm có nào!
+                          </h2>
+                        </div>
+                      )}
+
+                      {productApply &&
+                        productApply.map((product) => (
+                          <TableRow key={product._id}>
+                            <TableCell>
+                              <img
+                                src={product.colors[0].image}
+                                alt={product.name}
+                                className="rounded-md size-16"
+                              />
+                            </TableCell>
+                            <TableCell className="font-medium line-clamp-3 text-center max-w-36">
+                              {product.name}
+                            </TableCell>
+
+                            <TableCell className="text-right">
+                              {formatNumberToVND(product.price)}
+                            </TableCell>
+
+                            <TableCell className="text-right">
+                              {formatNumberToVND(product.price)}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="space-x-2">
+                                <Button variant="destructive" size="sm">
+                                  Hủy áp dụng
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </>
+                  )}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
 }

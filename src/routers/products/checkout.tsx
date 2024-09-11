@@ -35,6 +35,7 @@ import { useAddressByUserId } from "@/features/address/api/get-address-user"
 import { schemaAddress } from "@/features/address/validator"
 import DialogAddress from "@/features/address/components/dialog-add"
 import DialogList from "@/features/address/components/dialog-list"
+import LoadingMain from "@/components/share/LoadingMain"
 
 export function CheckoutRoute() {
   const carts = useCartStore((state) => state.carts)
@@ -148,15 +149,7 @@ export function CheckoutRoute() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {userAddress.status === "pending" && (
-              <div className="min-h-[400px] min-w-full flex items-center justify-center">
-                <div className="flex-col gap-4 w-full flex items-center justify-center">
-                  <div className="w-20 h-20 border-4 border-transparent text-blue-400 text-4xl animate-spin flex items-center justify-center border-t-blue-400 rounded-full">
-                    <div className="w-16 h-16 border-4 border-transparent text-red-400 text-2xl animate-spin flex items-center justify-center border-t-red-400 rounded-full"></div>
-                  </div>
-                </div>
-              </div>
-            )}
+            {userAddress.status === "pending" && <LoadingMain />}
             {userAddress.status === "success" &&
               (userAddress.data.data.length == 0 ? (
                 <>

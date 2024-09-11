@@ -8,11 +8,10 @@ import { createRouter } from "./routers"
 
 import { AppProvider } from "./provider/main-provider"
 
+import "react-datepicker/dist/react-datepicker.css"
 import "./index.css"
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
-
-import "react-datepicker/dist/react-datepicker.css";
 
 nProgress.configure({ showSpinner: false, speed: 400, minimum: 0.2 })
 
