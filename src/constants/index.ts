@@ -1,5 +1,6 @@
 import {
   Activity,
+  BadgePercent,
   ChartNoAxesCombined,
   CircleUser,
   Globe,
@@ -67,6 +68,11 @@ export const navLinkSeller: {
     path: "/seller/oders",
     Icon: ShoppingBag,
     lable: "Đơn hàng",
+  },
+  {
+    path: "/seller/sales",
+    Icon: BadgePercent,
+    lable: "Mã giảm giá",
   },
   {
     path: "/seller/customers",

@@ -108,6 +108,13 @@ export const createRouter = (queryClient: QueryClient) =>
           },
         },
         {
+          path: "sales",
+          lazy: async () => {
+            const { SaleRoute } = await import("./seller/sale")
+            return { Component: SaleRoute }
+          },
+        },
+        {
           path: "analytics",
           lazy: async () => {
             const { AnalysticRoute } = await import("./seller/analystic")

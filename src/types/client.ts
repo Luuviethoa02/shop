@@ -28,10 +28,16 @@ export type Product = {
   publish: boolean
   slug: string
 }
+export type QueryKey = {
+  page: number
+  limit: number
+  sellerId: string
+}
 
 export type Color = {
   name: string
   image: FileList
+  quantity: string
 }
 
 export type Size = {

@@ -33,7 +33,6 @@ import {
 import { ColorImage } from "./color-image"
 import { SizeProduct } from "./product-size"
 import { Switch } from "@/components/ui/switch"
-import { useCreateProduct } from "../api/create-product"
 import { SpokeSpinner } from "@/components/ui/spinner"
 import toast from "react-hot-toast"
 import { useCategories } from "@/features/categories/api/get-categories"
@@ -46,8 +45,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel"
 import {
   AlertDialog,
@@ -55,7 +52,8 @@ import {
   AlertDialogContent,
   AlertDialogFooter,
 } from "@/components/ui/alert-dialog"
-import { useUpdateColor } from "../api/update-color-img"
+import { useUpdateColor } from "@/features/products/api/update-color-img"
+import { useCreateProduct } from "@/features/products/api/create-product"
 
 interface Iprops {
   open: boolean
@@ -63,11 +61,6 @@ interface Iprops {
   product: productRespose | undefined
 }
 
-type ColorEditCardItem = {
-  _id: string
-  name: string
-  image: string
-}
 
 export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
   const updateColor = useUpdateColor({
@@ -151,18 +144,10 @@ export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
 
   const formColor = useForm<z.infer<typeof formColorSchema>>({
     resolver: zodResolver(formColorSchema),
-    defaultValues: {
-      name: "",
-      image: undefined,
-    },
   })
 
   const formWeight = useForm<z.infer<typeof formWeightSchema>>({
     resolver: zodResolver(formWeightSchema),
-    defaultValues: {
-      name: "",
-      weight: "",
-    },
   })
 
   const formProduct = useForm<z.infer<typeof formProductSchema>>({
@@ -209,6 +194,7 @@ export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
         items.forEach((item, index) => {
           if ("image" in item) {
             form.append(`${key}[${index}].name`, item.name)
+            form.append(`${key}[${index}].quantity`, item.quantity.toString())
             if (item.image instanceof FileList) {
               form.append(`${key}[${index}].image`, item.image[0])
             }
@@ -324,7 +310,7 @@ export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
                     name="price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Gía sản phẩm</FormLabel>
+                        <FormLabel className="capitalize">giá sản phẩm</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -456,7 +442,7 @@ export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
       </Dialog>
 
       <AlertDialog open={colorModalAdd} onOpenChange={setColorModalAdd}>
-        <AlertDialogContent className="max-w-4xl overflow-hidden">
+        <AlertDialogContent className="max-w-2xl overflow-hidden">
           {!product && (
             <Form {...formColor}>
               <form
@@ -471,6 +457,21 @@ export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
                       <FormLabel>Tên màu sắc</FormLabel>
                       <FormControl>
                         <Input placeholder="Nhập tên màu sắc" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={formColor.control}
+                  name="quantity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Số lượng</FormLabel>
+                      <FormControl>
+                        <Input 
+                      
+                        type="number" min={1} max={50000} placeholder="Nhập số lượng" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -1,9 +1,9 @@
 import { useState } from "react"
 import Product from "./product"
 import LayoutWapper from "@/components/warper/layout.wrapper"
-import { useProducts } from "../api/get-products"
 import { LIMIT_PAE_PRODUCT_LIST } from "../constants"
 import SekeletonList from "./sekeleton-list"
+import { useProducts } from "@/features/products/api/get-products"
 
 const ProductList = () => {
   const [page, setPage] = useState(1)

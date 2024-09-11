@@ -3,14 +3,6 @@ import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
 import { productRespose } from "@/types/api"
 import useFormatNumberToVND from "@/hooks/useFormatNumberToVND"
 

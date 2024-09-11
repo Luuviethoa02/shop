@@ -1,4 +1,5 @@
 
+
 import { Button } from "@/components/ui/button"
 
 import {
@@ -12,30 +13,27 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { useProductSellerId } from "@/features/products/api/get-sellerIdProduct"
 import DialogDetail from "@/features/products/components/dialog-detail"
-import DialogStock from "@/features/products/components/dialog-stock"
 import { ProductDialog } from "@/features/products/components/product-dialog"
 import { LIMIT_PAE_PRODUCT_LIST } from "@/features/products/constants"
+import { useDiscountSellerId } from "@/features/saleProduct/api/get-discount-sellerId"
+import DialogAddDiscount from "@/features/saleProduct/components/dialog-add-discount"
 import useFormatDateVN from "@/hooks/useFormatDateVN"
 import useFormatNumberToVND from "@/hooks/useFormatNumberToVND"
 import { useAuthStore } from "@/store"
-import { ColorIpi, productRespose } from "@/types/api"
-import { QueryKey, Seller, Size } from "@/types/client"
+import { productRespose } from "@/types/api"
+import { Seller } from "@/types/client"
 import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
 
-
-
-export const StockRoute = () => {
+export const SaleRoute = () => {
+  const { formatNumberToVND } = useFormatNumberToVND()
   const { formatDate } = useFormatDateVN()
-  const [productStock, setProductStock] = useState<ColorIpi[]>()
-  const [sizeStock, setSizeStock] = useState<Size[]>()
-  const [productId, setProductId] = useState<string>()
+  const [productDetail, setProductDetail] = useState<productRespose>()
+  const [productAdd, setProductAdd] = useState<productRespose>()
   const currentUser = useAuthStore((state) => state.user)
-  const [queryKey, setQueryKey] = useState<QueryKey>()
 
   const [page, setPage] = useState(1)
 
-  const { data: productsApi, status: statusGet } = useProductSellerId({
+  const { data: productsApi, status: statusGet } = useDiscountSellerId({
     page,
     limit: LIMIT_PAE_PRODUCT_LIST,
     sellerId: (currentUser?.sellerId as Seller)._id,
@@ -44,40 +42,35 @@ export const StockRoute = () => {
   const [showModal, setShowModalAdd] = useState(false)
   const [showModalDetail, setShowModaDetail] = useState(false)
 
-  const handleClickDetail = (productId: string, product: ColorIpi[], sizes: Size[]) => {
+  const handleClickDetail = (product: productRespose) => {
     setShowModaDetail(true)
-    setProductStock(product)
-    setSizeStock(sizes)
-    setProductId(productId)
+    setProductDetail(product)
   }
 
-  const totalProducts = (colors: ColorIpi[]) => {
-    const total = colors.reduce((acc, curentValue) => acc + Number(curentValue.quantity), 0)
-    return total;
+  const handleClickEdit = (product: productRespose) => {
+    setShowModalAdd(true)
+    setProductAdd(product)
   }
-
 
   useEffect(() => {
     if (!showModal) {
-      setProductStock(undefined)
-      setSizeStock(undefined)
-      setProductId(undefined)
+      setProductAdd(undefined)
     }
   }, [showModal])
-
-  useEffect(() => {
-    setQueryKey({ page, limit: LIMIT_PAE_PRODUCT_LIST, sellerId: (currentUser?.sellerId as Seller)._id })
-  }, [page, LIMIT_PAE_PRODUCT_LIST, (currentUser?.sellerId as Seller)._id])
 
   if (statusGet == "success" && (productsApi?.data?.length ?? 0) === 0) {
     return (
       <div className="flex items-center flex-col min-h-full gap-7 justify-center">
         <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-          Hiện chưa có sản phẩm nào!
+          Hiện chưa có mã giảm giá nào!
         </h2>
-        <Link to={'/seller/products'}>
-          Thêm mới sản phẩm
-        </Link>
+        <Button size="sm" onClick={() => setShowModalAdd(true)}>
+          Thêm mới mã giảm giá
+        </Button>
+        <DialogAddDiscount
+          open={showModal}
+          setOpen={setShowModalAdd}
+        />
       </div>
     )
   }
@@ -85,7 +78,12 @@ export const StockRoute = () => {
   return (
     <div className="container mx-auto px-4 py-8 flex min-h-full flex-col">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Kho sản phẩm</h1>
+        <h1 className="text-2xl font-bold">Quản lý mã giảm giá</h1>
+        {(productsApi?.data?.length ?? 0) > 0 && (
+          <Button size="sm" onClick={() => setShowModalAdd(true)}>
+            Thêm mới mã giảm giá
+          </Button>
+        )}
       </div>
 
       <div className="overflow-x-auto flex-1">
@@ -94,8 +92,8 @@ export const StockRoute = () => {
             <tr className="bg-muted">
               <th className="px-4 py-3 text-left">Sản phẩm</th>
               <th className="px-4 py-3 text-left">Danh mục</th>
-              <th className="px-4 py-3 text-right">Tổng số lượng sản phẩm</th>
-              <th className="px-4 py-3 text-right">Cập nhật gần nhất</th>
+              <th className="px-4 py-3 text-right">Giá</th>
+              <th className="px-4 py-3 text-right">Ngày tạo</th>
               <th className="px-4 py-3 text-right">Hành Động</th>
               <th className="px-4 py-3 text-right"></th>
               <th className="px-4 py-3 text-right"></th>
@@ -158,19 +156,29 @@ export const StockRoute = () => {
                     </div>
                   </td>
 
-                  <td className="px-4 py-3 text-center font-medium">
-                    {totalProducts(product.colors)}
+                  <td className="px-4 py-3 text-right font-medium">
+                    {formatNumberToVND(product.price)}
                   </td>
                   <td className="px-4 py-3 text-right font-medium">
-                    {formatDate(product.updatedAt)}
+                    {formatDate(product.createdAt)}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Button
                       size="sm"
                       variant="secondary"
-                      onClick={() => handleClickDetail(product._id, product.colors, product.sizes)}
+                      onClick={() => handleClickDetail(product)}
                     >
                       Xem chi tiết
+                    </Button>
+                    <Button
+                      onClick={() => handleClickEdit(product)}
+                      size="sm"
+                      className="ml-2"
+                    >
+                      Sửa
+                    </Button>
+                    <Button size="sm" variant="destructive" className="ml-2">
+                      Xóa
                     </Button>
                   </td>
                   <td className="px-4 py-3 text-right font-medium"></td>
@@ -211,7 +219,7 @@ export const StockRoute = () => {
                 <PaginationNext
                   className={
                     page ===
-                      Math.ceil(productsApi?.total! / LIMIT_PAE_PRODUCT_LIST)
+                    Math.ceil(productsApi?.total! / LIMIT_PAE_PRODUCT_LIST)
                       ? "pointer-events-none opacity-50"
                       : "cursor-pointer"
                   }
@@ -222,11 +230,12 @@ export const StockRoute = () => {
           </Pagination>
         )}
       </div>
-      <DialogStock
-        productStock={productStock}
-        queryKey={queryKey}
-        productId={productId}
-        sizes={sizeStock}
+      <DialogAddDiscount
+        open={showModal}
+        setOpen={setShowModalAdd}
+      />
+      <DialogDetail
+        productDetail={productDetail}
         open={showModalDetail}
         setOpen={setShowModaDetail}
       />

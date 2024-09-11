@@ -1,4 +1,3 @@
-import { MainLayout } from "@/components/layouts"
 import { Banner } from "@/components/sections"
 import SEO from "@/components/seo"
 import CategoryList from "@/features/categories/components/categories-list"

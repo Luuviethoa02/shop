@@ -54,12 +54,14 @@ export type ColorIpi = {
   _id: string
   name: string
   image: string
+  quantity: string
 }
 
 export type productRespose = Omit<Product, "brand_id" | "colors"> & {
   colors: ColorIpi[]
   brand_id: { _id: string; img_cover: string; name: string; slug: string }
-  createdAt: string
+  createdAt: string,
+  updatedAt: string
 }
 
 export type producstResponse = ResponseData<productRespose>
