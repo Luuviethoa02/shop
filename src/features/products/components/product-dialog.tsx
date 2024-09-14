@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Color, Seller, Size } from "@/types/client"
+import { Color, queryKeyProducts, Seller, Size } from "@/types/client"
 import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -54,21 +54,24 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useUpdateColor } from "@/features/products/api/update-color-img"
 import { useCreateProduct } from "@/features/products/api/create-product"
+import { useUpdateProductText } from "../api/update-product"
+import { getImageUrl } from "@/lib/utils"
 
 interface Iprops {
   open: boolean
   setOpen: (value: boolean) => void
   product: productRespose | undefined
+  queryKey: queryKeyProducts
 }
 
-export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
-  const updateColor = useUpdateColor({
-    page: 1,
-    limit: LIMIT_PAE_PRODUCT_LIST,
-    sellerId: (useAuthStore()?.user?.sellerId as Seller)._id,
-  })
+export const ProductDialog = ({ open, queryKey, setOpen, product }: Iprops) => {
+  const updateColor = useUpdateColor(queryKey)
+
+  const updateTextProduct = useUpdateProductText(queryKey)
 
   const [colorEdits, setColorEdits] = useState<ColorIpi[]>()
+  const [statusSize, setStatusSize] = useState<boolean>(false)
+  const [statusWeight, setStatusWeight] = useState<boolean>(false)
   const [colorActive, setColorActive] = useState<{
     _id: string
     name: string
@@ -99,8 +102,6 @@ export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
 
   const handleBtnClickUpdateColor = () => {
     if (colorActive) {
-      console.log(colorActive)
-
       const formData = new FormData() as unknown as globalThis.FormData
       formData.append("img", colorActive.image[0])
       formData.append("productId", product?._id!)
@@ -132,11 +133,7 @@ export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
   const [sizes, setSizes] = useState<Size[]>([])
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
-  const productAdd = useCreateProduct({
-    sellerId: (currentUser?.user?.sellerId as Seller)?._id,
-    limit: LIMIT_PAE_PRODUCT_LIST,
-    page: 1,
-  })
+  const productAdd = useCreateProduct(queryKey)
 
   const [sizeModalAdd, setSizeModalAdd] = useState(false)
   const [colorModalAdd, setColorModalAdd] = useState(false)
@@ -145,18 +142,14 @@ export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
     resolver: zodResolver(formColorSchema),
   })
 
-  const formWeight = useForm<z.infer<typeof formWeightSchema>>({
-    resolver: zodResolver(formWeightSchema),
+  const formWeight = useForm<z.infer<ReturnType<typeof formWeightSchema>>>({
+    resolver: zodResolver(formWeightSchema(statusWeight)),
   })
 
-  const formProduct = useForm<z.infer<typeof formProductSchema>>({
-    resolver: zodResolver(formProductSchema),
-    defaultValues: {
-      ...product,
-      brand_id: "",
-      sizes: sizes,
-      colors: colors,
-    },
+  const formProduct = useForm<z.infer<ReturnType<typeof formProductSchema>>>({
+    resolver: zodResolver(
+      formProductSchema(statusSize, !!product, statusWeight)
+    ),
   })
 
   const onSubmit = (values: z.infer<typeof formColorSchema>) => {
@@ -166,73 +159,138 @@ export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
     setColorModalAdd(false)
   }
 
-  const onSubmitWeight = (values: z.infer<typeof formWeightSchema>) => {
-    setSizes((sizes) => [...sizes, values])
-    formProduct.setValue("sizes", [...sizes, values])
+  const onSubmitWeight = (
+    values: z.infer<ReturnType<typeof formWeightSchema>>
+  ) => {
+    if (values.weight) {
+      setSizes((sizes) => [...sizes, values])
+      formProduct.setValue("sizes", [...sizes, values])
+    } else {
+      setSizes((sizes) => [...sizes, { name: values.name }])
+      formProduct.setValue("sizes", [
+        ...sizes,
+        { name: values.name, weight: undefined },
+      ])
+    }
     setSizeModalAdd(false)
     formWeight.reset()
   }
 
   useEffect(() => {
     if (product) {
-      console.log(product)
       formProduct.setValue("name", product.name)
       formProduct.setValue("brand_id", product.brand_id._id)
       formProduct.setValue("des", product.des)
       formProduct.setValue("price", product.price.toString())
       formProduct.setValue("publish", product.publish)
+    } else {
+      formProduct.reset()
     }
   }, [open])
 
-  const onSubmitProduct = (values: z.infer<typeof formProductSchema>) => {
-    const form = new FormData() as unknown as globalThis.FormData
+  const onSubmitProduct = (
+    values: z.infer<ReturnType<typeof formProductSchema>>
+  ) => {
+    console.log(values)
 
-    for (const key in values) {
-      if (key === "sizes" || key === "colors") {
-        const items = Array.isArray(values[key]) ? values[key] : [values[key]]
-        items.forEach((item, index) => {
-          if ("image" in item) {
-            form.append(`${key}[${index}].name`, item.name)
-            form.append(`${key}[${index}].quantity`, item.quantity.toString())
-            if (item.image instanceof FileList) {
-              form.append(`${key}[${index}].image`, item.image[0])
+    if (!product) {
+      const form = new FormData() as unknown as globalThis.FormData
+      for (const key in values) {
+        if (key === "sizes" || key === "colors") {
+          const items = Array.isArray(values[key]) ? values[key] : [values[key]]
+          items.forEach((item, index) => {
+            if (item) {
+              if ("image" in item) {
+                form.append(`${key}[${index}].name`, item.name)
+                form.append(
+                  `${key}[${index}].quantity`,
+                  item.quantity.toString()
+                )
+                if (item.image instanceof FileList) {
+                  form.append(`${key}[${index}].image`, item.image[0])
+                }
+              } else if ("weight" in item) {
+                form.append(`${key}[${index}].name`, item.name)
+                if (item.weight) {
+                  form.append(`${key}[${index}].weight`, item.weight)
+                }
+              }
             }
-          } else if ("weight" in item) {
-            form.append(`${key}[${index}].name`, item.name)
-            form.append(`${key}[${index}].weight`, item.weight)
-          }
-        })
-      } else {
-        form.append(key, values[key as keyof typeof values] as string)
-      }
-    }
-
-    form.append("sellerId", (currentUser?.user?.sellerId as Seller)?._id)
-
-    toast.promise(
-      productAdd.mutateAsync(
-        { data: form },
-        {
-          onSuccess: () => {
-            setOpen(false)
-            formProduct.reset()
-            setColors([])
-            setSizes([])
-          },
+          })
+        } else {
+          form.append(key, values[key as keyof typeof values] as string)
         }
-      ),
-      {
-        loading: "Đang Thêm sản phẩm...",
-        success: "Thêm sản phẩm thành công!",
-        error: "Có lỗi xảy ra.",
       }
-    )
-  }
 
-  function getImageUrl(file: FileList | undefined): string | null {
-    if (!file) return null
+      form.append("sellerId", (currentUser?.user?.sellerId as Seller)?._id)
 
-    return URL.createObjectURL(file[0])
+      toast.promise(
+        productAdd.mutateAsync(
+          { data: form },
+          {
+            onSuccess: () => {
+              setOpen(false)
+              formProduct.reset()
+              setColors([])
+              setSizes([])
+            },
+          }
+        ),
+        {
+          loading: "Đang Thêm sản phẩm...",
+          success: "Thêm sản phẩm thành công!",
+          error: "Có lỗi xảy ra.",
+        }
+      )
+    } else {
+      const formDataUpdate = new FormData() as unknown as globalThis.FormData
+      const { colors, sizes, ...dataUpdate } = values
+      const dataCompare: {
+        brand_id: string
+        name: string
+        price: string
+        des: string
+        publish: boolean
+      } = {
+        brand_id: product.brand_id._id,
+        name: product.name,
+        price: product.price.toString(),
+        des: product.des,
+        publish: product.publish,
+      }
+
+      for (const key in dataUpdate) {
+        if (
+          key in dataCompare &&
+          dataUpdate[key as keyof typeof dataUpdate] !==
+            dataCompare[key as keyof typeof dataCompare]
+        ) {
+          formDataUpdate.append(
+            key,
+            dataUpdate[key as keyof typeof dataUpdate] as string
+          )
+        }
+      }
+
+      toast.promise(
+        updateTextProduct.mutateAsync(
+          { data: formDataUpdate, productId: product._id },
+          {
+            onSuccess: () => {
+              setOpen(false)
+              formProduct.reset()
+              setColors([])
+              setSizes([])
+            },
+          }
+        ),
+        {
+          loading: "Đang sửa sản phẩm...",
+          success: "Sửa sản phẩm thành công!",
+          error: "Có lỗi xảy ra.",
+        }
+      )
+    }
   }
 
   const handleReset = () => {
@@ -245,7 +303,10 @@ export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          className="sm:max-w-[600px]"
+        >
           <Form {...formProduct}>
             <form
               onSubmit={formProduct.handleSubmit(onSubmitProduct)}
@@ -349,30 +410,42 @@ export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
               <div className="flex items-center justify-center">
                 <ColorImage setColors={setColors} colors={colors} />
               </div>
-              <div className="grid gap-2">
-                <FormField
-                  control={formProduct.control}
-                  name="sizes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="block">Kích cỡ</FormLabel>
-                      <FormControl>
-                        <Button
-                          type="button"
-                          className="w-full"
-                          onClick={() => setSizeModalAdd(true)}
-                        >
-                          {product ? "Sửa kích cỡ" : "  Thêm kích cỡ"}
-                        </Button>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              <div className="flex items-center space-x-2">
+                <Switch
+                  onCheckedChange={(e: boolean) => setStatusSize(e)}
+                  id="productSizes"
                 />
+                <Label htmlFor="productSizes">Sản phẩm có kích cỡ</Label>
               </div>
-              <div className="flex items-center justify-center">
-                <SizeProduct sizes={sizes} />
-              </div>
+              {statusSize && (
+                <>
+                  <div className="grid gap-2">
+                    <FormField
+                      control={formProduct.control}
+                      name="sizes"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="block">Kích cỡ</FormLabel>
+                          <FormControl>
+                            <Button
+                              type="button"
+                              className="w-full"
+                              onClick={() => setSizeModalAdd(true)}
+                            >
+                              {product ? "Sửa kích cỡ" : "  Thêm kích cỡ"}
+                            </Button>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <SizeProduct sizes={sizes} />
+                  </div>
+                </>
+              )}
+
               <div className="grid gap-2">
                 <FormField
                   control={formProduct.control}
@@ -382,7 +455,7 @@ export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
                       <FormLabel>Chi tiết sản phẩm</FormLabel>
                       <FormControl>
                         <Textarea
-                          className="min-h-44"
+                          className="min-h-24"
                           placeholder="Nhập tên sản phẩm"
                           {...field}
                         />
@@ -613,44 +686,54 @@ export const ProductDialog = ({ open, setOpen, product }: Iprops) => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Loại kích cỡ</FormLabel>
+                    <FormLabel>Tên kích cỡ</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nhập Loại kích cỡ" {...field} />
+                      <Input placeholder="Nhập Tên kích cỡ" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={formWeight.control}
-                name="weight"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cân nặng</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={(value) => field.onChange(value)}
-                        {...field}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Chọn cân nặng" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectItem value="18-25">18-25</SelectItem>
-                            <SelectItem value="26-35">26-35</SelectItem>
-                            <SelectItem value="36-45">36-45</SelectItem>
-                            <SelectItem value="46-55">46-55</SelectItem>
-                            <SelectItem value="56-65">56-65</SelectItem>
-                            <SelectItem value="66+">66+</SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="flex items-center space-x-2">
+                <Switch
+                  onCheckedChange={(e: boolean) => setStatusWeight(e)}
+                  id="productSizes"
+                />
+                <Label htmlFor="productSizes">Đặt kích cỡ theo cân nặng</Label>
+              </div>
+              {statusWeight && (
+                <FormField
+                  control={formWeight.control}
+                  name="weight"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cân nặng</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={(value) => field.onChange(value)}
+                          {...field}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Chọn cân nặng" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="18-25">18-25</SelectItem>
+                              <SelectItem value="26-35">26-35</SelectItem>
+                              <SelectItem value="36-45">36-45</SelectItem>
+                              <SelectItem value="46-55">46-55</SelectItem>
+                              <SelectItem value="56-65">56-65</SelectItem>
+                              <SelectItem value="66+">66+</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
               <Button type="submit">Thêm cân nặng</Button>
               <Button
                 type="button"

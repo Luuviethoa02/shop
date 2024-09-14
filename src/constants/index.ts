@@ -8,6 +8,7 @@ import {
   LucideIcon,
   ShoppingBag,
   SlidersHorizontal,
+  User,
 } from "lucide-react"
 
 export const navLinkAdmin: { path: string; Icon: LucideIcon; lable: string }[] =
@@ -18,24 +19,24 @@ export const navLinkAdmin: { path: string; Icon: LucideIcon; lable: string }[] =
       lable: "Bảng điều khiển",
     },
     {
-      path: "/admin/products",
-      Icon: Globe,
-      lable: "Sản phẩm",
-    },
-    {
-      path: "/admin/oders",
-      Icon: ShoppingBag,
-      lable: "Đơn hàng",
+      path: "/admin/sellers",
+      Icon: CircleUser,
+      lable: "Kênh bán hàng",
     },
     {
       path: "/admin/customers",
-      Icon: CircleUser,
+      Icon: User,
       lable: "Khách hàng",
     },
     {
       path: "/admin/analytics",
       Icon: ChartNoAxesCombined,
       lable: "Thống kê",
+    },
+    {
+      path: "/admin/categories",
+      Icon: Globe,
+      lable: "Danh mục sản phẩm",
     },
     {
       path: "/admin/settings",

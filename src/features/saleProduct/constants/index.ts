@@ -13,19 +13,19 @@ export const ObjectStatusDiscount: {
 } = {
   active: {
     variant: "default",
-    text: "Đang kích hoạt",
+    text: "Đang áp dụng",
     cn: "bg-primary hover:bg-green-600 text-white",
     Icon: CheckCircle,
   },
   inactive: {
     variant: "outline",
-    text: "Chưa kích hoạt",
+    text: "Chưa áp dụng",
     cn: "border-yellow-500 text-yellow-500",
     Icon: AlertTriangle,
   },
   expired: {
     variant: "destructive",
-    text: "Hết hạn",
+    text: "Đã hết hạn",
     cn: undefined,
     Icon: XCircle,
   },

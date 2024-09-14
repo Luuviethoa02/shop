@@ -12,19 +12,21 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { productRespose } from "@/types/api"
 
-import { QueryKey } from "@/types/client"
+import { Discount, queryKeyProducts } from "@/types/client"
 
 import { DialogTitle } from "@radix-ui/react-dialog"
 import useFormatNumberToVND from "@/hooks/useFormatNumberToVND"
 import { useEffect, useState } from "react"
 import LoadingMain from "@/components/share/LoadingMain"
 import { TIME_LOADING } from "../constants"
+import { calculatePercentage } from "@/lib/utils"
 
 interface Iprops {
   open: boolean
   setOpen: (value: boolean) => void
-  queryKey: QueryKey | undefined
+  queryKey: queryKeyProducts | undefined
   productApply: productRespose[] | undefined
+  currentDiscount: Discount | undefined
 }
 
 export default function DialogDetailDiscount({
@@ -32,6 +34,7 @@ export default function DialogDetailDiscount({
   setOpen,
   queryKey,
   productApply,
+  currentDiscount,
 }: Iprops) {
   const { formatNumberToVND } = useFormatNumberToVND()
   const [loading, setLoading] = useState<boolean>(true)
@@ -42,10 +45,9 @@ export default function DialogDetailDiscount({
     }, TIME_LOADING)
 
     return () => {
-      setLoading(true)
       clearTimeout(id)
     }
-  }, [productApply?.length])
+  }, [productApply, open])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -60,10 +62,10 @@ export default function DialogDetailDiscount({
               <TableHeader className="sticky top-0 bg-background z-10">
                 <TableRow>
                   <TableHead className="w-[160px]">Hình ảnh</TableHead>
-                  <TableHead className="w-[200px]">Tên sản phẩm</TableHead>
-                  <TableHead className="capitalize w-[200px]">
-                    giá gốc
+                  <TableHead className="max-w-[290px] text-center min-w-[290px]">
+                    Tên sản phẩm
                   </TableHead>
+                  <TableHead className="capitalize">giá gốc</TableHead>
                   <TableHead className="capitalize ">giảm còn</TableHead>
                   <TableHead className="text-right">Hành động</TableHead>
                 </TableRow>
@@ -98,16 +100,21 @@ export default function DialogDetailDiscount({
                                 className="rounded-md size-16"
                               />
                             </TableCell>
-                            <TableCell className="font-medium line-clamp-3 text-center max-w-36">
+                            <TableCell className="font-medium line-clamp-3 text-center max-w-96 min-w-96">
                               {product.name}
                             </TableCell>
 
-                            <TableCell className="text-right">
+                            <TableCell className="text-right line-through">
                               {formatNumberToVND(product.price)}
                             </TableCell>
 
-                            <TableCell className="text-right">
-                              {formatNumberToVND(product.price)}
+                            <TableCell className="text-right text-destructive">
+                              {formatNumberToVND(
+                                calculatePercentage(
+                                  currentDiscount?.discount_percentage!,
+                                  product?.price
+                                )
+                              )}
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="space-x-2">

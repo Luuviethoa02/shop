@@ -11,7 +11,7 @@ import {
 import { EyeIcon, FilePenIcon } from "lucide-react"
 import { useMemo, useState } from "react"
 
-export const OderRoute = () => {
+export const SellerRoute = () => {
   const [orders, setOrders] = useState([
     {
       id: "ORD001",

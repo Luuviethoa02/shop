@@ -1,7 +1,7 @@
 import { Category } from "@/types/client"
 import nProgress from "nprogress"
 import { useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { useCategoryDetail } from "../api/get-category"
 import toast from "react-hot-toast"
 

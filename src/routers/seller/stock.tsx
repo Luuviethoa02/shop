@@ -10,15 +10,12 @@ import {
 } from "@/components/ui/pagination"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useProductSellerId } from "@/features/products/api/get-sellerIdProduct"
-import DialogDetail from "@/features/products/components/dialog-detail"
 import DialogStock from "@/features/products/components/dialog-stock"
-import { ProductDialog } from "@/features/products/components/product-dialog"
 import { LIMIT_PAE_PRODUCT_LIST } from "@/features/products/constants"
 import useFormatDateVN from "@/hooks/useFormatDateVN"
-import useFormatNumberToVND from "@/hooks/useFormatNumberToVND"
 import { useAuthStore } from "@/store"
 import { ColorIpi, productRespose } from "@/types/api"
-import { QueryKey, Seller, Size } from "@/types/client"
+import { queryKeyProducts, Seller, Size } from "@/types/client"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
@@ -28,7 +25,7 @@ export const StockRoute = () => {
   const [sizeStock, setSizeStock] = useState<Size[]>()
   const [productId, setProductId] = useState<string>()
   const currentUser = useAuthStore((state) => state.user)
-  const [queryKey, setQueryKey] = useState<QueryKey>()
+  const [queryKey, setQueryKey] = useState<queryKeyProducts>()
 
   const [page, setPage] = useState(1)
 
@@ -36,6 +33,7 @@ export const StockRoute = () => {
     page,
     limit: LIMIT_PAE_PRODUCT_LIST,
     sellerId: (currentUser?.sellerId as Seller)._id,
+    status: "active",
   })
 
   const [showModal, setShowModalAdd] = useState(false)
@@ -73,6 +71,7 @@ export const StockRoute = () => {
       page,
       limit: LIMIT_PAE_PRODUCT_LIST,
       sellerId: (currentUser?.sellerId as Seller)._id,
+      status: "active",
     })
   }, [page, LIMIT_PAE_PRODUCT_LIST, (currentUser?.sellerId as Seller)._id])
 
@@ -88,7 +87,7 @@ export const StockRoute = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 flex min-h-full flex-col">
+    <div className="container mx-auto px-0 flex min-h-full flex-col">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Kho sản phẩm</h1>
       </div>
@@ -172,7 +171,7 @@ export const StockRoute = () => {
                   <td className="px-4 py-3 text-right">
                     <Button
                       size="sm"
-                      variant="secondary"
+                      variant="outline"
                       onClick={() =>
                         handleClickDetail(
                           product._id,
@@ -181,7 +180,7 @@ export const StockRoute = () => {
                         )
                       }
                     >
-                      Xem chi tiết
+                      Nhập hàng
                     </Button>
                   </td>
                   <td className="px-4 py-3 text-right font-medium"></td>

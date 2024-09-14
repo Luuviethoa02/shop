@@ -104,27 +104,29 @@ export default function DialogDetail({ open, setOpen, productDetail }: Iprops) {
                   ))}
                 </RadioGroup>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="size" className="text-base">
-                  Kích thước
-                </Label>
-                <RadioGroup id="size" className="flex items-center gap-2">
-                  {productDetail?.sizes?.map((size) => (
-                    <Label
-                      key={size.name}
-                      htmlFor={`size-${size}`}
-                      className="border rounded-md p-2 flex flex-wrap items-center gap-2 [&:has(:checked)]:bg-muted"
-                    >
-                      <RadioGroupItem
-                        id={`size-${size}`}
-                        disabled
-                        value={size.name}
-                      />
-                      <p className="text-nowrap">{`${size.name.toUpperCase()}<${size.weight}kg>`}</p>
-                    </Label>
-                  ))}
-                </RadioGroup>
-              </div>
+              {(productDetail?.sizes?.length ?? 0) > 0 && (
+                <div className="grid gap-2">
+                  <Label htmlFor="size" className="text-base">
+                    Kích thước
+                  </Label>
+                  <RadioGroup id="size" className="flex items-center gap-2">
+                    {productDetail?.sizes?.map((size) => (
+                      <Label
+                        key={size.name}
+                        htmlFor={`size-${size}`}
+                        className="border rounded-md p-2 flex flex-wrap items-center gap-2 [&:has(:checked)]:bg-muted"
+                      >
+                        <RadioGroupItem
+                          id={`size-${size}`}
+                          disabled
+                          value={size.name}
+                        />
+                        <p className="text-nowrap">{`${size.name.toUpperCase()}<${size.weight}kg>`}</p>
+                      </Label>
+                    ))}
+                  </RadioGroup>
+                </div>
+              )}
             </form>
           </div>
         </div>

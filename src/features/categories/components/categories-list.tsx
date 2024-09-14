@@ -1,8 +1,6 @@
 import Slider from "react-slick"
 import LayoutWapper from "@/components/warper/layout.wrapper"
 import { settingsSlider } from "../constants"
-import SampleNextArrow from "./ui/SampleNextArrow"
-import SamplePrevArrow from "./ui/SamplePrevArrow"
 import { useCategories } from "../api/get-categories"
 import CategoryItem from "./category"
 import { Skeleton } from "@/components/ui/skeleton"

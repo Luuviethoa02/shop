@@ -37,28 +37,59 @@ export const formColorSchema = z.object({
     ),
 })
 
-export const formWeightSchema = z.object({
-  name: z.string().nonempty("Tên màu sắc không được để trống"),
-  weight: z.string().nonempty("Cân nặng không được để trống"),
-})
+export const formWeightSchema = (statusWeight: boolean) =>
+  z.object({
+    name: z.string().nonempty("Tên màu sắc không được để trống"),
+    weight: statusWeight
+      ? z.string().nonempty("Cân nặng không được để trống")
+      : z.string().nonempty("Cân nặng không được để trống").optional(),
+  })
 
-export const formProductSchema = z.object({
-  name: z.string().nonempty("Tên màu sắc không được để trống"),
-  brand_id: z.string().nonempty("Danh mục không được để trống"),
-  price: z.string().nonempty("Giá không được để trống"),
-  sizes: z.union([
-    formWeightSchema,
-    z.array(formWeightSchema).min(1, "Thêm kích thước sản phẩm"),
-  ]),
-  colors: z.union([
-    formColorSchema,
-    z.array(formColorSchema).min(1, "Thêm màu sắc sản phẩm"),
-  ]),
-  des: z
-    .string({
-      required_error: "Mô tả không được để trống",
-    })
-    .nonempty("Môt tả không được để trống")
-    .min(10, "Mô tả phải có ít nhất 10 ký tự"),
-  publish: z.boolean().default(false),
-})
+export const formProductSchema = (
+  statusSize: boolean,
+  productEdit: boolean,
+  statusWeight: boolean
+) => {
+  console.log(productEdit)
+
+  return z.object({
+    name: z.string({
+      required_error: "Tên sản phẩm không được để trống",
+    }),
+    brand_id: z.string().nonempty("Danh mục không được để trống"),
+    price: z.string({
+      required_error: "Giá không được để trống",
+    }),
+
+    sizes: statusSize
+      ? z.union([
+          formWeightSchema(statusWeight),
+          z
+            .array(formWeightSchema(statusWeight))
+            .min(1, "Thêm kích thước sản phẩm"),
+        ])
+      : z
+          .union([
+            formWeightSchema(statusWeight),
+            z
+              .array(formWeightSchema(statusWeight))
+              .min(1, "Thêm kích thước sản phẩm"),
+          ])
+          .optional(),
+
+    colors: productEdit
+      ? z.union([formColorSchema, z.array(formColorSchema)]).optional()
+      : z.union([
+          formColorSchema,
+          z.array(formColorSchema).min(1, "Thêm màu sắc sản phẩm"),
+        ]),
+
+    des: z
+      .string({
+        required_error: "Mô tả không được để trống",
+      })
+      .nonempty("Môt tả không được để trống")
+      .min(10, "Mô tả phải có ít nhất 10 ký tự"),
+    publish: z.boolean().default(false),
+  })
+}

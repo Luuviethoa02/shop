@@ -24,17 +24,17 @@ export const createRouter = (queryClient: QueryClient) =>
           },
         },
         {
-          path: "oders",
+          path: "sellers",
           lazy: async () => {
-            const { OderRoute } = await import("./admin/oder")
-            return { Component: OderRoute }
+            const { SellerRoute } = await import("./admin/sellers")
+            return { Component: SellerRoute }
           },
         },
         {
-          path: "products",
+          path: "categories",
           lazy: async () => {
-            const { ProductRoute } = await import("./admin/product")
-            return { Component: ProductRoute }
+            const { CategoryRoute } = await import("./admin/categories")
+            return { Component: CategoryRoute }
           },
         },
         {

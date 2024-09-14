@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-import { Discount, QueryKey } from "@/types/client"
+import { Discount, queryKeyProducts } from "@/types/client"
 
 import { DialogTitle } from "@radix-ui/react-dialog"
 import useFormatNumberToVND from "@/hooks/useFormatNumberToVND"
@@ -22,11 +22,12 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { productRespose } from "@/types/api"
 import { useUpdateDiscount } from "../api/update-apply-product"
 import toast from "react-hot-toast"
+import { calculatePercentage } from "@/lib/utils"
 
 interface Iprops {
   open: boolean
   setOpen: (value: boolean) => void
-  queryKey: QueryKey | undefined
+  queryKey: queryKeyProducts | undefined
   productAdd: productRespose[] | undefined
   currentDiscount: Discount | undefined
 }
@@ -87,10 +88,9 @@ export default function DialogAddProductDiscount({
     }, TIME_LOADING)
 
     return () => {
-      setLoading(true)
       clearTimeout(id)
     }
-  }, [productAdd?.length])
+  }, [productAdd])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -105,7 +105,9 @@ export default function DialogAddProductDiscount({
               <TableHeader className="sticky top-0 bg-background z-10">
                 <TableRow>
                   <TableHead className="w-[160px]">Hình ảnh</TableHead>
-                  <TableHead>Tên sản phẩm</TableHead>
+                  <TableHead className="max-w-[290px] text-left min-w-[290px]">
+                    Tên sản phẩm
+                  </TableHead>
                   <TableHead className="capitalize">giá gốc</TableHead>
                   <TableHead className="capitalize">giảm còn</TableHead>
                   <TableHead className="text-right">Hành động</TableHead>
@@ -140,16 +142,19 @@ export default function DialogAddProductDiscount({
                                 className="rounded-md size-16"
                               />
                             </TableCell>
-                            <TableCell className="font-medium line-clamp-2 text-left max-w-44">
+                            <TableCell className="font-medium max-w-80 min-w-8max-w-80 line-clamp-2 text-center">
                               {product?.name}
                             </TableCell>
-
                             <TableCell className="text-left">
                               {formatNumberToVND(product?.price)}
                             </TableCell>
-                            <TableCell></TableCell>
-                            <TableCell className="text-left">
-                              {formatNumberToVND(product?.price)}
+                            <TableCell className="text-left text-destructive">
+                              {formatNumberToVND(
+                                calculatePercentage(
+                                  currentDiscount?.discount_percentage!,
+                                  product?.price
+                                )
+                              )}
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex items-center space-x-2">

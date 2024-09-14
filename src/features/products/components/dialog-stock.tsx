@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ColorIpi } from "@/types/api"
 
-import { QueryKey, Size } from "@/types/client"
+import { queryKeyProducts, Size } from "@/types/client"
 
 import DialogUpdateQuantity from "@/features/products/components/dialog-update-quantity"
 
@@ -23,7 +23,7 @@ interface Iprops {
   productStock: ColorIpi[] | undefined
   sizes: Size[] | undefined
   productId: string | undefined
-  queryKey: QueryKey | undefined
+  queryKey: queryKeyProducts | undefined
 }
 
 export default function DialogStock({

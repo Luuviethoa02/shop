@@ -35,7 +35,8 @@ export const SizeProduct = ({ sizes }: Iprops) => {
                   <CardContent className="flex items-center justify-center p-1  overflow-hidden">
                     <div className="flex items-center gap-2 px-[2px] py-1">
                       <div className="text-sm uppercase text-nowrap font-normal">
-                        {`${size.name}<${size.weight}kg>`}
+                        {size.weight && `${size.name}<${size.weight}kg>`}
+                        {!size.weight && `${size.name}`}
                       </div>
                     </div>
                   </CardContent>

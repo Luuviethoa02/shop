@@ -15,6 +15,8 @@ export type Category = {
   name: string
   img_cover: string
   slug: string
+  createdAt: string
+  updatedAt: string
 }
 
 export type Product = {
@@ -28,11 +30,6 @@ export type Product = {
   publish: boolean
   slug: string
 }
-export type QueryKey = {
-  page: number
-  limit: number
-  sellerId: string
-}
 
 export type Color = {
   name: string
@@ -42,7 +39,7 @@ export type Color = {
 
 export type Size = {
   name: string
-  weight: string
+  weight?: string
 }
 
 export type CartItem = {
@@ -139,4 +136,11 @@ export type Seller = {
   bulkyGoods: boolean
   createdAt: string
   updatedAt: string
+}
+
+export type queryKeyProducts = {
+  page: number
+  limit: number
+  sellerId: string
+  status: string
 }

@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button"
 import { DialogTitle } from "@radix-ui/react-dialog"
 import { useUpdateColorText } from "@/features/products/api/update.color"
 import toast from "react-hot-toast"
-import { QueryKey } from "@/types/client"
+import { queryKeyProducts } from "@/types/client"
 import { useEffect } from "react"
 
 interface Iprops {
@@ -22,7 +22,7 @@ interface Iprops {
   setOpen: (value: boolean) => void
   setDialogDetail: (value: boolean) => void
   colorEdit: { colorId: string; productId: string } | undefined
-  queryKey: QueryKey | undefined
+  queryKey: queryKeyProducts | undefined
 }
 
 const schemaUpdateColorQuantities = z.object({

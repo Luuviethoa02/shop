@@ -27,13 +27,13 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useCreateDiscount } from "../api/create-discount"
-import { QueryKey } from "@/types/client"
+import { queryKeyProducts } from "@/types/client"
 import LoadingMain from "@/components/share/LoadingMain"
 
 interface Iprops {
   open: boolean
   setOpen: (value: boolean) => void
-  queryKey: QueryKey | undefined
+  queryKey: queryKeyProducts | undefined
 }
 
 export const schemaCreateDiscount = z.object({

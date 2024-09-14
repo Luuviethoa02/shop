@@ -30,13 +30,15 @@ type UseUpdateColorOptions = {
   page?: number
   limit?: number
   sellerId: string
+  status: string | undefined
 }
 
 export const useUpdateColor = (
-  { mutationConfig, page, limit, sellerId }: UseUpdateColorOptions = {
+  { mutationConfig, page, limit, sellerId, status }: UseUpdateColorOptions = {
     page: 0,
     limit: 0,
     sellerId: "",
+    status: undefined,
   }
 ) => {
   const queryClient = useQueryClient()
@@ -46,7 +48,8 @@ export const useUpdateColor = (
   return useMutation({
     onSuccess: (...args) => {
       queryClient.invalidateQueries({
-        queryKey: getProductsQueryOptions({ limit, page, sellerId }).queryKey,
+        queryKey: getProductsQueryOptions({ limit, page, sellerId, status })
+          .queryKey,
       })
       onSuccess?.(...args)
     },

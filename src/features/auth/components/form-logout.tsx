@@ -11,6 +11,7 @@ import { useLogout } from "@/lib/auth"
 import { useAuthStore, useGlobalStore } from "@/store"
 import toast from "react-hot-toast"
 import { googleLogout } from "@react-oauth/google"
+import { useNavigate } from "react-router-dom"
 interface Iprops {
   open: boolean
   setOpen(value: boolean): void
@@ -20,6 +21,7 @@ function DialogLogout({ open, setOpen }: Iprops) {
   const logout = useLogout()
   const { logout: logoutUsers } = useAuthStore()
   const { setSellerCreated } = useGlobalStore()
+  const navigate = useNavigate()
 
   const handleLogout = () => {
     if (currentUser?.loginGoogle) {
@@ -33,6 +35,7 @@ function DialogLogout({ open, setOpen }: Iprops) {
     setSellerCreated(false)
     toast.success("Đăng xuất thành công")
     setOpen(false)
+    navigate("/auth/login")
   }
 
   return (
