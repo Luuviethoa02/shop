@@ -33,6 +33,8 @@ import { Textarea } from "@/components/ui/textarea"
 import toast from "react-hot-toast"
 import { useAuthStore } from "@/store"
 import { useCreateAddress } from "../api/create-address"
+import { DialogContent } from "@radix-ui/react-dialog"
+import { Dialog, DialogClose, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 interface Iprops {
   open: boolean
@@ -44,9 +46,6 @@ const DialogAddress = ({ open, setOpen }: Iprops) => {
   const addressAdd = useCreateAddress({
     userId: user.user?._id,
   })
-  useEffect(() => {
-    if (open) return
-  }, [open])
 
   const [cityId, setCityId] = useState<string>("")
   const [districtId, setDistrictId] = useState<string>("")
@@ -104,11 +103,11 @@ const DialogAddress = ({ open, setOpen }: Iprops) => {
   }
 
   return (
-    <AlertDialog open={open}>
-      <AlertDialogContent className="min-h-[500px]">
-        <AlertDialogHeader>
-          <AlertDialogTitle>Thêm địa chỉ nhận hàng mới</AlertDialogTitle>
-        </AlertDialogHeader>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Thêm địa chỉ nhận hàng mới</DialogTitle>
+        </DialogHeader>
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
             <div className="grid gap-2">
@@ -277,13 +276,13 @@ const DialogAddress = ({ open, setOpen }: Iprops) => {
             </Button>
           </form>
         </FormProvider>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setOpen(false)}>
+        <DialogFooter>
+          <DialogClose onClick={() => setOpen(false)}>
             Hủy
-          </AlertDialogCancel>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 

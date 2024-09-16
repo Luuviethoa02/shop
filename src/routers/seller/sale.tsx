@@ -37,23 +37,16 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Switch } from "@/components/ui/switch"
 import { useProductSellerId } from "@/features/products/api/get-sellerIdProduct"
-import DialogDetail from "@/features/products/components/dialog-detail"
-import { ProductDialog } from "@/features/products/components/product-dialog"
 import { LIMIT_PAE_PRODUCT_LIST } from "@/features/products/constants"
-import { useUpdateStatusDiscount } from "@/features/saleProduct/api/discount-dispath-active"
 import { useDiscountSellerId } from "@/features/saleProduct/api/get-discount-sellerId"
 import DialogAddDiscount from "@/features/saleProduct/components/dialog-add-discount"
 import DialogAddProductDiscount from "@/features/saleProduct/components/dialog-add-product"
 import DialogDetailDiscount from "@/features/saleProduct/components/dialog-detail-discount"
 import { ObjectStatusDiscount } from "@/features/saleProduct/constants"
 import useFormatDateVN from "@/hooks/useFormatDateVN"
-import useFormatNumberToVND from "@/hooks/useFormatNumberToVND"
 import {
   checkDateStatus,
-  compareDates,
-  getFormattedDate,
   getInitials,
 } from "@/lib/utils"
 import { useAuthStore } from "@/store"

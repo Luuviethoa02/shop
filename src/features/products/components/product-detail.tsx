@@ -9,12 +9,11 @@ import { ColorIpi, productDetailResponse } from "@/types/api"
 import useFormatNumberToVND from "@/hooks/useFormatNumberToVND"
 import LayoutWapper from "@/components/warper/layout.wrapper"
 import { CartItem, Size } from "@/types/client"
-import cartStore from "@/store/global.store"
 import toast from "react-hot-toast"
 import { Textarea } from "@/components/ui/textarea"
 import { ToggleGroup } from "@radix-ui/react-toggle-group"
 import { ToggleGroupItem } from "@/components/ui/toggle-group"
-import { generRateCartdId, getInitials } from "@/lib/utils"
+import { formatDate, generRateCartdId, getInitials } from "@/lib/utils"
 import { z } from "zod"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -22,7 +21,7 @@ import { useAuthStore, useCartStore } from "@/store"
 import { commentSchema } from "@/features/comments/validators"
 import { useCreateComment } from "@/features/comments/api/create-comment"
 import { useNotificationSound } from "@/hooks"
-import { EllipsisVertical, MinusIcon, PlusIcon, StarIcon } from "lucide-react"
+import { ChevronRight, EllipsisVertical, MapPin, MinusIcon, Package, Plus, PlusIcon, Star, StarIcon, Users } from "lucide-react"
 import { useCommentsByProductId } from "@/features/comments/api/get-comments"
 import { SpokeSpinner } from "@/components/ui/spinner"
 import {
@@ -35,6 +34,8 @@ import { useDeleteComment } from "@/features/comments/api/delete-comment"
 import { useLocation } from "react-router-dom"
 import useSocket from "@/hooks/useSocket"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Card, CardContent } from "@/components/ui/card"
+import useFormatDateVN from "@/hooks/useFormatDateVN"
 
 interface Iprops {
   data: productDetailResponse | undefined
@@ -122,9 +123,10 @@ export const ProductDetail = ({ data, status }: Iprops) => {
   const onSubmit = (values: ReviewFormValues) => {
     const productId = data?.data?.productDetail._id!
     const userId = auth?.user?._id!
+    const sellerId = data?.data?.sellerInfo?._id!
 
     createComment.mutate(
-      { data: { ...values, productId, userId } },
+      { data: { ...values, productId, userId, sellerId } },
       {
         onSuccess: () => {
           playCommentSound()
@@ -166,6 +168,11 @@ export const ProductDetail = ({ data, status }: Iprops) => {
         color: colors.find((color) => color._id === selectedColor) as ColorIpi,
         size: sizes.find((size) => size.name === selectedSize) as Size,
         quantity: quantity,
+        selelrId:{
+          logo:data?.data?.sellerInfo?.logo,
+          businessName:data?.data?.sellerInfo?.businessName,
+          _id:data?.data?.sellerInfo?._id
+        }
       }
 
       const cartId = generRateCartdId(
@@ -225,6 +232,7 @@ export const ProductDetail = ({ data, status }: Iprops) => {
 
     const {
       productDetail: { colors, brand_id, des, name, price, sizes },
+      sellerInfo: { businessName, city, createdAt, follower, logo, },
     } = data?.data
 
     return (
@@ -371,7 +379,59 @@ export const ProductDetail = ({ data, status }: Iprops) => {
               </div>
             </div>
           </div>
-          <div className="mt-12">
+          <div className="mt-20 mb-5">
+            <Card className="w-full max-h-[200px] overflow-hidden">
+              <CardContent className="p-4 flex flex-col sm:flex-row gap-4 h-full">
+                <div className="flex items-center sm:items-start gap-4 sm:w-1/3">
+                  <Avatar className="size-20 border">
+                    <AvatarImage src={logo} alt={businessName} />
+                    <AvatarFallback>
+                      {" "}
+                      {getInitials(businessName)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col ">
+                    <h3 className="text-lg font-semibold capitalize">{businessName}</h3>
+                    <div className="flex items-center">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <span className="ml-1 text-sm">4.8 (256)</span>
+                    </div>
+                    <Button variant={'outline'} className="mt-2" size="sm">
+                      Xem shop
+                      <ChevronRight className="ml-1 h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex flex-col justify-between sm:w-2/3">
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="flex items-center gap-1">
+                      <Package className="h-4 w-4 text-muted-foreground" />
+                      <span className="capitalize">152 sản phẩm</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                     <div className="flex items-center gap-1">
+                     <MapPin className="h-4 w-4 text-muted-foreground" />
+                     <span className="capitalize">{city}</span>
+                     </div>
+                      <div className="flex items-center gap-2 justify-between">
+                      <span className="capitalize">Theo dõi</span>
+                        <Button variant="outline" size="icon">
+                          <Plus />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <span className="capitalize">{follower} người theo dõi</span>
+                    </div>
+                    <div className="text-muted-foreground">{'Tham gia: ' + formatDate(createdAt)}</div>
+                  </div>
+
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="mt-7">
             <Tabs defaultValue="reviews">
               <TabsList className="mb-5">
                 <TabsTrigger value="reviews">Bài đánh giá</TabsTrigger>

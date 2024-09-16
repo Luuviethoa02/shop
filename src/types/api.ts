@@ -71,6 +71,8 @@ export type discountResponse = ResponseData<Discount>
 
 export type productDetailResponse = ResponseSuccess<{
   productDetail: productRespose
+  productSimilars: productRespose,
+  sellerInfo:Seller
 }>
 
 export type sellerResponse = ResponseSuccess<{

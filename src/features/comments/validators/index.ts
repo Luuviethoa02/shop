@@ -5,6 +5,7 @@ export const commentSchema = z.object({
   rating: z.string(),
   productId: z.string().optional(),
   userId: z.string().optional(),
+  sellerId: z.string().optional(),
 })
 
 export const deleteCommentSchema = z.object({

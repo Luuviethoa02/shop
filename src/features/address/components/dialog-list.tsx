@@ -43,20 +43,20 @@ interface Iprops {
 }
 const DialogList = ({ open, setOpen }: Iprops) => {
   const [openAdd, setOpenAdd] = useState<boolean>(false)
+
   const handleAddAddressClick = () => {
-    if (openAdd) return
     setOpenAdd(true)
   }
 
   return (
     <>
-      <AlertDialog open={open}>
+      <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
               <div className="flex items-center justify-between">
                 <h2>Địa chỉ nhận hàng</h2>
-                <p onClick={handleAddAddressClick}>Thêm địa chỉ mới</p>
+                <p className="cursor-pointer hover:underline hover:text-primary transition-all" onClick={handleAddAddressClick}>Thêm địa chỉ mới</p>
               </div>
             </AlertDialogTitle>
           </AlertDialogHeader>

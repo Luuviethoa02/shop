@@ -48,6 +48,11 @@ export type CartItem = {
     price: string
     brand: string
   }
+  selelrId:{ 
+    logo:string
+    businessName:string
+    _id:string
+  }
   color: ColorIpi
   size: Size
   quantity: number
@@ -143,4 +148,17 @@ export type queryKeyProducts = {
   limit: number
   sellerId: string
   status: string
+}
+
+export type stateOderItemType = {
+  [key: string]: {
+    vouchers: {
+      discount_code: string;
+      discount_percentage: number;
+      discount_amount: number;
+      description: string;
+    }[] | undefined
+    type_tranfer: "fast" | "save";
+    totalPrice: number;
+  }
 }

@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { format, parse, isBefore, isAfter } from "date-fns"
+import { format, parse, isBefore, isAfter, parseISO } from "date-fns"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -104,3 +104,9 @@ export const calculatePercentage = (
   const result = (percentage / 100) * Number(amount)
   return Number(amount) - result
 }
+
+
+export const formatDate = (isoDateString: string): string => {
+  const date = parseISO(isoDateString);
+  return format(date, 'dd/MM/yyyy');
+};

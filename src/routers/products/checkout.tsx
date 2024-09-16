@@ -4,54 +4,68 @@ import {
   CardTitle,
   CardContent,
   CardFooter,
+  CardDescription,
 } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
-import { CreditCardIcon, Plus, WalletCardsIcon } from "lucide-react"
+import { Smartphone, Tag, Ticket, WalletCardsIcon } from "lucide-react"
 import { useAuthStore, useCartStore } from "@/store"
 import useFormatNumberToVND from "@/hooks/useFormatNumberToVND"
 import { useEffect, useMemo, useState } from "react"
 import { Textarea } from "@/components/ui/textarea"
+
 import {
-  useFetchDistricts,
-  useFetchProvinces,
-  useFetchWards,
-} from "@/hooks/useProvinces"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
 import { Controller, FormProvider, useForm } from "react-hook-form"
-import { FormLabel } from "@/components/ui/form"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { useAddressByUserId } from "@/features/address/api/get-address-user"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { schemaAddress } from "@/features/address/validator"
-import DialogAddress from "@/features/address/components/dialog-add"
-import DialogList from "@/features/address/components/dialog-list"
 import LoadingMain from "@/components/share/LoadingMain"
+import DialogList from "@/features/address/components/dialog-list"
+import { z } from "zod"
+import DialogShippingUnit from "@/features/checkout/components/dialog-shipping-unit"
+import { SHIPPING_UNIT } from "@/features/checkout/constants"
+import { stateOderItemType } from "@/types/client"
+import { useCheckInfoCode } from "@/features/checkout/api/check-info-by-code"
+import toast from "react-hot-toast"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { getInitials } from "@/lib/utils"
+
+
+const formSchemaVoucher = z.object({
+  voucherCode: z.string({
+    required_error: 'Bạn chưa nhập mã voucher'
+  }).length(8, {
+    message: 'Mã voucher bao gồm 8 ký tự.',
+  }),
+})
 
 export function CheckoutRoute() {
   const carts = useCartStore((state) => state.carts)
   const [open, setOpen] = useState<boolean>(false)
+  const [openShipping, setOpenShipping] = useState<boolean>(false)
   const user = useAuthStore((state) => state.user)
   const { formatNumberToVND } = useFormatNumberToVND()
-  const userAddress = useAddressByUserId({ userId: user?._id })
+  const [shippingActive, setShippingActive] = useState<string>()
+  const [sellerIdActive, setSellerIdActive] = useState<{ sellerId: string; cartId: string }>()
+  const [stateOder, setStateOder] = useState<stateOderItemType>({})
 
-  const total = useMemo(() => {
-    return Object.values(carts).reduce((acc, cartItem) => {
-      return acc + Number(cartItem.product.price) * cartItem.quantity
-    }, 0)
-  }, [carts])
+  const userAddress = useAddressByUserId({ userId: user?._id })
+  const checkInfoCode = useCheckInfoCode()
 
   const methods = useForm({
     resolver: zodResolver(schemaAddress),
+  })
+
+  const methodsVoucher = useForm({
+    resolver: zodResolver(formSchemaVoucher),
   })
 
   const {
@@ -65,6 +79,88 @@ export function CheckoutRoute() {
     // Handle form submission
   }
 
+
+  const getPriceByCartId = (cartId: string, discount_percentage: number | undefined) => {
+    if (carts?.[cartId] && discount_percentage) {
+      return ((+carts[cartId].product.price) - (+carts[cartId].product.price - +carts[cartId].product.price * discount_percentage / 100)) * carts[cartId].quantity
+    }
+  }
+
+  const onSubmitVoucher = (data: any) => {
+
+    if (!sellerIdActive) {
+      toast.error('Vui lòng chọn shop cần áp dụng mã voucher')
+      return
+    }
+    if (Object.keys(stateOder).length > 0 && stateOder[sellerIdActive.cartId]?.vouchers?.find((item) => item.discount_code === data?.voucherCode)) {
+      toast.error('Mã voucher đã được sử dụng')
+      return
+    }
+
+    toast.promise(checkInfoCode.mutateAsync({ data: data, sellerId: sellerIdActive.sellerId }, {
+      onSuccess: (data) => {
+        if (data.data) {
+          setStateOder({
+            ...stateOder,
+            [sellerIdActive.cartId]: {
+              vouchers: [
+                ...stateOder?.[sellerIdActive.cartId]?.vouchers || [],
+                {
+                  discount_code: data?.data?.discount_code,
+                  discount_percentage: data?.data?.discount_percentage,
+                  discount_amount: getPriceByCartId(sellerIdActive.cartId, data?.data?.discount_percentage)!,
+                  description: data?.data?.description
+                }
+              ],
+              type_tranfer: stateOder?.[sellerIdActive.cartId]?.type_tranfer,
+              totalPrice: (stateOder[sellerIdActive.cartId]?.totalPrice) - (getPriceByCartId(sellerIdActive.cartId, data?.data?.discount_percentage)!)
+            }
+          })
+          return data
+        }
+      },
+      onError: (error) => {
+        return error
+      }
+    }), {
+      loading: 'Đang kiểm tra mã voucher...',
+      success: (data) => `Success: ${data.message || 'Mã voucher hợp lệ'}`,
+      error: (error) => `Error: ${error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại'}`
+    })
+  }
+
+  const handleShippingUnitClick = (id: string) => {
+    setOpenShipping(true)
+    setShippingActive(id)
+  }
+
+  const handleOpenchangeVoucher = (value: boolean, sellerId: string, cartId: string) => {
+    if (value) {
+      setSellerIdActive({
+        sellerId,
+        cartId
+      })
+    } else {
+      setSellerIdActive(undefined)
+      methodsVoucher.reset()
+    }
+  }
+
+  const handleCancelApplyDiscount = (cartId: string, discount_code: string) => {
+    const newVouchers = stateOder[cartId]?.vouchers?.filter((item) => item.discount_code !== discount_code)
+
+    const newTotalPrice = stateOder[cartId]?.totalPrice + stateOder[cartId]?.vouchers?.find((item) => item.discount_code === discount_code)?.discount_amount!
+
+    setStateOder({
+      ...stateOder,
+      [cartId]: {
+        ...stateOder[cartId],
+        vouchers: newVouchers,
+        totalPrice: newTotalPrice
+      }
+    })
+  }
+
   useEffect(() => {
     if (userAddress?.data?.data) {
       methods.setValue("name", userAddress?.data?.data[0]?.name)
@@ -76,8 +172,22 @@ export function CheckoutRoute() {
     }
   }, [userAddress?.data?.data])
 
+  useEffect(() => {
+    if (carts) {
+      let result: stateOderItemType = {}
+      Object.entries(carts).forEach(([id, cartItem]) => {
+        result[id] = {
+          type_tranfer: "fast",
+          totalPrice: (cartItem.quantity * +cartItem.product.price) + (SHIPPING_UNIT["fast"].price_shipped),
+          vouchers: undefined
+        };
+      });
+      setStateOder(result)
+    }
+  }, [carts])
+
   return (
-    <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto py-8 px-4">
+    <div className="grid md:grid-cols-1 gap-8 max-w-6xl mx-auto py-8 px-4">
       <div className="grid gap-6">
         <Card>
           <CardHeader>
@@ -90,7 +200,7 @@ export function CheckoutRoute() {
               ) : (
                 <>
                   {Object.entries(carts).map(([id, cartItem]) => (
-                    <>
+                    <div className="border-b-2 pb-5 border-collapse">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                           <img
@@ -105,7 +215,7 @@ export function CheckoutRoute() {
                             <h3 className="font-medium">
                               {cartItem.product.name}
                             </h3>
-                            <p className="text-muted-foreground text-sm">
+                            <p className="text-muted-foreground capitalize text-sm">
                               Kích cỡ:{" "}
                               {`${cartItem.size.name}<${cartItem.size.weight}>`}
                               , Màu: {cartItem.color.name}
@@ -121,16 +231,122 @@ export function CheckoutRoute() {
                           </p>
                         </div>
                       </div>
-                    </>
+                      <div className="w-full space-y-2">
+                        {/* voucher shop */}
+                        <div className="flex items-center justify-between mt-3">
+                          <div className="flex items-center gap-3">
+                            <Ticket color="#878787" />
+                            <blockquote className="border-l-2 italic pl-2">
+                              {cartItem.selelrId.businessName}
+                            </blockquote>
+                          </div>
+                          <div>
+                            <DropdownMenu onOpenChange={(value) => handleOpenchangeVoucher(value, cartItem.selelrId._id, id)}>
+                              <DropdownMenuTrigger asChild>
+                                <p className="block font-normal cursor-pointer text-lg text-destructive">Chọn Voucher</p>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent>
+                                <Card className="w-full max-w-md mx-auto">
+                                  <CardHeader>
+                                    <CardTitle className="text-lg flex items-center gap-2">
+                                      <Avatar className="size-10 border">
+                                        <AvatarImage src={cartItem.selelrId.logo} alt={cartItem.selelrId.businessName} />
+                                        <AvatarFallback className="font-semibold">
+                                          {getInitials(cartItem.selelrId.businessName)}{" "}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <span className="font-normal">{cartItem.selelrId.businessName}</span>
+                                    </CardTitle>
+                                    <CardDescription>Nhập mã phiếu giảm giá của bạn để được giảm giá</CardDescription>
+                                  </CardHeader>
+                                  <form onSubmit={methodsVoucher.handleSubmit(onSubmitVoucher)}>
+                                    <CardContent>
+                                      <div className="grid w-full items-center gap-4">
+                                        <div className="flex flex-col space-y-2">
+                                          <Label htmlFor="voucherCode">Mã Voucher</Label>
+                                          <div className="flex items-center w-full max-w-sm border rounded-md focus-within:ring-2 focus-within:ring-primary focus-within:border-primary">
+                                            <div className="pl-3 py-2">
+                                              <Tag className="size-5 text-gray-500" />
+                                            </div>
+                                            <Controller
+                                              name="voucherCode"
+                                              control={methodsVoucher.control}
+                                              render={({ field }) => (
+                                                <Input
+                                                  type="text"
+                                                  placeholder="Nhập mã voucher"
+                                                  className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                                  {...field}
+                                                />
+                                              )}
+                                            />
+                                          </div>
+                                          {
+                                            methodsVoucher.formState.errors.voucherCode && (
+                                              <p className="text-red-500">{`${methodsVoucher.formState.errors.voucherCode.message}`}</p>
+                                            )
+                                          }
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                    <CardFooter>
+                                      <Button type="submit" className="w-full capitalize">áp dụng</Button>
+                                    </CardFooter>
+                                  </form>
+                                </Card>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </div>
+                        {/* voucher info */}
+
+                        {Object.keys(stateOder).length > 0 && stateOder[id]?.vouchers?.map(voucher => (
+                          <div className="flex items-center justify-between">
+                            <div className="basis-1/3">
+                              Voucher:{' '}
+                              <span className="uppercase font-semibold">{
+                                voucher.discount_code}</span>
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="font-medium text-destructive">-{voucher.discount_percentage}%</h3>
+                              <span className="capitalize">
+                                {voucher.description}
+                              </span>
+                            </div>
+
+                            <div className="font-normal">
+                              <p>- {formatNumberToVND(voucher.discount_amount)}</p>
+                              <p onClick={() => handleCancelApplyDiscount(id, voucher.discount_code)} className="text-destructive cursor-pointer hover:underline text-sm normal-case">Hủy áp dụng</p>
+                            </div>
+                          </div>
+                        ))}
+
+
+                        <div className="flex items-center justify-between">
+                          <div className="basis-1/3">Đơn vị vận chuyển: <p onClick={() => handleShippingUnitClick(id)} className="block font-normal cursor-pointer text-lg text-destructive">Thay đổi</p></div>
+                          <div className="flex-1">
+                            <h3 className="font-medium capitalize">
+                              {`${SHIPPING_UNIT[stateOder[id]?.type_tranfer]?.lable}`}
+                            </h3>
+                            <span className="font-semibold">Nhận hàng vào {`${SHIPPING_UNIT[stateOder[id]?.type_tranfer]?.day.join(' - ')}`}</span>
+                          </div>
+                          <div className="font-normal">{`${formatNumberToVND(SHIPPING_UNIT[stateOder[id]?.type_tranfer]?.price_shipped)}`}</div>
+                        </div>
+                        <div className="float-right flex items-center gap-7">
+                          <p className="leading-7 [&:not(:first-child)]:mt-6">
+                            Tổng số tiền ({cartItem.quantity} sản phẩm):
+                          </p>
+                          <div className="font-semibold text-xl text-destructive">
+                            {formatNumberToVND(stateOder[id]?.totalPrice)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </>
               )}
             </div>
           </CardContent>
-          <CardFooter className="flex items-center justify-between">
-            <p className="text-muted-foreground">Tổng cộng</p>
-            <p className="font-medium">{formatNumberToVND(total)}</p>
-          </CardFooter>
         </Card>
         <Card>
           <CardHeader>
@@ -308,7 +524,7 @@ export function CheckoutRoute() {
                   htmlFor="card"
                   className="flex items-center gap-3 rounded-md border border-muted bg-background p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                 >
-                  <CreditCardIcon className="h-6 w-6" />
+                  <Smartphone className="h-6 w-6" />
                   <span>Thanh toán momo</span>
                 </Label>
               </div>
@@ -336,21 +552,44 @@ export function CheckoutRoute() {
           <CardContent>
             <div className="grid gap-4">
               <div className="flex items-center justify-between">
-                <p>Tổng cộng</p>
-                <p className="font-medium">$109.97</p>
+                <p>Tổng đơn hàng</p>
+                <p className="font-medium">
+                  {Object.keys(carts).length + ` Đơn hàng(${Object.values(carts).reduce((acc, cur) => acc + cur.quantity, 0)} sản phẩm)`}
+
+                </p>
               </div>
               <div className="flex items-center justify-between">
-                <p>Shipping</p>
-                <p className="font-medium">$5.00</p>
+                <p>Tổng Tiền hàng</p>
+                <p className="font-medium">
+                  {
+                    formatNumberToVND(Object.values(carts).reduce((acc, cur) => acc + cur.quantity * +cur.product.price, 0))
+                  }</p>
               </div>
               <div className="flex items-center justify-between">
-                <p>Tax</p>
-                <p className="font-medium">$9.00</p>
+                <p>Phí vận chuyển</p>
+                <p className="font-medium">{
+                  formatNumberToVND(Object.values(stateOder).reduce((acc, cur) => acc + SHIPPING_UNIT[cur.type_tranfer].price_shipped, 0))
+                }</p>
+              </div>
+              <div className="flex items-center justify-between">
+                <p>Voucher giảm</p>
+                <p className="font-medium text-destructive">{
+                  Object.values(stateOder).reduce((acc, cur) => acc + (cur?.vouchers?.reduce((acc, cur) => acc + cur?.discount_amount, 0) ?? 0), 0) == 0 ? '0 đ' : '- ' + formatNumberToVND(Object.values(stateOder).reduce((acc, cur) => acc + (cur?.vouchers?.reduce((acc, cur) => acc + cur?.discount_amount, 0) ?? 0), 0))
+                }
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <p>Thuế</p>
+                <p className="font-medium">{
+                  0 + ' đ'
+                }</p>
               </div>
               <Separator />
               <div className="flex items-center justify-between">
                 <p className="font-medium">Tổng cộng</p>
-                <p className="font-medium">$123.97</p>
+                <p className="text-primary font-bold">{
+                  formatNumberToVND((Object.values(carts).reduce((acc, cur) => acc + cur.quantity * +cur.product.price, 0)) + (Object.values(stateOder).reduce((acc, cur) => acc + SHIPPING_UNIT[cur.type_tranfer].price_shipped, 0)) - (Object.values(stateOder).reduce((acc, cur) => acc + (cur?.vouchers?.reduce((acc, cur) => acc + cur?.discount_amount, 0) ?? 0), 0)))
+                }</p>
               </div>
             </div>
           </CardContent>
@@ -363,6 +602,14 @@ export function CheckoutRoute() {
       </div>
 
       <DialogList open={open} setOpen={setOpen} />
+      
+      <DialogShippingUnit
+        open={openShipping}
+        setOpen={setOpenShipping}
+        shippingActive={shippingActive}
+        stateOder={stateOder}
+        setStateOder={setStateOder}
+      />
     </div>
   )
 }
