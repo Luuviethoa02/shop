@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button"
 import { Smartphone, Tag, Ticket, WalletCardsIcon } from "lucide-react"
 import { useAuthStore, useCartStore } from "@/store"
 import useFormatNumberToVND from "@/hooks/useFormatNumberToVND"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { Textarea } from "@/components/ui/textarea"
 
 import {
@@ -32,33 +32,53 @@ import DialogList from "@/features/address/components/dialog-list"
 import { z } from "zod"
 import DialogShippingUnit from "@/features/checkout/components/dialog-shipping-unit"
 import { SHIPPING_UNIT } from "@/features/checkout/constants"
-import { stateOderItemType } from "@/types/client"
+import { address, OdersProduct, Size, stateOderItemType } from "@/types/client"
 import { useCheckInfoCode } from "@/features/checkout/api/check-info-by-code"
 import toast from "react-hot-toast"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getInitials } from "@/lib/utils"
+import DialogAddress from "@/features/address/components/dialog-add"
+import { useCreateOder } from "@/features/oder/api/create-oder-product"
+import { useCreateOderWithMomo } from "@/features/oder/api/create-oder-with-momo"
+import { useNavigate } from "react-router-dom"
+
 
 
 const formSchemaVoucher = z.object({
-  voucherCode: z.string({
-    required_error: 'Bạn chưa nhập mã voucher'
-  }).length(8, {
-    message: 'Mã voucher bao gồm 8 ký tự.',
-  }),
+  voucherCode: z
+    .string({
+      required_error: "Bạn chưa nhập mã voucher",
+    })
+    .length(8, {
+      message: "Mã voucher bao gồm 8 ký tự.",
+    }),
 })
 
 export function CheckoutRoute() {
   const carts = useCartStore((state) => state.carts)
+
+
+  const createOder = useCreateOder()
+  const createOderWithMomo = useCreateOderWithMomo()
   const [open, setOpen] = useState<boolean>(false)
+  const [openAddAdress, setOpenAddAdress] = useState<boolean>(false)
   const [openShipping, setOpenShipping] = useState<boolean>(false)
   const user = useAuthStore((state) => state.user)
   const { formatNumberToVND } = useFormatNumberToVND()
   const [shippingActive, setShippingActive] = useState<string>()
-  const [sellerIdActive, setSellerIdActive] = useState<{ sellerId: string; cartId: string }>()
+  const [sellerIdActive, setSellerIdActive] = useState<{
+    sellerId: string
+    cartId: string
+  }>()
   const [stateOder, setStateOder] = useState<stateOderItemType>({})
+  const [address, setAddress] = useState<address[]>()
+  const [addressActive, setAddressActive] = useState<address>()
 
-  const userAddress = useAddressByUserId({ userId: user?._id })
+  const addresses = useAddressByUserId({ userId: user?._id })
   const checkInfoCode = useCheckInfoCode()
+  const [addressEdit, setAddressEdit] = useState<address>()
+  const [refresh, setRefresh] = useState<boolean>(false)
+  const [typePay, setTypePay] = useState<'momo' | 'cash'>('cash')
 
   const methods = useForm({
     resolver: zodResolver(schemaAddress),
@@ -67,6 +87,8 @@ export function CheckoutRoute() {
   const methodsVoucher = useForm({
     resolver: zodResolver(formSchemaVoucher),
   })
+
+  const navigation = useNavigate()
 
   const {
     handleSubmit,
@@ -79,66 +101,117 @@ export function CheckoutRoute() {
     // Handle form submission
   }
 
-
-  const getPriceByCartId = (cartId: string, discount_percentage: number | undefined) => {
+  const getPriceByCartId = (
+    cartId: string,
+    discount_percentage: number | undefined
+  ) => {
     if (carts?.[cartId] && discount_percentage) {
-      return ((+carts[cartId].product.price) - (+carts[cartId].product.price - +carts[cartId].product.price * discount_percentage / 100)) * carts[cartId].quantity
+      return (
+        (+carts[cartId].product.price -
+          (+carts[cartId].product.price -
+            (+carts[cartId].product.price * discount_percentage) / 100)) *
+        carts[cartId].quantity
+      )
     }
   }
 
   const onSubmitVoucher = (data: any) => {
-
     if (!sellerIdActive) {
-      toast.error('Vui lòng chọn shop cần áp dụng mã voucher')
+      toast.error("Vui lòng chọn shop cần áp dụng mã voucher")
       return
     }
-    if (Object.keys(stateOder).length > 0 && stateOder[sellerIdActive.cartId]?.vouchers?.find((item) => item.discount_code === data?.voucherCode)) {
-      toast.error('Mã voucher đã được sử dụng')
+    if (
+      Object.keys(stateOder).length > 0 &&
+      stateOder[sellerIdActive.cartId]?.vouchers?.find(
+        (item) => item.discount_code === data?.voucherCode
+      )
+    ) {
+      toast.error("Mã voucher đã được sử dụng")
       return
     }
 
-    toast.promise(checkInfoCode.mutateAsync({ data: data, sellerId: sellerIdActive.sellerId }, {
-      onSuccess: (data) => {
-        if (data.data) {
-          setStateOder({
-            ...stateOder,
-            [sellerIdActive.cartId]: {
-              vouchers: [
-                ...stateOder?.[sellerIdActive.cartId]?.vouchers || [],
-                {
-                  discount_code: data?.data?.discount_code,
-                  discount_percentage: data?.data?.discount_percentage,
-                  discount_amount: getPriceByCartId(sellerIdActive.cartId, data?.data?.discount_percentage)!,
-                  description: data?.data?.description
-                }
-              ],
-              type_tranfer: stateOder?.[sellerIdActive.cartId]?.type_tranfer,
-              totalPrice: (stateOder[sellerIdActive.cartId]?.totalPrice) - (getPriceByCartId(sellerIdActive.cartId, data?.data?.discount_percentage)!)
+    toast.promise(
+      checkInfoCode.mutateAsync(
+        { data: data, sellerId: sellerIdActive.sellerId },
+        {
+          onSuccess: (data) => {
+            if (data.data) {
+              setStateOder({
+                ...stateOder,
+                [sellerIdActive.cartId]: {
+                  vouchers: [
+                    ...(stateOder?.[sellerIdActive.cartId]?.vouchers || []),
+                    {
+                      discount_code: data?.data?.discount_code,
+                      discount_percentage: data?.data?.discount_percentage,
+                      discount_amount: getPriceByCartId(
+                        sellerIdActive.cartId,
+                        data?.data?.discount_percentage
+                      )!,
+                      description: data?.data?.description,
+                    },
+                  ],
+                  type_tranfer:
+                    stateOder?.[sellerIdActive.cartId]?.type_tranfer,
+                  totalPrice:
+                    stateOder[sellerIdActive.cartId]?.totalPrice -
+                    getPriceByCartId(
+                      sellerIdActive.cartId,
+                      data?.data?.discount_percentage
+                    )!,
+                },
+              })
+              return data
             }
-          })
-          return data
+          },
+          onError: (error) => {
+            return error
+          },
         }
-      },
-      onError: (error) => {
-        return error
+      ),
+      {
+        loading: "Đang kiểm tra mã voucher...",
+        success: (data) => `Success: ${data.message || "Mã voucher hợp lệ"}`,
+        error: (error) =>
+          `Error: ${error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại"}`,
       }
-    }), {
-      loading: 'Đang kiểm tra mã voucher...',
-      success: (data) => `Success: ${data.message || 'Mã voucher hợp lệ'}`,
-      error: (error) => `Error: ${error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại'}`
-    })
+    )
   }
 
   const handleShippingUnitClick = (id: string) => {
     setOpenShipping(true)
     setShippingActive(id)
   }
+  const getTotalPrice = () => {
+    return Object.values(carts).reduce(
+      (acc, cur) => acc + cur.quantity * +cur.product.price,
+      0
+    ) +
+      Object.values(stateOder).reduce(
+        (acc, cur) =>
+          acc + SHIPPING_UNIT[cur.type_tranfer].price_shipped,
+        0
+      ) -
+      Object.values(stateOder).reduce(
+        (acc, cur) =>
+          acc +
+          (cur?.vouchers?.reduce(
+            (acc, cur) => acc + cur?.discount_amount,
+            0
+          ) ?? 0),
+        0
+      )
+  }
 
-  const handleOpenchangeVoucher = (value: boolean, sellerId: string, cartId: string) => {
+  const handleOpenchangeVoucher = (
+    value: boolean,
+    sellerId: string,
+    cartId: string
+  ) => {
     if (value) {
       setSellerIdActive({
         sellerId,
-        cartId
+        cartId,
       })
     } else {
       setSellerIdActive(undefined)
@@ -147,30 +220,123 @@ export function CheckoutRoute() {
   }
 
   const handleCancelApplyDiscount = (cartId: string, discount_code: string) => {
-    const newVouchers = stateOder[cartId]?.vouchers?.filter((item) => item.discount_code !== discount_code)
+    const newVouchers = stateOder[cartId]?.vouchers?.filter(
+      (item) => item.discount_code !== discount_code
+    )
 
-    const newTotalPrice = stateOder[cartId]?.totalPrice + stateOder[cartId]?.vouchers?.find((item) => item.discount_code === discount_code)?.discount_amount!
+    const newTotalPrice =
+      stateOder[cartId]?.totalPrice +
+      stateOder[cartId]?.vouchers?.find(
+        (item) => item.discount_code === discount_code
+      )?.discount_amount!
 
     setStateOder({
       ...stateOder,
       [cartId]: {
         ...stateOder[cartId],
         vouchers: newVouchers,
-        totalPrice: newTotalPrice
-      }
+        totalPrice: newTotalPrice,
+      },
     })
   }
 
-  useEffect(() => {
-    if (userAddress?.data?.data) {
-      methods.setValue("name", userAddress?.data?.data[0]?.name)
-      methods.setValue("phone", userAddress?.data?.data[0]?.phone)
-      methods.setValue("city", userAddress?.data?.data[0]?.city)
-      methods.setValue("district", userAddress?.data?.data[0]?.district)
-      methods.setValue("ward", userAddress?.data?.data[0]?.ward)
-      methods.setValue("address", userAddress?.data?.data[0]?.address)
+  const getProductOderDetai = () => {
+    const oderDetail: OdersProduct['oderDetails'][] = []
+    if (Object.entries(carts).length > 0) {
+      Object.entries(carts).forEach(([id, cartItem]) => {
+        const oderDetailItem: OdersProduct['oderDetails'] = {
+          product: cartItem.product.name,
+          sellerId: cartItem.selelrId._id,
+          price: +cartItem.product.price,
+          quantity: cartItem.quantity,
+          vouchers: stateOder[id].vouchers,
+          color: cartItem.color,
+          size: cartItem.size,
+          type_tranfer: {
+            name: stateOder[id]?.type_tranfer,
+            fee: SHIPPING_UNIT[stateOder[id]?.type_tranfer]?.price_shipped
+          }
+        }
+        oderDetail.push(oderDetailItem)
+      })
     }
-  }, [userAddress?.data?.data])
+
+    return oderDetail
+  }
+
+  const handleClickOder = () => {
+    if (user?._id && addressActive) {
+      const oder: OdersProduct['oder'] = {
+        user_id: user?._id!,
+        address_id: { ...addressActive },
+        type_pay: typePay,
+        totalPrice: getTotalPrice()
+      }
+      const oderDetails: OdersProduct['oderDetails'][] = getProductOderDetai()
+
+      if (typePay === 'momo') {
+        toast.promise(createOderWithMomo.mutateAsync({
+          data: { oder, oderDetails }
+        }, {
+          onSuccess(data, variables, context) {
+            history.replaceState(null, '', '/order-summary');
+            location.href = data.payUrl;
+          },
+          onError(error, variables, context) {
+            console.log("Error momo", error);
+            toast.error(error.message || "Có lỗi xảy ra, vui lòng thử lại")
+            return;
+          }
+        }
+        ), {
+          loading: "Đang chuyển hướng đến thanh toán...",
+          success: "Chuyển hướng thanh toán thành công",
+          error: "Có lỗi xảy ra, vui lòng thử lại"
+        })
+      } else {
+        toast.promise(createOder.mutateAsync({
+          data: { oder, oderDetails }
+        },{
+        onSuccess(data, variables, context) {
+          navigation('/order-successfully')
+        },
+        }), {
+          loading: "Đang xử lý đơn hàng...",
+          success: "Đặt hàng thành công",
+          error: "Có lỗi xảy ra, vui lòng thử lại"
+        })
+      }
+    }
+  }
+
+  useEffect(() => {
+    if ((addresses?.data?.data?.length ?? 0) > 0) {
+      const addressDefault = addresses?.data?.data.find(address => address.default) || addresses?.data?.data[0]
+
+      const updatedAddress = addresses?.data?.data ? [...addresses.data.data] : [];
+
+      // Kiểm tra nếu không có item nào có default: true
+      const hasDefault = addresses?.data?.data?.some(item => item.default);
+      if (!hasDefault && (addresses?.data?.data?.length ?? 0) > 0) {
+        updatedAddress[0].default = true;
+      }
+      setAddress(updatedAddress)
+      setAddressActive(addressDefault)
+    }
+  }, [addresses?.data?.data])
+
+
+  useEffect(() => {
+    if (addressActive) {
+      methods.setValue("name", addressActive?.name)
+      methods.setValue("phone", addressActive?.phone)
+      methods.setValue("city", addressActive?.city.split('-')[1])
+      methods.setValue("district", addressActive?.district.split('-')[1])
+      methods.setValue("ward", addressActive?.ward)
+      methods.setValue("address", addressActive?.address)
+    }
+
+  }, [addressActive])
 
   useEffect(() => {
     if (carts) {
@@ -178,13 +344,21 @@ export function CheckoutRoute() {
       Object.entries(carts).forEach(([id, cartItem]) => {
         result[id] = {
           type_tranfer: "fast",
-          totalPrice: (cartItem.quantity * +cartItem.product.price) + (SHIPPING_UNIT["fast"].price_shipped),
-          vouchers: undefined
-        };
-      });
+          totalPrice:
+            cartItem.quantity * +cartItem.product.price +
+            SHIPPING_UNIT["fast"].price_shipped,
+          vouchers: [],
+        }
+      })
       setStateOder(result)
     }
   }, [carts])
+
+  useEffect(() => {
+    if (refresh) {
+      addresses.refetch()
+    }
+  }, [refresh])
 
   return (
     <div className="grid md:grid-cols-1 gap-8 max-w-6xl mx-auto py-8 px-4">
@@ -241,29 +415,55 @@ export function CheckoutRoute() {
                             </blockquote>
                           </div>
                           <div>
-                            <DropdownMenu onOpenChange={(value) => handleOpenchangeVoucher(value, cartItem.selelrId._id, id)}>
+                            <DropdownMenu
+                              onOpenChange={(value) =>
+                                handleOpenchangeVoucher(
+                                  value,
+                                  cartItem.selelrId._id,
+                                  id
+                                )
+                              }
+                            >
                               <DropdownMenuTrigger asChild>
-                                <p className="block font-normal cursor-pointer text-lg text-destructive">Chọn Voucher</p>
+                                <p className="block font-normal cursor-pointer text-lg text-destructive">
+                                  Chọn Voucher
+                                </p>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent>
                                 <Card className="w-full max-w-md mx-auto">
                                   <CardHeader>
                                     <CardTitle className="text-lg flex items-center gap-2">
                                       <Avatar className="size-10 border">
-                                        <AvatarImage src={cartItem.selelrId.logo} alt={cartItem.selelrId.businessName} />
+                                        <AvatarImage
+                                          src={cartItem.selelrId.logo}
+                                          alt={cartItem.selelrId.businessName}
+                                        />
                                         <AvatarFallback className="font-semibold">
-                                          {getInitials(cartItem.selelrId.businessName)}{" "}
+                                          {getInitials(
+                                            cartItem.selelrId.businessName
+                                          )}{" "}
                                         </AvatarFallback>
                                       </Avatar>
-                                      <span className="font-normal">{cartItem.selelrId.businessName}</span>
+                                      <span className="font-normal">
+                                        {cartItem.selelrId.businessName}
+                                      </span>
                                     </CardTitle>
-                                    <CardDescription>Nhập mã phiếu giảm giá của bạn để được giảm giá</CardDescription>
+                                    <CardDescription>
+                                      Nhập mã phiếu giảm giá của bạn để được
+                                      giảm giá
+                                    </CardDescription>
                                   </CardHeader>
-                                  <form onSubmit={methodsVoucher.handleSubmit(onSubmitVoucher)}>
+                                  <form
+                                    onSubmit={methodsVoucher.handleSubmit(
+                                      onSubmitVoucher
+                                    )}
+                                  >
                                     <CardContent>
                                       <div className="grid w-full items-center gap-4">
                                         <div className="flex flex-col space-y-2">
-                                          <Label htmlFor="voucherCode">Mã Voucher</Label>
+                                          <Label htmlFor="voucherCode">
+                                            Mã Voucher
+                                          </Label>
                                           <div className="flex items-center w-full max-w-sm border rounded-md focus-within:ring-2 focus-within:ring-primary focus-within:border-primary">
                                             <div className="pl-3 py-2">
                                               <Tag className="size-5 text-gray-500" />
@@ -281,16 +481,20 @@ export function CheckoutRoute() {
                                               )}
                                             />
                                           </div>
-                                          {
-                                            methodsVoucher.formState.errors.voucherCode && (
+                                          {methodsVoucher.formState.errors
+                                            .voucherCode && (
                                               <p className="text-red-500">{`${methodsVoucher.formState.errors.voucherCode.message}`}</p>
-                                            )
-                                          }
+                                            )}
                                         </div>
                                       </div>
                                     </CardContent>
                                     <CardFooter>
-                                      <Button type="submit" className="w-full capitalize">áp dụng</Button>
+                                      <Button
+                                        type="submit"
+                                        className="w-full capitalize"
+                                      >
+                                        áp dụng
+                                      </Button>
                                     </CardFooter>
                                   </form>
                                 </Card>
@@ -300,35 +504,61 @@ export function CheckoutRoute() {
                         </div>
                         {/* voucher info */}
 
-                        {Object.keys(stateOder).length > 0 && stateOder[id]?.vouchers?.map(voucher => (
-                          <div className="flex items-center justify-between">
-                            <div className="basis-1/3">
-                              Voucher:{' '}
-                              <span className="uppercase font-semibold">{
-                                voucher.discount_code}</span>
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="font-medium text-destructive">-{voucher.discount_percentage}%</h3>
-                              <span className="capitalize">
-                                {voucher.description}
-                              </span>
-                            </div>
+                        {Object.keys(stateOder).length > 0 &&
+                          stateOder[id]?.vouchers?.map((voucher) => (
+                            <div className="flex items-center justify-between">
+                              <div className="basis-1/3">
+                                Voucher:{" "}
+                                <span className="uppercase font-semibold">
+                                  {voucher.discount_code}
+                                </span>
+                              </div>
+                              <div className="flex-1">
+                                <h3 className="font-medium text-destructive">
+                                  -{voucher.discount_percentage}%
+                                </h3>
+                                <span className="capitalize">
+                                  {voucher.description}
+                                </span>
+                              </div>
 
-                            <div className="font-normal">
-                              <p>- {formatNumberToVND(voucher.discount_amount)}</p>
-                              <p onClick={() => handleCancelApplyDiscount(id, voucher.discount_code)} className="text-destructive cursor-pointer hover:underline text-sm normal-case">Hủy áp dụng</p>
+                              <div className="font-normal">
+                                <p>
+                                  - {formatNumberToVND(voucher.discount_amount)}
+                                </p>
+                                <p
+                                  onClick={() =>
+                                    handleCancelApplyDiscount(
+                                      id,
+                                      voucher.discount_code
+                                    )
+                                  }
+                                  className="text-destructive cursor-pointer hover:underline text-sm normal-case"
+                                >
+                                  Hủy áp dụng
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        ))}
-
+                          ))}
 
                         <div className="flex items-center justify-between">
-                          <div className="basis-1/3">Đơn vị vận chuyển: <p onClick={() => handleShippingUnitClick(id)} className="block font-normal cursor-pointer text-lg text-destructive">Thay đổi</p></div>
+                          <div className="basis-1/3">
+                            Đơn vị vận chuyển:{" "}
+                            <p
+                              onClick={() => handleShippingUnitClick(id)}
+                              className="block font-normal cursor-pointer text-lg text-destructive"
+                            >
+                              Thay đổi
+                            </p>
+                          </div>
                           <div className="flex-1">
                             <h3 className="font-medium capitalize">
                               {`${SHIPPING_UNIT[stateOder[id]?.type_tranfer]?.lable}`}
                             </h3>
-                            <span className="font-semibold">Nhận hàng vào {`${SHIPPING_UNIT[stateOder[id]?.type_tranfer]?.day.join(' - ')}`}</span>
+                            <span className="font-semibold">
+                              Nhận hàng vào{" "}
+                              {`${SHIPPING_UNIT[stateOder[id]?.type_tranfer]?.day.join(" - ")}`}
+                            </span>
                           </div>
                           <div className="font-normal">{`${formatNumberToVND(SHIPPING_UNIT[stateOder[id]?.type_tranfer]?.price_shipped)}`}</div>
                         </div>
@@ -355,19 +585,27 @@ export function CheckoutRoute() {
                 <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
                   Thông tin vận chuyển
                 </h4>
-                <p
+
+                {(addresses.data?.data && addresses.data.data.length > 0) ? (<p
                   className="cursor-pointer text-base hover:underline hover:text-primary transition-all duration-100"
                   onClick={() => setOpen(true)}
                 >
                   Thay đổi
-                </p>
+                </p>) : (<p
+                  className="cursor-pointer text-base hover:underline hover:text-primary transition-all duration-100"
+                  onClick={() => setOpenAddAdress(true)}
+                >
+                  Thêm địa chỉ
+                </p>)
+                }
+
               </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {userAddress.status === "pending" && <LoadingMain />}
-            {userAddress.status === "success" &&
-              (userAddress.data.data.length == 0 ? (
+            {(addresses.status === "pending" || addresses.isFetching) && <LoadingMain />}
+            {(addresses.status === "success" && !addresses.isFetching) &&
+              (addresses.data.data.length == 0 ? (
                 <>
                   <p className="text-destructive">
                     Vui lòng thêm địa chỉ nhận hàng
@@ -513,33 +751,33 @@ export function CheckoutRoute() {
             <CardTitle>Phương thức thanh toán</CardTitle>
           </CardHeader>
           <CardContent>
-            <RadioGroup defaultValue="card" className="grid gap-4">
+            <RadioGroup defaultValue={typePay} onValueChange={(value: 'cash' | 'momo') => setTypePay(value)} className="grid gap-4">
               <div>
                 <RadioGroupItem
-                  value="card"
-                  id="card"
+                  value="cash"
+                  id="cash"
                   className="peer sr-only"
                 />
                 <Label
-                  htmlFor="card"
-                  className="flex items-center gap-3 rounded-md border border-muted bg-background p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                >
-                  <Smartphone className="h-6 w-6" />
-                  <span>Thanh toán momo</span>
-                </Label>
-              </div>
-              <div>
-                <RadioGroupItem
-                  value="paypal"
-                  id="paypal"
-                  className="peer sr-only"
-                />
-                <Label
-                  htmlFor="paypal"
+                  htmlFor="cash"
                   className="flex items-center gap-3 rounded-md border border-muted bg-background p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                 >
                   <WalletCardsIcon className="h-6 w-6" />
                   <span>Thanh toán khi nhận hàng</span>
+                </Label>
+              </div>
+              <div>
+                <RadioGroupItem
+                  value="momo"
+                  id="momo"
+                  className="peer sr-only"
+                />
+                <Label
+                  htmlFor="momo"
+                  className="flex items-center gap-3 rounded-md border border-muted bg-background p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                >
+                  <Smartphone className="h-6 w-6" />
+                  <span>Thanh toán momo</span>
                 </Label>
               </div>
             </RadioGroup>
@@ -554,61 +792,122 @@ export function CheckoutRoute() {
               <div className="flex items-center justify-between">
                 <p>Tổng đơn hàng</p>
                 <p className="font-medium">
-                  {Object.keys(carts).length + ` Đơn hàng(${Object.values(carts).reduce((acc, cur) => acc + cur.quantity, 0)} sản phẩm)`}
-
+                  {Object.keys(carts).length +
+                    ` Đơn hàng(${Object.values(carts).reduce((acc, cur) => acc + cur.quantity, 0)} sản phẩm)`}
                 </p>
               </div>
               <div className="flex items-center justify-between">
                 <p>Tổng Tiền hàng</p>
                 <p className="font-medium">
-                  {
-                    formatNumberToVND(Object.values(carts).reduce((acc, cur) => acc + cur.quantity * +cur.product.price, 0))
-                  }</p>
+                  {formatNumberToVND(
+                    Object.values(carts).reduce(
+                      (acc, cur) => acc + cur.quantity * +cur.product.price,
+                      0
+                    )
+                  )}
+                </p>
               </div>
               <div className="flex items-center justify-between">
                 <p>Phí vận chuyển</p>
-                <p className="font-medium">{
-                  formatNumberToVND(Object.values(stateOder).reduce((acc, cur) => acc + SHIPPING_UNIT[cur.type_tranfer].price_shipped, 0))
-                }</p>
+                <p className="font-medium">
+                  {formatNumberToVND(
+                    Object.values(stateOder).reduce(
+                      (acc, cur) =>
+                        acc + SHIPPING_UNIT[cur.type_tranfer].price_shipped,
+                      0
+                    )
+                  )}
+                </p>
               </div>
               <div className="flex items-center justify-between">
                 <p>Voucher giảm</p>
-                <p className="font-medium text-destructive">{
-                  Object.values(stateOder).reduce((acc, cur) => acc + (cur?.vouchers?.reduce((acc, cur) => acc + cur?.discount_amount, 0) ?? 0), 0) == 0 ? '0 đ' : '- ' + formatNumberToVND(Object.values(stateOder).reduce((acc, cur) => acc + (cur?.vouchers?.reduce((acc, cur) => acc + cur?.discount_amount, 0) ?? 0), 0))
-                }
+                <p className="font-medium text-destructive">
+                  {Object.values(stateOder).reduce(
+                    (acc, cur) =>
+                      acc +
+                      (cur?.vouchers?.reduce(
+                        (acc, cur) => acc + cur?.discount_amount,
+                        0
+                      ) ?? 0),
+                    0
+                  ) == 0
+                    ? "0 đ"
+                    : "- " +
+                    formatNumberToVND(
+                      Object.values(stateOder).reduce(
+                        (acc, cur) =>
+                          acc +
+                          (cur?.vouchers?.reduce(
+                            (acc, cur) => acc + cur?.discount_amount,
+                            0
+                          ) ?? 0),
+                        0
+                      )
+                    )}
                 </p>
               </div>
               <div className="flex items-center justify-between">
                 <p>Thuế</p>
-                <p className="font-medium">{
-                  0 + ' đ'
-                }</p>
+                <p className="font-medium">{0 + " đ"}</p>
               </div>
               <Separator />
               <div className="flex items-center justify-between">
                 <p className="font-medium">Tổng cộng</p>
-                <p className="text-primary font-bold">{
-                  formatNumberToVND((Object.values(carts).reduce((acc, cur) => acc + cur.quantity * +cur.product.price, 0)) + (Object.values(stateOder).reduce((acc, cur) => acc + SHIPPING_UNIT[cur.type_tranfer].price_shipped, 0)) - (Object.values(stateOder).reduce((acc, cur) => acc + (cur?.vouchers?.reduce((acc, cur) => acc + cur?.discount_amount, 0) ?? 0), 0)))
-                }</p>
+                <p className="text-primary font-bold">
+                  {formatNumberToVND(
+                    Object.values(carts).reduce(
+                      (acc, cur) => acc + cur.quantity * +cur.product.price,
+                      0
+                    ) +
+                    Object.values(stateOder).reduce(
+                      (acc, cur) =>
+                        acc + SHIPPING_UNIT[cur.type_tranfer].price_shipped,
+                      0
+                    ) -
+                    Object.values(stateOder).reduce(
+                      (acc, cur) =>
+                        acc +
+                        (cur?.vouchers?.reduce(
+                          (acc, cur) => acc + cur?.discount_amount,
+                          0
+                        ) ?? 0),
+                      0
+                    )
+                  )}
+                </p>
               </div>
             </div>
           </CardContent>
           <CardFooter>
-            <Button disabled className="w-full">
-              Thanh toán
+            <Button onClick={handleClickOder} disabled={(addresses?.data?.data?.length ?? 0) === 0} className="w-full">
+              Đặt hàng
             </Button>
           </CardFooter>
         </Card>
       </div>
 
-      <DialogList open={open} setOpen={setOpen} />
-      
+      <DialogList
+        addressActive={addressActive}
+        setAddressActive={setAddressActive}
+        address={address}
+        setAddress={setAddress}
+        open={open} setOpen={setOpen} />
+
       <DialogShippingUnit
         open={openShipping}
         setOpen={setOpenShipping}
         shippingActive={shippingActive}
         stateOder={stateOder}
         setStateOder={setStateOder}
+      />
+
+      <DialogAddress
+        refresh={refresh}
+        setRefresh={setRefresh}
+        addressEdit={addressEdit}
+        setAddressEdit={setAddressEdit}
+        open={openAddAdress}
+        setOpen={setOpenAddAdress}
       />
     </div>
   )

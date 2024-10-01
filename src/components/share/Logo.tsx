@@ -1,21 +1,26 @@
 import { cn } from "@/lib/utils"
-import { Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 interface Iprops {
   className?: string
 }
 const Logo = ({ className }: Iprops) => {
+  const navigation = useNavigate()
+
+  const handleClickBackHome = () => {
+    navigation('/', { replace: true })
+  }
+
   return (
-    <Link to={"/"}>
-      <div
-        className={cn(`size-20 flex items-center justify-center`, className)}
-      >
-        <img className="block" src="/logo.png" alt="logo" />
-        <blockquote className="text-primary pl-0 text-xl italic">
-          Shopvh
-        </blockquote>
-      </div>
-    </Link>
+    <div
+      onClick={handleClickBackHome}
+      className={cn(`size-20 cursor-pointer flex items-center justify-center`, className)}
+    >
+      <img className="block" src="/logo.png" alt="logo" />
+      <blockquote className="text-primary pl-0 text-xl italic">
+        Shopvh
+      </blockquote>
+    </div>
   )
 }
 

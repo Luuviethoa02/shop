@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 const useNotificationSound = (audioUrl: string) => {
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [canPlay, setCanPlay] = useState(false)
 
   useEffect(() => {
     // Tạo audio element khi component mount
@@ -16,8 +17,22 @@ const useNotificationSound = (audioUrl: string) => {
     }
   }, [audioUrl])
 
+  
+  useEffect(() => {
+    const enableAudio = () => setCanPlay(true)
+
+    // Listen for user interaction to enable audio playback
+    document.addEventListener("click", enableAudio)
+    document.addEventListener("keydown", enableAudio)
+
+    return () => {
+      document.removeEventListener("click", enableAudio)
+      document.removeEventListener("keydown", enableAudio)
+    }
+  }, [])
+
   const playSound = () => {
-    if (audioRef.current) {
+    if (canPlay && audioRef.current) {
       audioRef.current.play().catch((error) => {
         console.error("Error playing sound:", error)
       })

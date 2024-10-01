@@ -45,10 +45,7 @@ import DialogAddProductDiscount from "@/features/saleProduct/components/dialog-a
 import DialogDetailDiscount from "@/features/saleProduct/components/dialog-detail-discount"
 import { ObjectStatusDiscount } from "@/features/saleProduct/constants"
 import useFormatDateVN from "@/hooks/useFormatDateVN"
-import {
-  checkDateStatus,
-  getInitials,
-} from "@/lib/utils"
+import { checkDateStatus, getInitials } from "@/lib/utils"
 import { useAuthStore } from "@/store"
 import { productRespose } from "@/types/api"
 import { Discount, queryKeyProducts, Seller } from "@/types/client"
@@ -56,7 +53,7 @@ import { CalendarIcon, MoreHorizontal } from "lucide-react"
 import React, { useEffect, useState } from "react"
 import Countdown from "react-countdown"
 import toast from "react-hot-toast"
-import { isBefore, parse } from "date-fns"
+import { isAfter, isBefore, parse } from "date-fns"
 import LoadingMain from "@/components/share/LoadingMain"
 import {
   DropdownMenu,
@@ -65,6 +62,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useDeleteDiscount } from "@/features/saleProduct/api/delete-discount"
+import { useUpdateStatusDiscount } from "@/features/saleProduct/api/update-status-discount"
+
 
 export const SaleRoute = () => {
   const currentUser = useAuthStore((state) => state.user)
@@ -84,9 +83,10 @@ export const SaleRoute = () => {
   const [productAdd, setProductAdd] = useState<productRespose[]>()
   const [discountDetail, setDiscountDetail] = useState<Discount>()
 
-  const { data: discountApi, status: statusGet } = useDiscountSellerId(queryKey)
+  const { data: discountApi, status: statusGet, refetch } = useDiscountSellerId(queryKey)
 
   const deleteDiscount = useDeleteDiscount(queryKey)
+  const updateStatus = useUpdateStatusDiscount(queryKey)
 
   const products = useProductSellerId(queryKey)
 
@@ -204,9 +204,11 @@ export const SaleRoute = () => {
   const DiscountTimer = ({
     startDate,
     endDate,
+    discountId,
   }: {
     startDate: string
     endDate: string
+    discountId: string
   }) => {
     const dateFormat = "MMMM do, yyyy HH:mm:ss"
     const now = new Date()
@@ -229,7 +231,9 @@ export const SaleRoute = () => {
       completed: boolean
     }) => {
       if (completed) {
-        return <span>0</span>
+        updateStatus.mutate({
+          discountId: discountId
+        })
       } else {
         let reuslt = ""
         if (days > 0) {
@@ -349,10 +353,10 @@ export const SaleRoute = () => {
                             discount.end_date
                           )
                         ].variant as
-                          | "default"
-                          | "secondary"
-                          | "destructive"
-                          | "outline"
+                        | "default"
+                        | "secondary"
+                        | "destructive"
+                        | "outline"
                       }
                       className={
                         ObjectStatusDiscount[
@@ -389,6 +393,7 @@ export const SaleRoute = () => {
                       <DiscountTimer
                         startDate={discount.start_date}
                         endDate={discount.end_date}
+                        discountId={discount?._id}
                       />
                     }
                   </td>
@@ -444,12 +449,12 @@ export const SaleRoute = () => {
                                 discount.start_date,
                                 discount.end_date
                               ) == "expired" && (
-                                <DropdownMenuItem
-                                  onClick={() => handleClickRemove(discount)}
-                                >
-                                  Xóa
-                                </DropdownMenuItem>
-                              )}
+                                  <DropdownMenuItem
+                                    onClick={() => handleClickRemove(discount)}
+                                  >
+                                    Xóa
+                                  </DropdownMenuItem>
+                                )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
@@ -492,7 +497,7 @@ export const SaleRoute = () => {
                 <PaginationNext
                   className={
                     page ===
-                    Math.ceil(discountApi?.total! / LIMIT_PAE_PRODUCT_LIST)
+                      Math.ceil(discountApi?.total! / LIMIT_PAE_PRODUCT_LIST)
                       ? "pointer-events-none opacity-50"
                       : "cursor-pointer"
                   }
@@ -549,10 +554,10 @@ export const SaleRoute = () => {
                               discountDetail?.end_date!
                             )
                           ].variant as
-                            | "default"
-                            | "secondary"
-                            | "destructive"
-                            | "outline"
+                          | "default"
+                          | "secondary"
+                          | "destructive"
+                          | "outline"
                         }
                         className={
                           ObjectStatusDiscount[

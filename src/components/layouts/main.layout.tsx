@@ -8,8 +8,7 @@ import ProgressBar from "../share/ProgressBar"
 import { useAuthStore } from "@/store"
 import { toast } from "sonner"
 import useSocket from "@/hooks/useSocket"
-import { commentsResponse } from "@/types/api"
-import { Comments, CommentsNotification } from "@/types/client"
+import { CommentsNotification } from "@/types/client"
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const user = !!localStorage.getItem("accessToken")
@@ -23,6 +22,10 @@ const MainLayout = () => {
   const currentUser = useAuthStore((state) => state.user)
   const socket = useSocket(currentUser?._id)
   const playNotificationSound = useNotificationSound(discordSound)
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   useEffect(() => {
     if (!socket) return
@@ -40,6 +43,9 @@ const MainLayout = () => {
       }
     }
   }, [socket, currentUser?._id])
+
+
+
 
   return (
     <>

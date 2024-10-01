@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { format, parse, isBefore, isAfter, parseISO } from "date-fns"
+import parsePhoneNumberFromString from "libphonenumber-js"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -105,8 +106,20 @@ export const calculatePercentage = (
   return Number(amount) - result
 }
 
-
 export const formatDate = (isoDateString: string): string => {
-  const date = parseISO(isoDateString);
-  return format(date, 'dd/MM/yyyy');
+  const date = parseISO(isoDateString)
+  return format(date, "dd/MM/yyyy")
+}
+
+export const convertToVietnamesePhone = (phoneNumber: string) => {
+  const phone = parsePhoneNumberFromString(phoneNumber, 'VN'); // VN là mã quốc gia Việt Nam
+  if (phone) {
+    return phone.formatInternational(); // Trả về số điện thoại dưới dạng quốc tế (+84)
+  }
+  return phoneNumber; // Nếu không hợp lệ, trả về số gốc
 };
+
+export const formatPrice = (value:number) => {
+  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
+

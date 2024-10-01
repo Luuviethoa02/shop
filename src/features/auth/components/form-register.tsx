@@ -52,7 +52,7 @@ const ForRegister = () => {
               <FormItem>
                 <FormLabel>Tên hiển thị</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input placeholder="Tên đăng nhập" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -65,7 +65,7 @@ const ForRegister = () => {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="example@gmail.com" {...field} />
+                  <Input placeholder="Email" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -78,7 +78,7 @@ const ForRegister = () => {
               <FormItem>
                 <FormLabel>Mật khẩu</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input placeholder="Mật khẩu" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

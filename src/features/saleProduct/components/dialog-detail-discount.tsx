@@ -55,7 +55,7 @@ export default function DialogDetailDiscount({
         onOpenAutoFocus={(e: Event) => e.preventDefault()}
         className="max-w-4xl"
       >
-        <DialogTitle>Danh danh sản phẩm áp dụng mã khuyến mãi</DialogTitle>
+        <DialogTitle>Danh sách sản phẩm áp dụng mã khuyến mãi</DialogTitle>
         <div className="w-full max-w-4xl mx-auto p">
           <div className="border rounded-md overflow-hidden">
             <Table>

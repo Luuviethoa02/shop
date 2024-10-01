@@ -1,6 +1,6 @@
 import { QueryClient } from "@tanstack/react-query"
 import { createBrowserRouter } from "react-router-dom"
-import { AdminLayout, MainLayout, SellerLayout } from "@/components/layouts"
+import { AdminLayout, MainLayout, ProfileLayout, SellerLayout } from "@/components/layouts"
 import { ProtectedRoute } from "@/components/layouts/main.layout"
 
 export const createRouter = (queryClient: QueryClient) =>
@@ -80,11 +80,21 @@ export const createRouter = (queryClient: QueryClient) =>
           },
         },
         {
-          path: "oders",
+          path: "orders",
           lazy: async () => {
             const { OderRoute } = await import("./seller/oder")
             return { Component: OderRoute }
           },
+          children:[
+            {
+              path: ":oderDetailId",
+              lazy: async () => {
+                const { OderRoute } = await import("./seller/oder")
+                return { Component: OderRoute }
+              },
+
+            }
+          ]
         },
         {
           path: "products",
@@ -130,6 +140,7 @@ export const createRouter = (queryClient: QueryClient) =>
         },
       ],
     },
+    
     {
       path: "/",
       element: <MainLayout />,
@@ -158,6 +169,13 @@ export const createRouter = (queryClient: QueryClient) =>
           },
         },
         {
+          path: "search/:text",
+          lazy: async () => {
+            const { SearchRoute } = await import("./products/search")
+            return { Component: SearchRoute }
+          },
+        },
+        {
           path: "carts",
           lazy: async () => {
             const { CartRoutes } = await import("./products/carts")
@@ -179,18 +197,80 @@ export const createRouter = (queryClient: QueryClient) =>
         },
         {
           path: "/profile",
+          children: [
+            {
+              path: "",
+              lazy: async () => {
+                const { AccountRoute } = await import("./profile/acount")
+                return { Component: AccountRoute }
+              },
+            },
+            {
+              path: "account",
+              lazy: async () => {
+                const { AccountRoute } = await import("./profile/acount")
+                return { Component: AccountRoute }
+              },
+            },
+            {
+              path: "address",
+              lazy: async () => {
+                const { AddressRounte } = await import("./profile/address")
+                return { Component: AddressRounte }
+              },
+            },
+            {
+              path: "change-password",
+              lazy: async () => {
+                const { ChangePasswordRoute } = await import("./profile/change-password")
+                return { Component: ChangePasswordRoute }
+              },
+            },
+            {
+              path: "purchase",
+              lazy: async () => {
+                const { OdersRoute } = await import("./profile/oders")
+                return { Component: OdersRoute }
+              },
+              children:[
+                {
+                  path: ":oderId",
+                  lazy: async () => {
+                    const { OdersRoute } = await import("./profile/oders")
+                    return { Component: OdersRoute }
+                  },
+                },
+              ]
+            },
+            {
+              path: "notification",
+              lazy: async () => {
+                const { NotificationRoute } = await import("./profile/notification")
+                return { Component: NotificationRoute }
+              },
+            },
+            {
+              path: "vouchers",
+              lazy: async () => {
+                const { VoucherRoute } = await import("./profile/voucher")
+                return { Component: VoucherRoute }
+              },
+            }
+          ],
+        },
+        {
+          path: "order-successfully",
           lazy: async () => {
-            const { ProfileRoute } = await import("./profile")
+            const { OderSuccessfullyRoute } = await import("./products/oder-successfully")
             return {
               Component: () => (
                 <ProtectedRoute>
-                  <ProfileRoute />
+                  <OderSuccessfullyRoute />
                 </ProtectedRoute>
               ),
             }
           },
         },
-
         {
           path: "*",
           lazy: async () => {

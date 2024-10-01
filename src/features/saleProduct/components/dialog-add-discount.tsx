@@ -64,6 +64,8 @@ export default function DialogAddDiscount({ open, setOpen, queryKey }: Iprops) {
   useEffect(() => {
     if (!open) {
       form.reset()
+      setStartDate(null)
+      setEndDate(null)
     }
   }, [open])
 

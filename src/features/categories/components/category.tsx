@@ -2,8 +2,9 @@ import { Category } from "@/types/client"
 import nProgress from "nprogress"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { useCategoryDetail } from "../api/get-category"
 import toast from "react-hot-toast"
+import { useGetProductByCategory } from "@/features/products/api/get-by-category"
+import { LIMIT_PAE_PRODUCT_LIST } from "@/features/products/constants"
 
 interface Iprops {
   category: Category
@@ -12,7 +13,10 @@ interface Iprops {
 const CategoryItem = ({ category }: Iprops) => {
   const [slug, setSlug] = useState<string | undefined>(undefined)
   const navigate = useNavigate()
-  const { data: response, error } = useCategoryDetail({ slug })
+  const { data: response, error } = useGetProductByCategory({
+    slugCategory: slug,
+    is_discount: false
+  })
 
   useEffect(() => {
     if (slug) {
@@ -36,22 +40,22 @@ const CategoryItem = ({ category }: Iprops) => {
   }
 
   return (
-    <div className="relative mx-4 group grid [grid-template-areas:stack] overflow-hidden rounded-lg">
-      <img
-        src={category?.img_cover}
-        alt={category?._id}
-        width={300}
-        height={200}
-        className="[grid-area:stack] object-cover w-full aspect-square"
-      />
-      <div className="flex-1 [grid-area:stack] bg-black/40 text-destructive-foreground group-hover:opacity-90 transition-opacity p-6 pb-2 justify-end flex flex-col gap-2">
-        <h3
-          onClick={() => handleCardItemClick(category?.slug)}
-          className="font-semibold hover:text-secondary-foreground transition-all cursor-pointer capitalize text-lg tracking-tight text-center"
-        >
-          {category?.name}
-        </h3>
+    <div className="relative border border-solid group grid [grid-template-areas:stack] overflow-hidden min-w-full p-3">
+      <div className="w-full flex items-center justify-center">
+        <div onClick={() => handleCardItemClick(category?.slug)} className="min-w-20 max-w-20 group min-h-20 flex items-center justify-center max-h-20 cursor-pointer">
+          <img
+            src={category?.img_cover}
+            alt={category?.name}
+            className="[grid-area:stack] group-hover:scale-110 transition-all duration-75 mx-auto min-w-full max-w-full min-h-full max-h-full object-cover w-full aspect-square"
+          />
+        </div>
       </div>
+      <p
+        onClick={() => handleCardItemClick(category?.slug)}
+        className="font-normal block mt-4 transition-all hover:text-primary cursor-pointer capitalize text-xs tracking-tight text-center"
+      >
+        {category?.name}
+      </p>
     </div>
   )
 }

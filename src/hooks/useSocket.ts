@@ -11,7 +11,7 @@ const useSocket = (userId: string | undefined) => {
     if (userId) {
       socketInstance.emit("join", { id: userId })
       setSocket(socketInstance)
-      console.log("socket connected")
+      console.log("socket user connected")
     }
 
     return () => {

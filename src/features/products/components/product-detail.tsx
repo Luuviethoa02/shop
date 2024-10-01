@@ -21,7 +21,18 @@ import { useAuthStore, useCartStore } from "@/store"
 import { commentSchema } from "@/features/comments/validators"
 import { useCreateComment } from "@/features/comments/api/create-comment"
 import { useNotificationSound } from "@/hooks"
-import { ChevronRight, EllipsisVertical, MapPin, MinusIcon, Package, Plus, PlusIcon, Star, StarIcon, Users } from "lucide-react"
+import {
+  ChevronRight,
+  EllipsisVertical,
+  MapPin,
+  MinusIcon,
+  Package,
+  Plus,
+  PlusIcon,
+  Star,
+  StarIcon,
+  Users,
+} from "lucide-react"
 import { useCommentsByProductId } from "@/features/comments/api/get-comments"
 import { SpokeSpinner } from "@/components/ui/spinner"
 import {
@@ -168,11 +179,11 @@ export const ProductDetail = ({ data, status }: Iprops) => {
         color: colors.find((color) => color._id === selectedColor) as ColorIpi,
         size: sizes.find((size) => size.name === selectedSize) as Size,
         quantity: quantity,
-        selelrId:{
-          logo:data?.data?.sellerInfo?.logo,
-          businessName:data?.data?.sellerInfo?.businessName,
-          _id:data?.data?.sellerInfo?._id
-        }
+        selelrId: {
+          logo: data?.data?.sellerInfo?.logo,
+          businessName: data?.data?.sellerInfo?.businessName,
+          _id: data?.data?.sellerInfo?._id,
+        },
       }
 
       const cartId = generRateCartdId(
@@ -232,7 +243,7 @@ export const ProductDetail = ({ data, status }: Iprops) => {
 
     const {
       productDetail: { colors, brand_id, des, name, price, sizes },
-      sellerInfo: { businessName, city, createdAt, follower, logo, },
+      sellerInfo: { businessName, city, createdAt, follower, logo },
     } = data?.data
 
     return (
@@ -391,12 +402,14 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col ">
-                    <h3 className="text-lg font-semibold capitalize">{businessName}</h3>
+                    <h3 className="text-lg font-semibold capitalize">
+                      {businessName}
+                    </h3>
                     <div className="flex items-center">
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                       <span className="ml-1 text-sm">4.8 (256)</span>
                     </div>
-                    <Button variant={'outline'} className="mt-2" size="sm">
+                    <Button variant={"outline"} className="mt-2" size="sm">
                       Xem shop
                       <ChevronRight className="ml-1 h-4 w-4" />
                     </Button>
@@ -409,12 +422,12 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                       <span className="capitalize">152 sản phẩm</span>
                     </div>
                     <div className="flex items-center justify-between">
-                     <div className="flex items-center gap-1">
-                     <MapPin className="h-4 w-4 text-muted-foreground" />
-                     <span className="capitalize">{city}</span>
-                     </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <span className="capitalize">{city}</span>
+                      </div>
                       <div className="flex items-center gap-2 justify-between">
-                      <span className="capitalize">Theo dõi</span>
+                        <span className="capitalize">Theo dõi</span>
                         <Button variant="outline" size="icon">
                           <Plus />
                         </Button>
@@ -422,11 +435,14 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                     </div>
                     <div className="flex items-center gap-1">
                       <Users className="h-4 w-4 text-muted-foreground" />
-                      <span className="capitalize">{follower} người theo dõi</span>
+                      <span className="capitalize">
+                        {follower} người theo dõi
+                      </span>
                     </div>
-                    <div className="text-muted-foreground">{'Tham gia: ' + formatDate(createdAt)}</div>
+                    <div className="text-muted-foreground">
+                      {"Tham gia: " + formatDate(createdAt)}
+                    </div>
                   </div>
-
                 </div>
               </CardContent>
             </Card>

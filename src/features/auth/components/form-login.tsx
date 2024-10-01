@@ -138,7 +138,7 @@ const FormLogin = () => {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="example@gmail.com" {...field} />
+                  <Input placeholder="Email" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -151,7 +151,7 @@ const FormLogin = () => {
               <FormItem>
                 <FormLabel>Mật khẩu</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input placeholder="Mật khẩu" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

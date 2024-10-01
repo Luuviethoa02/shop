@@ -1,8 +1,12 @@
 import {
+  address,
   Category,
   Comments,
   Discount,
   Notification,
+  oderDetail,
+  OdersProduct,
+  OrderNotification,
   Product,
   Seller,
   User,
@@ -61,18 +65,26 @@ export type ColorIpi = {
 export type productRespose = Omit<Product, "brand_id" | "colors"> & {
   colors: ColorIpi[]
   brand_id: { _id: string; img_cover: string; name: string; slug: string }
+  total: number;
+  sellerId: {
+    _id: string;
+    city: string;
+  }
+  average_rating: number
+  discount?: number
   createdAt: string
   updatedAt: string
 }
 
 export type producstResponse = ResponseData<productRespose>
+export type historyResponse = ResponseData<{ keyWorks: string, create_by: string, validateTime: string }>
 
 export type discountResponse = ResponseData<Discount>
 
 export type productDetailResponse = ResponseSuccess<{
   productDetail: productRespose
-  productSimilars: productRespose,
-  sellerInfo:Seller
+  productSimilars: productRespose
+  sellerInfo: Seller
 }>
 
 export type sellerResponse = ResponseSuccess<{
@@ -81,21 +93,16 @@ export type sellerResponse = ResponseSuccess<{
 }>
 
 export type addressResponse = ResponseSuccess<
-  {
-    _id: string
-    name: string
-    phone: string
-    city: string
-    district: string
-    ward: string
-    address: string
-    user_id: string
-  }[]
+  address[]
+>
+export type updateUserResponse = ResponseSuccess<
+  User
 >
 
 export type commentsResponse = ResponseData<Comments>
 
 export type notifiedUserResponse = ResponseData<Notification>
+export type orderNotifiCationResponse = ResponseData<OrderNotification>
 
 export type ProvincesCommonType = {
   id: string
@@ -113,3 +120,25 @@ export type ApiResponseProvincesType = {
   data_name: string
   data: ProvincesCommonType[]
 }
+
+export type oderResponse = ResponseData<{
+  _id: string
+  user_id: {
+    _id: string;
+    username: string;
+    img: string;
+  }
+  address_id: Omit<address, "user_id" | "_id" | "default">
+  type_pay: "cash" | "momo"
+  status_pay: {
+    status: 'wait' | 'success' | 'failure'
+    messages?: string
+    oderId?: string
+    payUrl?: string
+  }
+  totalPrice: number
+  createdAt: string;
+}>
+
+export type oderDetailResponse = ResponseSuccess<oderDetail[]>
+export type oderDetailSellerResponse = ResponseData<oderDetail>

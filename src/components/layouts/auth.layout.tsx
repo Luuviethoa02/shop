@@ -4,6 +4,7 @@ import Logo from "../share/Logo"
 import { Footer } from "../sections"
 import Progress from "../share/Progress"
 import ProgressBar from "../share/ProgressBar"
+import { useEffect } from "react"
 
 interface Iprops {
   children: React.ReactNode
@@ -15,6 +16,10 @@ const AuthLayout = ({ children, title }: Iprops) => {
   if (user) {
     return <Navigate to={"/"} />
   }
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   return (
     <div>

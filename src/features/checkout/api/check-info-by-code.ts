@@ -5,17 +5,18 @@ import { api } from "@/lib/api-client"
 import { Discount } from "@/types/client"
 
 const checkInfoCodeSchema = z.object({
-  discountCode: z.string({
-    required_error: 'Mã giảm giá không được để trống'
-  }).length(8, {
-    message: "Mã giảm giá phải có 8 ký tự"
-  }),
+  discountCode: z
+    .string({
+      required_error: "Mã giảm giá không được để trống",
+    })
+    .length(8, {
+      message: "Mã giảm giá phải có 8 ký tự",
+    }),
 })
-
 
 export const checkInfoCode = ({
   data,
-  sellerId
+  sellerId,
 }: {
   data: z.infer<typeof checkInfoCodeSchema>
   sellerId: string

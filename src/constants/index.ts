@@ -1,13 +1,18 @@
 import {
   Activity,
   BadgePercent,
+  Bell,
+  BookText,
   ChartNoAxesCombined,
   CircleUser,
   Globe,
   HomeIcon,
+  KeyRound,
   LucideIcon,
+  MapPinCheck,
   ShoppingBag,
   SlidersHorizontal,
+  Ticket,
   User,
 } from "lucide-react"
 
@@ -66,7 +71,7 @@ export const navLinkSeller: {
     lable: "Kho hàng",
   },
   {
-    path: "/seller/oders",
+    path: "/seller/orders",
     Icon: ShoppingBag,
     lable: "Đơn hàng",
   },
@@ -91,3 +96,42 @@ export const navLinkSeller: {
     lable: "Tài khoản",
   },
 ]
+
+
+export const navLinkProfiles: {
+  path: string
+  Icon: LucideIcon
+  lable: string
+}[] = [
+  {
+    path: "/profile/account",
+    Icon: User,
+    lable: "Tài khoản của tôi",
+  },
+  {
+    path: "/profile/address",
+    Icon: MapPinCheck ,
+    lable: "Địa chỉ",
+  },
+  {
+    path: "/profile/purchase",
+    Icon: BookText,
+    lable: "Đơn mua",
+  },
+  {
+    path: "/profile/notification",
+    Icon: Bell,
+    lable: "Thông báo",
+  },
+  {
+    path: "/profile/vouchers",
+    Icon: Ticket ,
+    lable: "Kho Voucher",
+  },
+  {
+    path: "/profile/change-password",
+    Icon: KeyRound, 
+    lable: "Thay đổi mật khẩu",
+  },
+]
+

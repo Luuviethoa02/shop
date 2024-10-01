@@ -1,0 +1,1 @@
+export const LIMIT_PAGE_ORDER_NOTIFICATION = 5

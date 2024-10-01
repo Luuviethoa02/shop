@@ -2,6 +2,14 @@ import Axios, { InternalAxiosRequestConfig } from "axios"
 
 import { env } from "@/config/env"
 import axios from "axios"
+import qs from "qs"
+
+function newAbortSignal(timeoutMs: number) {
+  const abortController = new AbortController();
+  setTimeout(() => abortController.abort(), timeoutMs || 0);
+
+  return abortController.signal;
+}
 
 function authRequestInterceptor(config: InternalAxiosRequestConfig) {
   if (config.headers) {
@@ -18,6 +26,12 @@ function authRequestInterceptor(config: InternalAxiosRequestConfig) {
   }
 
   config.withCredentials = true
+
+  config.timeout = 3000
+  config.signal = newAbortSignal(3000)
+
+  config.paramsSerializer= (params: Record<string, any>) => qs.stringify(params, { arrayFormat: 'brackets' })
+
 
   return config
 }
