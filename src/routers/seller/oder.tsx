@@ -275,7 +275,7 @@ export const OderRoute = () => {
     if (status === "canceled") {
       setOpenListReason(true)
     } else {
-      setStatusUpdate({  
+      setStatusUpdate({
         status: status,
         data: null,
       })

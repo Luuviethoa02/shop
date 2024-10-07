@@ -10,28 +10,24 @@ type UsehistoryOptions = {
 
 export const getTopSearch = ({
   ...args
-}: UsehistoryOptions): Promise<ResponseSuccess<{ _id: string; total: number;}[]>> => {
+}: UsehistoryOptions): Promise<
+  ResponseSuccess<{ _id: string; total: number }[]>
+> => {
   return api.get(`/searchHistory/topSearch`, {
     params: {
-      ...args
+      ...args,
     },
   })
 }
 
-export const getTopSearchQueryOptions = (
-  {
-    ...args
-  }: UsehistoryOptions
-) => {
+export const getTopSearchQueryOptions = ({ ...args }: UsehistoryOptions) => {
   return {
     queryKey: ["get-all-top-search", { ...args }],
-    queryFn: () => getTopSearch({  ...args }),
+    queryFn: () => getTopSearch({ ...args }),
   }
 }
 
-export const useGetTopSearch= ({
-  ...args
-}: UsehistoryOptions) => {
+export const useGetTopSearch = ({ ...args }: UsehistoryOptions) => {
   return useQuery({
     ...getTopSearchQueryOptions({ ...args }),
   })

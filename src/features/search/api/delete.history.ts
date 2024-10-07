@@ -8,7 +8,7 @@ export const deleteHistory = ({ historyId }: { historyId: string }) => {
 }
 
 type UseDeleteHistoryOptions = {
-  userId?: string 
+  userId?: string
   page?: number
   limit?: number
 }
@@ -19,11 +19,10 @@ export const useDeleteHistory = ({
 }: UseDeleteHistoryOptions) => {
   const queryClient = useQueryClient()
 
-
   return useMutation({
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: getHistoryQueryOptions({ ...args,userId }).queryKey,
+        queryKey: getHistoryQueryOptions({ ...args, userId }).queryKey,
       })
     },
     mutationFn: deleteHistory,

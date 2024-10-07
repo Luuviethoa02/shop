@@ -89,7 +89,11 @@ export type discountResponse = ResponseData<Discount>
 export type productDetailResponse = ResponseSuccess<{
   productDetail: productRespose
   productSimilars: productRespose
-  sellerInfo: Seller & { totalProducts: number, totalComments: number, averageRating: number }
+  sellerInfo: Seller & {
+    totalProducts: number
+    totalComments: number
+    averageRating: number
+  }
 }>
 
 export type sellerResponse = ResponseSuccess<{

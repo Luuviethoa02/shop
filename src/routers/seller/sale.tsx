@@ -50,7 +50,7 @@ import { CalendarIcon, MoreHorizontal } from "lucide-react"
 import React, { useEffect, useState } from "react"
 import Countdown from "react-countdown"
 import toast from "react-hot-toast"
-import {isBefore, parse } from "date-fns"
+import { isBefore, parse } from "date-fns"
 import LoadingMain from "@/components/share/LoadingMain"
 import {
   DropdownMenu,
@@ -79,10 +79,7 @@ export const SaleRoute = () => {
   const [productAdd, setProductAdd] = useState<productRespose[]>()
   const [discountDetail, setDiscountDetail] = useState<Discount>()
 
-  const {
-    data: discountApi,
-    status: statusGet,
-  } = useDiscountSellerId(queryKey)
+  const { data: discountApi, status: statusGet } = useDiscountSellerId(queryKey)
 
   const deleteDiscount = useDeleteDiscount(queryKey)
   const updateStatus = useUpdateStatusDiscount(queryKey)
@@ -159,8 +156,6 @@ export const SaleRoute = () => {
       setDialog(false)
     }
   }
-
- 
 
   const handleClickRemove = (discount: Discount) => {
     setDialog(true)

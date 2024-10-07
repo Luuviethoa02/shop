@@ -33,7 +33,6 @@ import { Label } from "@/components/ui/label"
 import { useUpdateStatusOrderDetail } from "@/features/oder/api/update-status-oderDetail"
 import toast from "react-hot-toast"
 
-
 const listReasons = [
   { id: 1, title: "Thay đổi ý định mua hàng", status: false },
   { id: 2, title: "Tìm thấy giá tốt hơn ở nơi khác", status: false },
@@ -45,7 +44,7 @@ const listReasons = [
   { id: 8, title: "Đã đặt hàng ở nơi khác", status: false },
   { id: 9, title: "Không đạt yêu cầu chất lượng", status: false },
   { id: 10, title: "Lý do cá nhân khác", status: false },
-];
+]
 
 export const OdersRoute = () => {
   const { user } = useAuthStore()
@@ -56,7 +55,6 @@ export const OdersRoute = () => {
   const [openListReason, setOpenListReason] = useState<boolean>(false)
   const [reason, setReason] = useState<string>()
   const updateStatusOrder = useUpdateStatusOrderDetail({ sellerId: undefined })
-
 
   const params = useParams()
 
@@ -413,10 +411,10 @@ export const OdersRoute = () => {
                             <p className="font-light min-w-52 max-w-52 text-right">
                               {formatNumberToVND(
                                 oderDetail.price -
-                                oderDetail?.vouchers?.reduce(
-                                  (acc, v) => acc + v.discount_amount,
-                                  0
-                                )
+                                  oderDetail?.vouchers?.reduce(
+                                    (acc, v) => acc + v.discount_amount,
+                                    0
+                                  )
                               )}
                             </p>
                           </div>
@@ -459,11 +457,11 @@ export const OdersRoute = () => {
                       <h4 className="font-medium min-w-52 max-w-52 text-xl text-destructive text-right">
                         {formatNumberToVND(
                           oderDetail.price * oderDetail.quantity +
-                          oderDetail?.type_tranfer.fee -
-                          (oderDetail?.vouchers?.reduce(
-                            (acc, v) => acc + v.discount_amount,
-                            0
-                          ) || 0)
+                            oderDetail?.type_tranfer.fee -
+                            (oderDetail?.vouchers?.reduce(
+                              (acc, v) => acc + v.discount_amount,
+                              0
+                            ) || 0)
                         )}
                       </h4>
                     </div>
@@ -479,7 +477,7 @@ export const OdersRoute = () => {
                               {oderDetail?.status_oder?.canceled?.created_by
                                 ?.shopper == "seller"
                                 ? oderDetail?.sellerId?.businessName
-                                : 'bạn'}
+                                : "bạn"}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
@@ -538,7 +536,14 @@ export const OdersRoute = () => {
                           </p>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Button onClick={() => handleClickCancelOrders(oderDetail?._id)} variant={"destructive"}>Hủy đơn hàng</Button>
+                          <Button
+                            onClick={() =>
+                              handleClickCancelOrders(oderDetail?._id)
+                            }
+                            variant={"destructive"}
+                          >
+                            Hủy đơn hàng
+                          </Button>
                           <Button variant={"outline"}>Liên hệ người bán</Button>
                         </div>
                       </>
@@ -546,7 +551,6 @@ export const OdersRoute = () => {
                   </div>
                 </div>
               ))}
-
           </TabsContent>
           <TabsContent value="complete">
             {!params.oderId && orders.status === "success" && (
@@ -786,10 +790,10 @@ export const OdersRoute = () => {
                             <p className="font-light min-w-52 max-w-52 text-right">
                               {formatNumberToVND(
                                 oderDetail.price -
-                                oderDetail?.vouchers?.reduce(
-                                  (acc, v) => acc + v.discount_amount,
-                                  0
-                                )
+                                  oderDetail?.vouchers?.reduce(
+                                    (acc, v) => acc + v.discount_amount,
+                                    0
+                                  )
                               )}
                             </p>
                           </div>
@@ -832,11 +836,11 @@ export const OdersRoute = () => {
                       <h4 className="font-medium min-w-52 max-w-52 text-xl text-destructive text-right">
                         {formatNumberToVND(
                           oderDetail.price * oderDetail.quantity +
-                          oderDetail?.type_tranfer.fee -
-                          (oderDetail?.vouchers?.reduce(
-                            (acc, v) => acc + v.discount_amount,
-                            0
-                          ) || 0)
+                            oderDetail?.type_tranfer.fee -
+                            (oderDetail?.vouchers?.reduce(
+                              (acc, v) => acc + v.discount_amount,
+                              0
+                            ) || 0)
                         )}
                       </h4>
                     </div>
@@ -852,7 +856,7 @@ export const OdersRoute = () => {
                               {oderDetail?.status_oder?.canceled?.created_by
                                 ?.shopper == "seller"
                                 ? oderDetail?.sellerId?.businessName
-                                : 'bạn'}
+                                : "bạn"}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
@@ -911,14 +915,21 @@ export const OdersRoute = () => {
                           </p>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Button onClick={() => handleClickCancelOrders(oderDetail?._id)} variant={"destructive"}>Hủy đơn hàng</Button>
+                          <Button
+                            onClick={() =>
+                              handleClickCancelOrders(oderDetail?._id)
+                            }
+                            variant={"destructive"}
+                          >
+                            Hủy đơn hàng
+                          </Button>
                           <Button variant={"outline"}>Liên hệ người bán</Button>
                         </div>
                       </>
                     )}
                   </div>
                 </div>
-            ))}
+              ))}
           </TabsContent>
           <TabsContent value="cancel">Change your password here.</TabsContent>
         </Tabs>

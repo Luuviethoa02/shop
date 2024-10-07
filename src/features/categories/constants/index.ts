@@ -14,25 +14,25 @@ export const settingsSlider = {
       breakpoint: 1530,
       settings: {
         slidesToShow: 5,
-      }
+      },
     },
     {
       breakpoint: 1024,
       settings: {
         slidesToShow: 4,
-      }
+      },
     },
     {
       breakpoint: 600,
       settings: {
         slidesToShow: 4,
-      }
+      },
     },
     {
       breakpoint: 480,
       settings: {
         slidesToShow: 2,
-      }
-    }
-  ]
+      },
+    },
+  ],
 }

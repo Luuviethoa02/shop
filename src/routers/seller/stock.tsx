@@ -81,7 +81,7 @@ export const StockRoute = () => {
         <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
           Hiện chưa có sản phẩm nào!
         </h2>
-        <Link  to={"/seller/products"}>Thêm mới sản phẩm</Link>
+        <Link to={"/seller/products"}>Thêm mới sản phẩm</Link>
       </div>
     )
   }

@@ -9,7 +9,8 @@ const Footer = () => {
           <div className="space-y-8 max-sm:hidden">
             <Logo className="max-sm:hidden" />
             <p className="text-lg text-gray-600">
-              Mang đến cho bạn những sản phẩm chất lượng với giá cả phải chăng, cùng trải nghiệm mua sắm tuyệt vời.
+              Mang đến cho bạn những sản phẩm chất lượng với giá cả phải chăng,
+              cùng trải nghiệm mua sắm tuyệt vời.
             </p>
             <div className="flex space-x-6 items-center">
               <Link to="#" className="text-gray-400 hover:text-gray-500">

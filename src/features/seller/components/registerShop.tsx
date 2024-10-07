@@ -298,15 +298,15 @@ const RegisterShop = () => {
                 control={control}
                 render={({ field, fieldState: { error } }) => (
                   <>
-                      <Textarea
-                        id="addressDetail"
-                        {...field}
-                        placeholder="Nhập số nhà tên đường.v.v..."
-                        className="min-h-[100px]"
-                      />
-                      {error && (
-                        <p className="text-red-500">{`${error.message}`}</p>
-                      )}
+                    <Textarea
+                      id="addressDetail"
+                      {...field}
+                      placeholder="Nhập số nhà tên đường.v.v..."
+                      className="min-h-[100px]"
+                    />
+                    {error && (
+                      <p className="text-red-500">{`${error.message}`}</p>
+                    )}
                   </>
                 )}
               />
@@ -441,7 +441,9 @@ const RegisterShop = () => {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
-                        <FormLabel className="text-base">Hàng cồng kềnh</FormLabel>
+                        <FormLabel className="text-base">
+                          Hàng cồng kềnh
+                        </FormLabel>
                         <FormDescription className="text-primary">
                           [COD đã được kích hoạt]
                         </FormDescription>

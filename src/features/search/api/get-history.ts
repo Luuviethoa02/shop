@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 
 import { api } from "@/lib/api-client"
-import {  ResponseSuccess } from "@/types/api"
+import { ResponseSuccess } from "@/types/api"
 
 type UsehistoryOptions = {
   page?: number
@@ -12,20 +12,22 @@ type UsehistoryOptions = {
 export const getHistoryByUserId = ({
   userId,
   ...args
-}: UsehistoryOptions): Promise<ResponseSuccess<{_id:string; count: number; relativeTime: string; keyWords: string }[]>> => {
+}: UsehistoryOptions): Promise<
+  ResponseSuccess<
+    { _id: string; count: number; relativeTime: string; keyWords: string }[]
+  >
+> => {
   return api.get(`/searchHistory/getAll/${userId}`, {
     params: {
-      ...args
+      ...args,
     },
   })
 }
 
-export const getHistoryQueryOptions = (
-  {
-    userId,
-    ...args
-  }: UsehistoryOptions
-) => {
+export const getHistoryQueryOptions = ({
+  userId,
+  ...args
+}: UsehistoryOptions) => {
   return {
     queryKey: ["get-all-history", userId, { ...args }],
     queryFn: () => getHistoryByUserId({ userId, ...args }),

@@ -243,7 +243,16 @@ export const ProductDetail = ({ data, status }: Iprops) => {
 
     const {
       productDetail: { colors, brand_id, des, name, price, sizes },
-      sellerInfo: { businessName, averageRating, totalComments, city, createdAt, follower, logo, totalProducts },
+      sellerInfo: {
+        businessName,
+        averageRating,
+        totalComments,
+        city,
+        createdAt,
+        follower,
+        logo,
+        totalProducts,
+      },
     } = data?.data
 
     return (
@@ -281,9 +290,7 @@ export const ProductDetail = ({ data, status }: Iprops) => {
               </div>
             </div>
             <div>
-              <h4 className="text-xl font-semibold">
-                {name}
-              </h4>
+              <h4 className="text-xl font-semibold">{name}</h4>
               <h4 className="text-xl font-normal capitalize">
                 Danh mục: {brand_id?.name}
               </h4>
@@ -407,7 +414,9 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                     </h3>
                     <div className="flex items-center">
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="ml-1 text-sm">{averageRating} ({totalComments + ' đánh giá'})</span>
+                      <span className="ml-1 text-sm">
+                        {averageRating} ({totalComments + " đánh giá"})
+                      </span>
                     </div>
                     <Button variant={"outline"} className="mt-2" size="sm">
                       Xem shop
@@ -427,7 +436,9 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div className="flex items-center gap-1">
                       <Package className="h-4 w-4 text-muted-foreground" />
-                      <span className="capitalize">{totalProducts} sản phẩm</span>
+                      <span className="capitalize">
+                        {totalProducts} sản phẩm
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
@@ -579,7 +590,9 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                       )}
 
                       <div className="flex items-center gap-2">
-                        <Label className="max-sm:hidden" htmlFor="rating">Đánh giá của bạn:</Label>
+                        <Label className="max-sm:hidden" htmlFor="rating">
+                          Đánh giá của bạn:
+                        </Label>
                         <Controller
                           name="rating"
                           control={control}

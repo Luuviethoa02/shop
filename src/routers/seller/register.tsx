@@ -104,8 +104,9 @@ export const RegisterRoute = () => {
                 >
                   <div className="flex flex-col items-center flex-grow">
                     <div
-                      className={`flex items-center justify-center w-8 h-8 rounded-full ${step.id <= currentStep ? "bg-primary" : "bg-gray-400"
-                        }`}
+                      className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                        step.id <= currentStep ? "bg-primary" : "bg-gray-400"
+                      }`}
                     >
                       <span className="text-white text-sm font-medium">
                         {step.id}
@@ -133,7 +134,9 @@ export const RegisterRoute = () => {
           <footer className="border-t-[1px] flex items-center justify-between mt-16 border-collapse h-20 border-black/20">
             <Button
               disabled={sellerCreated || currentStep === 1}
-              onClick={() => setCurrentStep((value) => value > 1 ? value - 1 : value)}
+              onClick={() =>
+                setCurrentStep((value) => (value > 1 ? value - 1 : value))
+              }
               type="button"
               variant={"outline"}
             >

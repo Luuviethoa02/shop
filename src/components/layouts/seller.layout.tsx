@@ -51,7 +51,6 @@ import { env } from "@/config/env"
 const SellerLayout = () => {
   const currentUser = useAuthStore((state) => state.user)
 
-
   if (!currentUser?._id) return <Navigate to="/" />
 
   if (!currentUser?.sellerId) return <Navigate to="/auth/seller/register" />
@@ -124,7 +123,7 @@ const SellerLayout = () => {
   }
 
   const handleBackHome = () => {
-    navigate('/')
+    navigate("/")
   }
 
   const handleClickLinkNotification = (id: string, notifiId: string) => {
@@ -248,7 +247,9 @@ const SellerLayout = () => {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleBackHome}>Trang mua hàng</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleBackHome}>
+                    Trang mua hàng
+                  </DropdownMenuItem>
                   <DropdownMenuItem>Hỗ trợ</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => setModalLogout(true)}>

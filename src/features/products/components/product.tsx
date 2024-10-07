@@ -83,7 +83,9 @@ function Product({ product }: Iprops) {
           />
         </div>
         <div className="p-4 bg-background">
-          <h5 className="text-base min-h-[72px] font-semibold line-clamp-3">{name}</h5>
+          <h5 className="text-base min-h-[72px] font-semibold line-clamp-3">
+            {name}
+          </h5>
           <div className="flex items-center justify-between w-full mt-1">
             {!discount && (
               <p className="text-lg block font-medium">

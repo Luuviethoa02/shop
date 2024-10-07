@@ -1,10 +1,6 @@
 import { QueryClient } from "@tanstack/react-query"
 import { createBrowserRouter } from "react-router-dom"
-import {
-  AdminLayout,
-  MainLayout,
-  SellerLayout,
-} from "@/components/layouts"
+import { AdminLayout, MainLayout, SellerLayout } from "@/components/layouts"
 import { ProtectedRoute } from "@/components/layouts/main.layout"
 
 export const createRouter = (queryClient: QueryClient) =>
@@ -258,7 +254,7 @@ export const createRouter = (queryClient: QueryClient) =>
                   },
                 },
               ],
-            }
+            },
           ],
         },
         {

@@ -113,7 +113,7 @@ export const navLinkProfiles: {
     path: "/profile/purchase",
     Icon: BookText,
     lable: "Đơn mua",
-  }
+  },
 ]
 
 export const navbarHomes: {
@@ -135,6 +135,5 @@ export const navbarHomes: {
   {
     path: "/contact",
     lable: "liên hệ",
-  }
+  },
 ]
-

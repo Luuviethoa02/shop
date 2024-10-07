@@ -28,7 +28,9 @@ const AuthLayout = ({ children, title }: Iprops) => {
         <div className="flex items-center justify-between gap">
           <div className="flex items-center gap-3">
             <Logo className="max-sm:hidden" />
-            <h1 className="text-2xl ml-8 max-sm:ml-0 text-primary font-bold">{title}</h1>
+            <h1 className="text-2xl ml-8 max-sm:ml-0 text-primary font-bold">
+              {title}
+            </h1>
           </div>
           <Link to={"/help"} className="text-red-400 hover:underline">
             Bạn cần giúp đỡ?

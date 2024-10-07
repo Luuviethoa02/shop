@@ -167,11 +167,18 @@ const FormLogin = () => {
               <p>Đăng nhập với Google</p> <GoogleIcon />
             </Button>
           </div>
-          <Button disabled={login.isPending} className="gap-2 mt-5" type="submit">
+          <Button
+            disabled={login.isPending}
+            className="gap-2 mt-5"
+            type="submit"
+          >
             {login.isPending && <SpokeSpinner size="lg" />}
             Đăng nhập
           </Button>
-          <Link to="/auth/forgot-password" className="underline max-sm:text-lg ml-3">
+          <Link
+            to="/auth/forgot-password"
+            className="underline max-sm:text-lg ml-3"
+          >
             Quên mật khẩu
           </Link>
         </form>

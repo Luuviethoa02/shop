@@ -1,11 +1,23 @@
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet"
 import { Button } from "../ui/button"
-import { BellIcon, History, MenuIcon, Search, ShoppingCart, TrendingUp, X } from "lucide-react"
-import { Link, NavLink, useLocation, useNavigate, useParams } from "react-router-dom"
 import {
-  NavigationMenu,
-  NavigationMenuList,
-} from "../ui/navigation-menu"
+  BellIcon,
+  History,
+  MenuIcon,
+  Search,
+  ShoppingCart,
+  TrendingUp,
+  X,
+} from "lucide-react"
+import {
+  Link,
+  NavLink,
+  useLocation,
+  useMatch,
+  useNavigate,
+  useParams,
+} from "react-router-dom"
+import { NavigationMenu, NavigationMenuList } from "../ui/navigation-menu"
 import Logo from "../share/Logo"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import {
@@ -66,6 +78,7 @@ const Header = () => {
 
   const navigation = useNavigate()
   const location = useLocation()
+  const math = useMatch("/search/:text")
 
   useEffect(() => {
     if (location.pathname === "/") {
@@ -102,15 +115,14 @@ const Header = () => {
   }
 
   const handleDeleteHistory = (historyId: string) => {
-    console.log(historyId, "historyId");
-
+    deleteHistory.mutate({ historyId })
   }
 
   const handleInputBlur = () => {
     setTimeout(() => {
-      setFocus(false);
-      setIsHistoryOpen(false);
-    }, 200);
+      setFocus(false)
+      setIsHistoryOpen(false)
+    }, 200)
   }
 
   useEffect(() => {
@@ -124,19 +136,14 @@ const Header = () => {
           setSearchHistory(data)
           setIsHistoryOpen(true)
           setFocus(false)
-        } else {
-          setIsHistoryOpen(false)
-          setFocus(true)
         }
       })
     } else {
-      setIsHistoryOpen(true)
-      setFocus(true)
+      setIsHistoryOpen(false)
     }
   }, [debouncedSearchTerm])
 
   const handleSuggestClick = (e: MouseEvent<HTMLElement>, item: string) => {
-
     e.preventDefault()
     e.stopPropagation()
     if (user?._id) {
@@ -144,7 +151,6 @@ const Header = () => {
     }
     setSearchTerm(item)
     setSearchTermFinal(item)
-    setIsHistoryOpen(false);
   }
 
   const handleKeyUpInputSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -165,7 +171,7 @@ const Header = () => {
   const socket = useSocket(currentUser?._id)
   const notifications = useNotificationByUserId({
     userId: currentUser?._id!,
-    limit: 1,
+    limit: 10,
     page: 1,
   })
 
@@ -204,14 +210,19 @@ const Header = () => {
                 <MenuIcon className="h-6 w-6" />
               </div>
             </SheetTrigger>
-            <SheetContent onOpenAutoFocus={(e: Event) => e.preventDefault()} side="left">
+            <SheetContent
+              onOpenAutoFocus={(e: Event) => e.preventDefault()}
+              side="left"
+            >
               <Logo />
               <div className="grid gap-2 py-6 left-10">
                 {navbarHomes.map((item, index) => (
                   <NavLink
                     key={index}
                     to={item.path}
-                    className={({ isActive }) => `flex capitalize bg-transparent w-full items-center py-2 text-lg font-semibold ${isActive ? 'text-primary bg-primary' : ''}`}
+                    className={({ isActive }) =>
+                      `flex capitalize bg-transparent w-full items-center py-2 text-lg font-semibold ${isActive ? "text-primary bg-primary" : ""}`
+                    }
                   >
                     {item.lable}
                   </NavLink>
@@ -226,7 +237,9 @@ const Header = () => {
                 <NavLink
                   key={index}
                   to={item.path}
-                  className={({ isActive }) => `group capitalize inline-flex w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:text-primary ${isActive ? 'text-primary' : ''}`}
+                  className={({ isActive }) =>
+                    `group capitalize inline-flex w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:text-primary ${isActive ? "text-primary" : ""}`
+                  }
                 >
                   {item.lable}
                 </NavLink>
@@ -263,14 +276,13 @@ const Header = () => {
                         animate={{ height: isHistoryOpen ? "auto" : 0 }}
                         transition={{ duration: 0.5, ease: "linear" }}
                       >
-                        {(isHistoryOpen && !focus) && data.status === "pending" && (
-                          <LoadingMain />
-                        )}
+                        {isHistoryOpen &&
+                          !focus &&
+                          data.status === "pending" && <LoadingMain />}
                         {data?.data &&
                           isHistoryOpen &&
                           searchHistory.length > 0 &&
-                          !focus &&
-                          (
+                          !focus && (
                             <ul className="py-1 space-y-2">
                               {searchHistory?.map((item, index) => (
                                 <li
@@ -281,22 +293,36 @@ const Header = () => {
                                   <div className="flex items-start">
                                     <Search color={"#696969"} size={20} />
                                   </div>
-                                  <span
-                                    onClick={(e) => handleSuggestClick(e, item)}
-                                    className="text-base lowercase font-light line-clamp-2 cursor-pointer">
-                                    {item}</span>
+                                  <span className="text-base lowercase font-light line-clamp-2 cursor-pointer">
+                                    {item.split(" ").map((word, index) => {
+                                      if (
+                                        searchTerm
+                                          .toLowerCase()
+                                          .includes(word.toLowerCase())
+                                      ) {
+                                        return (
+                                          <span
+                                            key={index}
+                                            className="capitalize text-primary font-normal"
+                                          >
+                                            {word + " "}
+                                          </span>
+                                        )
+                                      }
+                                      return <span key={index}>{word} </span>
+                                    })}
+                                  </span>
                                 </li>
                               ))}
                             </ul>
                           )}
-                        {focus &&
+                        {focus && (
                           <ul className="py-1 space-y-2">
                             {topSearch?.data?.data?.map((item, index) => (
                               <li
                                 key={index}
                                 className="flex hover:bg-accent px-3 py-1 items-center gap-4"
                                 onClick={(e) => handleSuggestClick(e, item._id)}
-
                               >
                                 <div className="flex items-start">
                                   <TrendingUp color={"#696969"} size={20} />
@@ -307,25 +333,37 @@ const Header = () => {
                               </li>
                             ))}
                             <hr />
-                            {(history?.data?.data?.length ?? 0) > 0 && history?.data?.data?.map((item, index) => (
-                              <li
-                                key={index}
-                                className="flex hover:bg-accent px-3 py-1 items-center gap-4"
-                                onClick={(e) => handleSuggestClick(e, item.keyWords)}
-                              >
-                                <div className="flex items-start">
-                                  <History color={"#696969"} size={20} />
-                                </div>
-                                <span className="text-base lowercase font-light line-clamp-2 cursor-pointer flex-1">
-                                  {item.keyWords}
-                                </span>
-                                <div onClick={() => handleDeleteHistory(item._id)} className="flex items-start cursor-pointer">
-                                  <X className="hover:scale-105 transition-all" color={"#696969"} size={20} />
-                                </div>
-                              </li>
-                            ))}
+                            {(history?.data?.data?.length ?? 0) > 0 &&
+                              history?.data?.data?.map((item, index) => (
+                                <li
+                                  key={index}
+                                  className="flex hover:bg-accent px-3 py-1 items-center gap-4"
+                                  onClick={(e) =>
+                                    handleSuggestClick(e, item.keyWords)
+                                  }
+                                >
+                                  <div className="flex items-start">
+                                    <History color={"#696969"} size={20} />
+                                  </div>
+                                  <span className="text-base lowercase font-light line-clamp-2 cursor-pointer flex-1">
+                                    {item.keyWords}
+                                  </span>
+                                  <div
+                                    onClick={() =>
+                                      handleDeleteHistory(item._id)
+                                    }
+                                    className="flex items-start cursor-pointer"
+                                  >
+                                    <X
+                                      className="hover:scale-105 transition-all"
+                                      color={"#696969"}
+                                      size={20}
+                                    />
+                                  </div>
+                                </li>
+                              ))}
                           </ul>
-                        }
+                        )}
                       </motion.div>
                     </div>
                   </div>
