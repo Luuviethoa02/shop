@@ -593,7 +593,7 @@ export const ProductDialog = ({ open, queryKey, setOpen, product }: Iprops) => {
                   opts={{
                     align: "start",
                   }}
-                  className="w-full max-w-4xl overflow-hidden"
+                  className="w-full max-w-5xl overflow-hidden"
                 >
                   <CarouselContent className="-mr-20">
                     {colorEdits &&
@@ -734,7 +734,7 @@ export const ProductDialog = ({ open, queryKey, setOpen, product }: Iprops) => {
                 />
               )}
 
-              <Button type="submit">Thêm cân nặng</Button>
+              <Button type="submit">Thêm kích cỡ</Button>
               <Button
                 type="button"
                 className="ml-2"

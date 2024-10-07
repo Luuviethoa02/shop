@@ -44,14 +44,11 @@ const MainLayout = () => {
     }
   }, [socket, currentUser?._id])
 
-
-
-
   return (
     <>
       <ProgressBar color={"#F97316"} />
       <Header />
-      <main>
+      <main className="mt-3">
         <Outlet />
       </main>
       <Toaster />

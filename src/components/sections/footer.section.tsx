@@ -4,16 +4,12 @@ import Logo from "../share/Logo"
 const Footer = () => {
   return (
     <footer className="bg-white" aria-labelledby="footer-heading">
-      <h2 id="footer-heading" className="sr-only">
-        Footer
-      </h2>
-      <div className="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8 lg:pt-32">
+      <div className="mx-auto max-w-7xl pb-8 md:px-10 sm:pt-24 lg:px-8 lg:pt-32">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
-          <div className="space-y-8">
-            <Logo />
-            <p className="text-sm leading-6 text-gray-600">
-              Making football look better to the world and a more respecful
-              game.
+          <div className="space-y-8 max-sm:hidden">
+            <Logo className="max-sm:hidden" />
+            <p className="text-lg text-gray-600">
+              Mang đến cho bạn những sản phẩm chất lượng với giá cả phải chăng, cùng trải nghiệm mua sắm tuyệt vời.
             </p>
             <div className="flex space-x-6 items-center">
               <Link to="#" className="text-gray-400 hover:text-gray-500">
@@ -64,11 +60,11 @@ const Footer = () => {
               </Link>
             </div>
           </div>
-          <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
+          <div className="mt-16 grid max-sm:px-10 max-sm:text-xl grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
                 <h3 className="text-sm font-semibold leading-6 text-gray-900">
-                  Solutions
+                  Dịch vụ
                 </h3>
                 <ul role="list" className="mt-6 space-y-4">
                   <li>
@@ -76,7 +72,7 @@ const Footer = () => {
                       to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
-                      Marketing
+                      Giao hàng
                     </Link>
                   </li>
                   <li>
@@ -84,7 +80,7 @@ const Footer = () => {
                       to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
-                      Analytics
+                      Thanh toán
                     </Link>
                   </li>
                   <li>
@@ -92,7 +88,7 @@ const Footer = () => {
                       to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
-                      Commerce
+                      Hoàn trả
                     </Link>
                   </li>
                   <li>
@@ -100,14 +96,14 @@ const Footer = () => {
                       to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
-                      Insights
+                      Hỗ trợ
                     </Link>
                   </li>
                 </ul>
               </div>
               <div className="mt-10 md:mt-0">
                 <h3 className="text-sm font-semibold leading-6 text-gray-900">
-                  Support
+                  Thông tin
                 </h3>
                 <ul role="list" className="mt-6 space-y-4">
                   <li>
@@ -115,7 +111,7 @@ const Footer = () => {
                       to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
-                      Pricing
+                      Về chúng tôi
                     </Link>
                   </li>
                   <li>
@@ -123,7 +119,7 @@ const Footer = () => {
                       to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
-                      Documentation
+                      Liên hệ
                     </Link>
                   </li>
                   <li>
@@ -131,7 +127,7 @@ const Footer = () => {
                       to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
-                      Guides
+                      Tuyển dụng
                     </Link>
                   </li>
                   <li>
@@ -139,7 +135,7 @@ const Footer = () => {
                       to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
-                      API Status
+                      Tin tức
                     </Link>
                   </li>
                 </ul>
@@ -148,7 +144,7 @@ const Footer = () => {
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
                 <h3 className="text-sm font-semibold leading-6 text-gray-900">
-                  Company
+                  Điều khoản
                 </h3>
                 <ul role="list" className="mt-6 space-y-4">
                   <li>
@@ -156,7 +152,7 @@ const Footer = () => {
                       to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
-                      About
+                      Chính sách bảo mật
                     </Link>
                   </li>
                   <li>
@@ -164,38 +160,14 @@ const Footer = () => {
                       to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
-                      Blog
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="#"
-                      className="text-sm leading-6 text-gray-600 hover:text-gray-900"
-                    >
-                      Jobs
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="#"
-                      className="text-sm leading-6 text-gray-600 hover:text-gray-900"
-                    >
-                      Press
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="#"
-                      className="text-sm leading-6 text-gray-600 hover:text-gray-900"
-                    >
-                      Partners
+                      Điều khoản sử dụng
                     </Link>
                   </li>
                 </ul>
               </div>
               <div className="mt-10 md:mt-0">
                 <h3 className="text-sm font-semibold leading-6 text-gray-900">
-                  Legal
+                  Theo dõi chúng tôi
                 </h3>
                 <ul role="list" className="mt-6 space-y-4">
                   <li>
@@ -203,7 +175,7 @@ const Footer = () => {
                       to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
-                      Claim
+                      Facebook
                     </Link>
                   </li>
                   <li>
@@ -211,7 +183,7 @@ const Footer = () => {
                       to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
-                      Privacy
+                      Instagram
                     </Link>
                   </li>
                   <li>
@@ -219,18 +191,21 @@ const Footer = () => {
                       to="#"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
-                      Terms
+                      Twitter
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="#"
+                      className="text-sm leading-6 text-gray-600 hover:text-gray-900"
+                    >
+                      YouTube
                     </Link>
                   </li>
                 </ul>
               </div>
             </div>
           </div>
-        </div>
-        <div className="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-24">
-          <p className="text-xs leading-5 text-gray-500">
-            &copy; 2020 Your Company, Inc. All rights reserved.
-          </p>
         </div>
       </div>
     </footer>

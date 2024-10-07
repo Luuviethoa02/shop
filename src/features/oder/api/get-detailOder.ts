@@ -4,37 +4,37 @@ import { api } from "@/lib/api-client"
 import { oderDetailResponse } from "@/types/api"
 
 type UseNotificationOptions = {
-    oderId: string | undefined
+  oderId: string | undefined
 }
 
 export const getOderDetailByOderId = ({
-    oderId,
+  oderId,
 }: {
-    oderId: string | undefined
+  oderId: string | undefined
 }): Promise<oderDetailResponse> => {
-    return api.get(`/oder/getDetail/${oderId}`)
+  return api.get(`/oder/getDetail/${oderId}`)
 }
 
 export const getNotificationQueryOptions = (
-    {
-        oderId,
-    }: {
-        oderId: string | undefined
-    } = {
-        oderId: undefined,
-        }
+  {
+    oderId,
+  }: {
+    oderId: string | undefined
+  } = {
+    oderId: undefined,
+  }
 ) => {
-    return {
-        queryKey: ["get-oder-detail", oderId],
-        queryFn: () => getOderDetailByOderId({ oderId: oderId }),
-        enabled: !!oderId,
-    }
+  return {
+    queryKey: ["get-oder-detail", oderId],
+    queryFn: () => getOderDetailByOderId({ oderId: oderId }),
+    enabled: !!oderId,
+  }
 }
 
 export const useGetOderDetailByUserId = ({
-    oderId,
+  oderId,
 }: UseNotificationOptions) => {
-    return useQuery({
-        ...getNotificationQueryOptions({ oderId }),
-    })
+  return useQuery({
+    ...getNotificationQueryOptions({ oderId }),
+  })
 }

@@ -25,7 +25,7 @@ export const AccountRoute = () => {
   const { setUser } = useAuthStore()
 
   const [avatar, setAvatar] = useState<{
-    img: string,
+    img: string
     imgFile: FileList | null
   }>()
 
@@ -58,30 +58,35 @@ export const AccountRoute = () => {
       const img = getImageUrl(event.target.files)!
       setAvatar({
         img,
-        imgFile: event.target.files!
+        imgFile: event.target.files!,
       })
     }
   }
 
   const handleClickUpdateAvatar = () => {
     if (avatar?.imgFile) {
-      const formData = new FormData();
-      formData.append('img', avatar.imgFile[0])
-      toast.promise(updateAvatar.mutateAsync({
-        data: formData,
-        userId: user?._id!
-      }, {
-        onSuccess(data, variables, context) {
-          setUser(data.data)
-        },
-      }), {
-        loading: 'Đang cập nhật ảnh',
-        success: 'Cập nhật ảnh thành công',
-        error: 'Có lỗi xảy ra, vui lòng thử lại sau!'
-      })
-
+      const formData = new FormData()
+      formData.append("img", avatar.imgFile[0])
+      toast.promise(
+        updateAvatar.mutateAsync(
+          {
+            data: formData,
+            userId: user?._id!,
+          },
+          {
+            onSuccess(data, variables, context) {
+              setUser(data.data)
+            },
+          }
+        ),
+        {
+          loading: "Đang cập nhật ảnh",
+          success: "Cập nhật ảnh thành công",
+          error: "Có lỗi xảy ra, vui lòng thử lại sau!",
+        }
+      )
     } else {
-      toast.error('Có lỗi xảy ra vui lòng thủ lại!')
+      toast.error("Có lỗi xảy ra vui lòng thủ lại!")
     }
   }
 
@@ -89,13 +94,13 @@ export const AccountRoute = () => {
     if (user) {
       setAvatar({
         img: user.img,
-        imgFile: null
+        imgFile: null,
       })
     }
   }, [user])
 
   return (
-    <LayoutWapper size='small'>
+    <LayoutWapper size="small">
       <ProfileLayout>
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -115,10 +120,19 @@ export const AccountRoute = () => {
                 htmlFor="file-input"
                 className="inline-flex items-center rounded-md  px-4 py-2 text-sm font-medium text-secondary-foreground outline-1 border-[1px]"
               >
-                {'Chọn ảnh'}
+                {"Chọn ảnh"}
               </label>
-              <input onChange={handleInputChange} id="file-input" type="file" className="sr-only" />
-              {avatar?.imgFile && <Button onClick={handleClickUpdateAvatar} className="ml-3">Cập nhật ảnh</Button>}
+              <input
+                onChange={handleInputChange}
+                id="file-input"
+                type="file"
+                className="sr-only"
+              />
+              {avatar?.imgFile && (
+                <Button onClick={handleClickUpdateAvatar} className="ml-3">
+                  Cập nhật ảnh
+                </Button>
+              )}
             </div>
           </header>
           <div className="space-y-6">
@@ -175,7 +189,6 @@ export const AccountRoute = () => {
                 </div>
               </div>
             </div>
-
           </div>
           <div className="mt-8">
             <Button size="lg" type="submit">

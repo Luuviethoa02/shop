@@ -78,10 +78,10 @@ export const StockRoute = () => {
   if (statusGet == "success" && (productsApi?.data?.length ?? 0) === 0) {
     return (
       <div className="flex items-center flex-col min-h-full gap-7 justify-center">
-        <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+        <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
           Hiện chưa có sản phẩm nào!
         </h2>
-        <Link to={"/seller/products"}>Thêm mới sản phẩm</Link>
+        <Link  to={"/seller/products"}>Thêm mới sản phẩm</Link>
       </div>
     )
   }

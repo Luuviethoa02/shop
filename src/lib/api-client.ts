@@ -5,10 +5,10 @@ import axios from "axios"
 import qs from "qs"
 
 function newAbortSignal(timeoutMs: number) {
-  const abortController = new AbortController();
-  setTimeout(() => abortController.abort(), timeoutMs || 0);
+  const abortController = new AbortController()
+  setTimeout(() => abortController.abort(), timeoutMs || 0)
 
-  return abortController.signal;
+  return abortController.signal
 }
 
 function authRequestInterceptor(config: InternalAxiosRequestConfig) {
@@ -27,11 +27,11 @@ function authRequestInterceptor(config: InternalAxiosRequestConfig) {
 
   config.withCredentials = true
 
-  config.timeout = 3000
-  config.signal = newAbortSignal(3000)
+  config.timeout = 36000
+  config.signal = newAbortSignal(36000)
 
-  config.paramsSerializer= (params: Record<string, any>) => qs.stringify(params, { arrayFormat: 'brackets' })
-
+  config.paramsSerializer = (params: Record<string, any>) =>
+    qs.stringify(params, { arrayFormat: "brackets" })
 
   return config
 }

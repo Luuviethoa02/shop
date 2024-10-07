@@ -1,27 +1,44 @@
-import { Link } from "react-router-dom"
+import r1 from '@/assets/banner/r1.jpg'
+import r2 from '@/assets/banner/r2.jpg'
+import banner_1 from '@/assets/banner/banner_1.jpg'
+import banner_2 from '@/assets/banner/banner_2.jpg'
+import banner_3 from '@/assets/banner/banner_3.jpg'
+import banner_4 from '@/assets/banner/banner_4.jpg'
+import LayoutWapper from '../warper/layout.wrapper'
+import Slider from "react-slick";
 
 const Banner = () => {
+  const settings = {
+    dots: true,
+    infinite: true,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    speed: 1000,
+    autoplaySpeed: 3000,
+    cssEase: "linear",
+  
+  };
+
   return (
-    <section className="relative w-full overflow-hidden">
-      <div className="absolute inset-0 z-0"></div>
-      <div className="relative z-10 container mx-auto flex h-[80vh] flex-col items-center justify-center px-4 py-12 text-center md:px-6 lg:py-24">
-        <h1 className="text-4xl font-bold tracking-tight text-primary-foreground sm:text-5xl lg:text-6xl">
-          Nâng tầm phong cách của bạn một cách dễ dàng
-        </h1>
-        <p className="mt-4 max-w-2xl text-lg text-muted-foreground md:text-xl">
-          Khám phá sự kết hợp hoàn hảo giữa thời trang và chất lượng với bộ sưu
-          tập trang phục cao cấp được tuyển chọn của chúng tôi.
-        </p>
-        <div className="mt-8">
-          <Link
-            to="#"
-            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-6 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-          >
-            Mua bây giờ
-          </Link>
+      <section className="w-full">
+        <div className="flex rounded items-center gap-2">
+          <div className="w-3/4 rounded">
+            <div className="slider-container md:max-h-[300px] max-sm:h-[125px] rounded">
+              <Slider {...settings}>
+                  <img className='min-w-full object-cover md:h-[300px] max-sm:h-[125px]  rounded'  src={banner_1} alt={r1} />
+                  <img className='min-w-full object-cover md:h-[300px] max-sm:h-[125px]  rounded' src={banner_2} alt={r1} />
+                  <img className='min-w-full object-cover md:h-[300px] max-sm:h-[125px]  rounded' src={banner_3} alt={r1} />
+                  <img className='min-w-full object-cover md:h-[300px] max-sm:h-[125px]  rounded' src={banner_4} alt={r1} />
+              </Slider>
+            </div>
+          </div>
+          <div className="w-1/4 nd:h-[300px] max-sm:h-[125px] rounded flex items-center flex-col gap-1">
+            <img className='w-full rounded md:min-h-[148px] max-sm:h-[64px] object-cover' src={r1} alt={r1} />
+            <img className='w-full rounded md:min-h-[148px] max-sm:h-[64px] object-cover' src={r2} alt={r1} />
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
   )
 }
 

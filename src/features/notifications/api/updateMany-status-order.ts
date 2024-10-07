@@ -1,8 +1,7 @@
-import { api } from "@/lib/api-client";
-import { orderNotifiCationResponse } from "@/types/api";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getOrderNotificationQueryOptions } from "./order-notification";
-
+import { api } from "@/lib/api-client"
+import { orderNotifiCationResponse } from "@/types/api"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { getOrderNotificationQueryOptions } from "./order-notification"
 
 export const updateManyStatusOrder = ({
   sellerId,

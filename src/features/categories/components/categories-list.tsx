@@ -12,8 +12,8 @@ const CategoryList = () => {
   const { data, isLoading } = useCategories()
 
   return (
-    <LayoutWapper>
-      <h2 className="scroll-m-20 mb-5 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+    <>
+      <h2 className="scroll-m-20 mb-5 max-sm:text-center pb-2 max-sm:text-xl text-3xl font-semibold tracking-tight first:mt-0">
         Danh Mục sản phẩm
       </h2>
       <div className="slider-container">
@@ -32,7 +32,7 @@ const CategoryList = () => {
             ))}
         </Slider>
       </div>
-    </LayoutWapper>
+    </>
   )
 }
 

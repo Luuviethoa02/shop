@@ -1,12 +1,15 @@
-import { Link, Navigate, NavLink, useLocation, useParams } from "react-router-dom"
+import {
+  Link,
+  Navigate,
+  NavLink,
+  useLocation,
+  useParams,
+} from "react-router-dom"
 
 import { navLinkProfiles } from "@/constants"
 import SEO from "../seo"
 import { useEffect, useState } from "react"
-import {
-  LucideIcon,
-  PencilLine,
-} from "lucide-react"
+import { LucideIcon, PencilLine } from "lucide-react"
 import ProgressBar from "../share/ProgressBar"
 import { useAuthStore } from "@/store"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
@@ -43,7 +46,7 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <SEO
-        title={`Thông tin | ${navLinkActive?.lable || 'Chi tiết đơn hàng'}`}
+        title={`Thông tin | ${navLinkActive?.lable || "Chi tiết đơn hàng"}`}
         description={`this is page profile shop tab ${navLinkActive?.lable}`}
       />
       <ProgressBar />
@@ -64,10 +67,14 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
               </h4>
               <div className="flex items-center gap-2">
                 <PencilLine color="#757575" size={14} />
-                <Link to={'/profile/account'} className="text-base font-normal text-muted-foreground">Sửa hồ sơ</Link>
+                <Link
+                  to={"/profile/account"}
+                  className="text-base font-normal text-muted-foreground"
+                >
+                  Sửa hồ sơ
+                </Link>
               </div>
             </div>
-
           </div>
           <nav className="grid items-start px-4 text-sm font-medium">
             {navLinkProfiles.map((item, index) => (
@@ -85,9 +92,7 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
           </nav>
         </aside>
         <div className="flex flex-1 flex-col">
-          <main className="flex-1 ml-10">
-            {children}
-          </main>
+          <main className="flex-1 max-sm:ml-0 ml-10">{children}</main>
         </div>
       </div>
     </>

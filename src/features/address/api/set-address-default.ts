@@ -8,7 +8,7 @@ import { productRespose } from "@/types/api"
 import { getAddressQueryOptions } from "./get-address-user"
 
 const schemaAddressDefault = z.object({
-    addressId: z.string(),
+  addressId: z.string(),
 })
 
 export type SetaddressDefaultInput = z.infer<typeof schemaAddressDefault>

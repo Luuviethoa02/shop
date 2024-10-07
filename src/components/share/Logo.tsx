@@ -8,16 +8,19 @@ const Logo = ({ className }: Iprops) => {
   const navigation = useNavigate()
 
   const handleClickBackHome = () => {
-    navigation('/', { replace: true })
+    navigation("/", { replace: true })
   }
 
   return (
     <div
       onClick={handleClickBackHome}
-      className={cn(`size-20 cursor-pointer flex items-center justify-center`, className)}
+      className={cn(
+        `size-20 cursor-pointer flex mr-14 items-center justify-center`,
+        className
+      )}
     >
       <img className="block" src="/logo.png" alt="logo" />
-      <blockquote className="text-primary pl-0 text-xl italic">
+      <blockquote className="text-foreground font-medium pl-0 text-xl italic">
         Shopvh
       </blockquote>
     </div>

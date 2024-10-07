@@ -112,14 +112,13 @@ export const formatDate = (isoDateString: string): string => {
 }
 
 export const convertToVietnamesePhone = (phoneNumber: string) => {
-  const phone = parsePhoneNumberFromString(phoneNumber, 'VN'); // VN là mã quốc gia Việt Nam
+  const phone = parsePhoneNumberFromString(phoneNumber, "VN") // VN là mã quốc gia Việt Nam
   if (phone) {
-    return phone.formatInternational(); // Trả về số điện thoại dưới dạng quốc tế (+84)
+    return phone.formatInternational() // Trả về số điện thoại dưới dạng quốc tế (+84)
   }
-  return phoneNumber; // Nếu không hợp lệ, trả về số gốc
-};
+  return phoneNumber // Nếu không hợp lệ, trả về số gốc
+}
 
-export const formatPrice = (value:number) => {
-  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-};
-
+export const formatPrice = (value: number) => {
+  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+}

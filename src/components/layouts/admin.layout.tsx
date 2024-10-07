@@ -46,7 +46,6 @@ const AdminLayout = () => {
     setNavLinkActive(navLinkActive)
   }, [location.pathname])
 
-
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])

@@ -1,5 +1,12 @@
 import discordSound from "@/assets/sounds/discord-notification.mp3"
-import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
+import {
+  Link,
+  Navigate,
+  NavLink,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from "react-router-dom"
 import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
@@ -39,9 +46,13 @@ import { LIMIT_PAGE_ORDER_NOTIFICATION } from "@/features/oder/constants"
 import { useGetOderDetailBySellerId } from "@/features/oder/api/get-orderDetailBySellerId"
 import nProgress from "nprogress"
 import { useUpdateStatusOrder } from "@/features/notifications/api/update-status-order"
+import { env } from "@/config/env"
 
 const SellerLayout = () => {
   const currentUser = useAuthStore((state) => state.user)
+
+
+  if (!currentUser?._id) return <Navigate to="/" />
 
   if (!currentUser?.sellerId) return <Navigate to="/auth/seller/register" />
 
@@ -83,31 +94,45 @@ const SellerLayout = () => {
     limit: LIMIT_PAGE_ORDER_NOTIFICATION,
   })
 
-  const orderDetail = useGetOderDetailBySellerId({ sellerId: (currentUser?.sellerId as Seller)?._id })
+  const orderDetail = useGetOderDetailBySellerId({
+    sellerId: (currentUser?.sellerId as Seller)?._id,
+  })
 
-  const updateManyStatus = useUpdateManyStatusOrder({ sellerId: (currentUser?.sellerId as Seller)?._id, page, limit: LIMIT_PAGE_ORDER_NOTIFICATION })
+  const updateManyStatus = useUpdateManyStatusOrder({
+    sellerId: (currentUser?.sellerId as Seller)?._id,
+    page,
+    limit: LIMIT_PAGE_ORDER_NOTIFICATION,
+  })
 
   const updateStatusOrderNotification = useUpdateStatusOrder({
     sellerId: (currentUser?.sellerId as Seller)?._id!,
     page,
-    limit: LIMIT_PAGE_ORDER_NOTIFICATION
+    limit: LIMIT_PAGE_ORDER_NOTIFICATION,
   })
 
   const handleClickUpdateManyStatus = () => {
-    toast.promise(updateManyStatus.mutateAsync({
-      sellerId: (currentUser?.sellerId as Seller)?._id!
-    }), {
-      loading: "Đang xử lý...",
-      success: "Đã đánh dấu tất cả đã đọc",
-      error: "Đã xảy ra lỗi"
-    })
+    toast.promise(
+      updateManyStatus.mutateAsync({
+        sellerId: (currentUser?.sellerId as Seller)?._id!,
+      }),
+      {
+        loading: "Đang xử lý...",
+        success: "Đã đánh dấu tất cả đã đọc",
+        error: "Đã xảy ra lỗi",
+      }
+    )
   }
-  const handleClickLinkNotification = (id: string, notifiId: string) => {
-    console.log(notifiId);
 
-    setOrderDetailId(id);
+  const handleBackHome = () => {
+    navigate('/')
+  }
+
+  const handleClickLinkNotification = (id: string, notifiId: string) => {
+    console.log(notifiId)
+
+    setOrderDetailId(id)
     updateStatusOrderNotification.mutate({
-      notifiId: notifiId
+      notifiId: notifiId,
     })
   }
 
@@ -120,7 +145,6 @@ const SellerLayout = () => {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
-
 
   useEffect(() => {
     if (orderDetail?.data?.data && orderDetailId) {
@@ -154,7 +178,7 @@ const SellerLayout = () => {
   return (
     <>
       <SEO
-        title={`Kênh bán hàng | ${navLinkActive?.lable || 'Chi tiết đơn hàng'} `}
+        title={`Kênh bán hàng | ${navLinkActive?.lable || "Chi tiết đơn hàng"} `}
         description={`this is page Seller shop tab ${navLinkActive?.lable}`}
       />
       <ProgressBar />
@@ -162,7 +186,10 @@ const SellerLayout = () => {
       <div className="flex min-h-screen w-full overflow-hidden">
         <aside className="hidden min-h-screen border-r bg-muted/40 lg:block">
           <div className="flex h-[60px] items-center px-6">
-            <Link to="/seller" className="flex items-center gap-2 font-semibold">
+            <Link
+              to="/seller"
+              className="flex items-center gap-2 font-semibold"
+            >
               <Logo />
             </Link>
           </div>
@@ -188,7 +215,7 @@ const SellerLayout = () => {
               <span className="sr-only">Trang chủ</span>
             </Link>
             <div className="flex-1">
-              <h1 className="font-semibold text-lg">{`${navLinkActive?.lable || 'Chi tiết đơn hàng'} `}</h1>
+              <h1 className="font-semibold text-lg">{`${navLinkActive?.lable || "Chi tiết đơn hàng"} `}</h1>
             </div>
             <div className="flex flex-1 items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
               <form className="ml-auto flex-1 sm:flex-initial">
@@ -205,10 +232,15 @@ const SellerLayout = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full">
                     <Avatar className="size-8 border">
-                      <AvatarImage src={(currentUser.sellerId as Seller).logo} alt={(currentUser.sellerId as Seller).businessName} />
+                      <AvatarImage
+                        src={(currentUser.sellerId as Seller).logo}
+                        alt={(currentUser.sellerId as Seller).businessName}
+                      />
                       <AvatarFallback>
                         {" "}
-                        {getInitials((currentUser.sellerId as Seller).businessName)}
+                        {getInitials(
+                          (currentUser.sellerId as Seller).businessName
+                        )}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -216,7 +248,7 @@ const SellerLayout = () => {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Cài đặt</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleBackHome}>Trang mua hàng</DropdownMenuItem>
                   <DropdownMenuItem>Hỗ trợ</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => setModalLogout(true)}>
@@ -227,12 +259,18 @@ const SellerLayout = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className="relative">
-                    <Button variant="ghost" size="icon" className="rounded-full">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full"
+                    >
                       <BellIcon className="h-6 w-6" />
                       <span className="sr-only">Chuyển đổi thông báo</span>
                     </Button>
                     <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-medium">
-                      {allOrderNotifications?.data?.data?.filter(item => !item.isRead).length || 0}
+                      {allOrderNotifications?.data?.data?.filter(
+                        (item) => !item.isRead
+                      ).length || 0}
                     </div>
                   </div>
                 </DropdownMenuTrigger>
@@ -240,79 +278,123 @@ const SellerLayout = () => {
                   <DropdownMenuLabel>
                     <div className="w-full flex items-center justify-between">
                       <h2>Thông báo</h2>
-                      <Button 
-                      className={(allOrderNotifications?.data?.data?.filter(item => !item.isRead).length ?? 0) > 0 ? 'opacity-100' : 'opacity-50 pointer-events-none cursor-default'}
-                      onClick={handleClickUpdateManyStatus} variant="ghost" size="sm">
+                      <Button
+                        className={
+                          (allOrderNotifications?.data?.data?.filter(
+                            (item) => !item.isRead
+                          ).length ?? 0) > 0
+                            ? "opacity-100"
+                            : "opacity-50 pointer-events-none cursor-default"
+                        }
+                        onClick={handleClickUpdateManyStatus}
+                        variant="ghost"
+                        size="sm"
+                      >
                         Đánh dấu tất cả đã đọc
                       </Button>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <div className="max-h-[500px] min-h-[300px] space-y-1 overflow-y-auto">
-                    {allOrderNotifications?.data?.data && allOrderNotifications?.data?.data?.length > 0 && allOrderNotifications?.data?.data.map(item => {
-                      if (!item.isRead) {
+                    {allOrderNotifications?.data?.data &&
+                      allOrderNotifications?.data?.data?.length > 0 &&
+                      allOrderNotifications?.data?.data.map((item) => {
+                        if (!item.isRead) {
+                          return (
+                            <DropdownMenuItem
+                              key={item._id}
+                              onClick={() =>
+                                handleClickLinkNotification(
+                                  item?.orderDetailId?._id,
+                                  item._id
+                                )
+                              }
+                              className="bg-slate-100 hover:bg-none"
+                            >
+                              <div className="flex group/item items-start gap-3 w-full">
+                                <div className="rounded-lg bg-[#55efc4] text-3xl flex items-center justify-center w-10 h-10">
+                                  <img
+                                    className="rounded-lg object-cover size-full"
+                                    src={item?.orderDetailId?.color?.image}
+                                    alt={item?.orderDetailId?.color?.name}
+                                  />
+                                </div>
+                                <div className="grid gap-1 flex-1">
+                                  <div className="flex items-center min-w-full">
+                                    <div className="flex flex-1 items-center gap-2">
+                                      <div className="font-medium text-green-500">
+                                        Đơn hàng mới
+                                      </div>
+                                      <div className="text-sm text-muted-foreground">
+                                        {item?.relativeTime}
+                                      </div>
+                                    </div>
+                                    <div className="cursor-pointer w-4 text-sm group-hover/item:visible invisible text-muted-foreground">
+                                      <X size={14} />
+                                    </div>
+                                    <Dot size={25} color="#7adeff" />
+                                  </div>
+                                  <p>
+                                    Bạn có một đơn hàng mới từ{" "}
+                                    <span className="font-semibold capitalize">
+                                      {item?.userId?.username}
+                                    </span>
+                                  </p>
+                                </div>
+                              </div>
+                            </DropdownMenuItem>
+                          )
+                        }
                         return (
-                          <DropdownMenuItem key={item._id} onClick={() => handleClickLinkNotification(item?.orderDetailId?._id, item._id)} className="bg-slate-100 hover:bg-none">
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleClickLinkNotification(
+                                item?.orderDetailId?._id,
+                                item._id
+                              )
+                            }
+                            key={item._id}
+                          >
                             <div className="flex group/item items-start gap-3 w-full">
                               <div className="rounded-lg bg-[#55efc4] text-3xl flex items-center justify-center w-10 h-10">
                                 <img
                                   className="rounded-lg object-cover size-full"
-                                  src={item?.orderDetailId?.color?.image} alt={item?.orderDetailId?.color?.name} />
+                                  src={item?.orderDetailId?.color?.image}
+                                  alt={item?.orderDetailId?.color?.name}
+                                />
                               </div>
                               <div className="grid gap-1 flex-1">
                                 <div className="flex items-center min-w-full">
                                   <div className="flex flex-1 items-center gap-2">
-                                    <div className="font-medium text-green-500">Đơn hàng mới</div>
+                                    <div className="font-medium text-green-500">
+                                      Đơn hàng mới
+                                    </div>
                                     <div className="text-sm text-muted-foreground">
                                       {item?.relativeTime}
-
                                     </div>
                                   </div>
                                   <div className="cursor-pointer w-4 text-sm group-hover/item:visible invisible text-muted-foreground">
                                     <X size={14} />
                                   </div>
-                                  <Dot size={25} color="#7adeff" />
                                 </div>
-                                <p>Bạn có một đơn hàng mới từ <span className="font-semibold capitalize">{item?.userId?.username}</span></p>
+                                <p>
+                                  Bạn có một đơn hàng mới từ{" "}
+                                  <span className="font-semibold capitalize">
+                                    {item?.userId?.username}
+                                  </span>
+                                </p>
                               </div>
                             </div>
                           </DropdownMenuItem>
                         )
-                      }
-                      return (
-                        <DropdownMenuItem
-                          onClick={() => handleClickLinkNotification(item?.orderDetailId?._id, item._id)}
-                          key={item._id}>
-                          <div className="flex group/item items-start gap-3 w-full">
-                            <div className="rounded-lg bg-[#55efc4] text-3xl flex items-center justify-center w-10 h-10">
-                              <img
-                                className="rounded-lg object-cover size-full"
-                                src={item?.orderDetailId?.color?.image} alt={item?.orderDetailId?.color?.name} />
-                            </div>
-                            <div className="grid gap-1 flex-1">
-                              <div className="flex items-center min-w-full">
-                                <div className="flex flex-1 items-center gap-2">
-                                  <div className="font-medium text-green-500">Đơn hàng mới</div>
-                                  <div className="text-sm text-muted-foreground">
-                                    {item?.relativeTime}
-                                  </div>
-                                </div>
-                                <div className="cursor-pointer w-4 text-sm group-hover/item:visible invisible text-muted-foreground">
-                                  <X size={14} />
-                                </div>
-                              </div>
-                              <p>Bạn có một đơn hàng mới từ <span className="font-semibold capitalize">{item?.userId?.username}</span></p>
-                            </div>
-                          </div>
-                        </DropdownMenuItem>
-                      )
-                    })}
+                      })}
 
-                    {allOrderNotifications?.data?.data && allOrderNotifications?.data?.data?.length === 0 && (
-                      <div className="flex items-center justify-center w-full min-h-[300px]">
-                      <h2>Hiện không có thông báo nào</h2>
-                      </div>
-                    )}
+                    {allOrderNotifications?.data?.data &&
+                      allOrderNotifications?.data?.data?.length === 0 && (
+                        <div className="flex items-center justify-center w-full min-h-[300px]">
+                          <h2>Hiện không có thông báo nào</h2>
+                        </div>
+                      )}
                   </div>
                   <DropdownMenuSeparator />
                 </DropdownMenuContent>

@@ -41,13 +41,19 @@ interface Iprops {
   addressEdit: address | undefined
   setAddressEdit: Dispatch<SetStateAction<address | undefined>>
   setRefresh?: (refresh: boolean) => void
-  refresh?: boolean,
-
+  refresh?: boolean
 }
 
-type addressAdd = Omit<address, '_id' | 'default' | 'user_id'>
+type addressAdd = Omit<address, "_id" | "default" | "user_id">
 
-const DialogAddress = ({open, refresh, setOpen, addressEdit, setAddressEdit, setRefresh }: Iprops) => {
+const DialogAddress = ({
+  open,
+  refresh,
+  setOpen,
+  addressEdit,
+  setAddressEdit,
+  setRefresh,
+}: Iprops) => {
   const user = useAuthStore()
 
   const addressAdd = useCreateAddress({
@@ -105,15 +111,18 @@ const DialogAddress = ({open, refresh, setOpen, addressEdit, setAddressEdit, set
   const onSubmit = (data: z.infer<typeof schemaAddress>) => {
     if (!addressEdit) {
       toast.promise(
-        addressAdd.mutateAsync({ data: { ...data, userId: user.user?._id! } }, {
-          onSuccess: () => {
-            setOpen(false)
-            methods.reset()
-            if (setRefresh) {
-              setRefresh(true)
-            }
-          },
-        }),
+        addressAdd.mutateAsync(
+          { data: { ...data, userId: user.user?._id! } },
+          {
+            onSuccess: () => {
+              setOpen(false)
+              methods.reset()
+              if (setRefresh) {
+                setRefresh(true)
+              }
+            },
+          }
+        ),
         {
           loading: "Đang thêm địa chỉ...",
           success: "Thêm địa chỉ thành công",
@@ -123,8 +132,12 @@ const DialogAddress = ({open, refresh, setOpen, addressEdit, setAddressEdit, set
     } else {
       let formData: Partial<addressAdd> = {}
       for (let key in data) {
-        if (addressEdit[key as unknown as keyof addressAdd] !== data[key as unknown as keyof addressAdd]) {
-          formData[key as unknown as keyof addressAdd] = data[key as unknown as keyof addressAdd]
+        if (
+          addressEdit[key as unknown as keyof addressAdd] !==
+          data[key as unknown as keyof addressAdd]
+        ) {
+          formData[key as unknown as keyof addressAdd] =
+            data[key as unknown as keyof addressAdd]
         }
       }
       if (Object.keys(formData).length === 0) {
@@ -134,21 +147,22 @@ const DialogAddress = ({open, refresh, setOpen, addressEdit, setAddressEdit, set
       }
 
       toast.promise(
-        addressUpdate.mutateAsync({ data: formData, addressId: addressEdit._id }, {
-          onSuccess: () => {
-            setOpen(false)
-            methods.reset()
-          },
-        }),
+        addressUpdate.mutateAsync(
+          { data: formData, addressId: addressEdit._id },
+          {
+            onSuccess: () => {
+              setOpen(false)
+              methods.reset()
+            },
+          }
+        ),
         {
           loading: "Đang cập nhật địa chỉ...",
           success: "Cập nhật địa chỉ thành công",
           error: "Cập nhật địa chỉ thất bại",
         }
       )
-
     }
-
   }
 
   useEffect(() => {
@@ -156,8 +170,8 @@ const DialogAddress = ({open, refresh, setOpen, addressEdit, setAddressEdit, set
       setAddressEdit(undefined)
     } else {
       if (addressEdit) {
-        const cityId = addressEdit.city.split('-')[0]
-        const districtId = addressEdit.district.split('-')[0]
+        const cityId = addressEdit.city.split("-")[0]
+        const districtId = addressEdit.district.split("-")[0]
         setDistrictId(districtId)
         setCityId(cityId)
         methods.setValue("name", addressEdit.name)
@@ -180,10 +194,15 @@ const DialogAddress = ({open, refresh, setOpen, addressEdit, setAddressEdit, set
 
   return (
     <AlertDialog open={open}>
-      <AlertDialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="min-h-[500px]">
+      <AlertDialogContent
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        className="min-h-[500px]"
+      >
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {addressEdit ? 'Cập nhật địa chỉ nhận hàng mới' : 'Thêm địa chỉ nhận hàng mới'}
+            {addressEdit
+              ? "Cập nhật địa chỉ nhận hàng mới"
+              : "Thêm địa chỉ nhận hàng mới"}
           </AlertDialogTitle>
         </AlertDialogHeader>
         <FormProvider {...methods}>
@@ -352,11 +371,15 @@ const DialogAddress = ({open, refresh, setOpen, addressEdit, setAddressEdit, set
                 <p className="text-red-500">{`${errors.address.message}`}</p>
               )}
             </div>
-            {addressEdit ? (<Button type="submit" className="w-full">
-              Cập nhật
-            </Button>) : (<Button type="submit" className="w-full">
-              Thêm
-            </Button>)}
+            {addressEdit ? (
+              <Button type="submit" className="w-full">
+                Cập nhật
+              </Button>
+            ) : (
+              <Button type="submit" className="w-full">
+                Thêm
+              </Button>
+            )}
           </form>
         </FormProvider>
         <AlertDialogFooter>

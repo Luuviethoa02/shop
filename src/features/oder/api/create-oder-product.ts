@@ -1,4 +1,3 @@
-
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { z } from "zod"
 
@@ -13,10 +12,10 @@ import { OdersProduct } from "@/types/client"
 export const createOder = ({
   data,
 }: {
-  data:{
-    oder:OdersProduct['oder'],
-    oderDetails:OdersProduct['oderDetails'][],
-  } 
+  data: {
+    oder: OdersProduct["oder"]
+    oderDetails: OdersProduct["oderDetails"][]
+  }
 }): Promise<productRespose> => {
   return api.post(`/oder/add`, data)
 }

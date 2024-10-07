@@ -9,9 +9,8 @@ interface Iprops {
 const LayoutWapper = ({ children, size = "large" }: Iprops) => {
   return (
     <>
-      
       <div
-        className={`${size === "small" ? "max-sm:px-2 md:px-24" : size === "medium" ? "max-sm:px-2 md:px-32" : "max-sm:px-2 md:px-48"}`}
+        className={`${size === "small" ? "max-sm:px-2 md:px-24" : size === "medium" ? "max-sm:px-2 md:px-32" : "max-sm:px-2 md:px-28"}`}
       >
         {children}
       </div>

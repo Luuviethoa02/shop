@@ -16,7 +16,7 @@ import RegisterShop from "@/features/seller/components/registerShop"
 import { getInitials } from "@/lib/utils"
 import { useAuthStore, useGlobalStore } from "@/store"
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Navigate, useNavigate } from "react-router-dom"
 
 const steps = [
   { id: 1, title: "Thông tin shop", Component: RegisterShop },
@@ -24,11 +24,14 @@ const steps = [
 ]
 
 export const RegisterRoute = () => {
+  const user = useAuthStore((state) => state.user)
+
+  if (!user?._id) return <Navigate to="/forbidden" />
+
   const [open, setOpen] = useState<boolean>(false)
   const sellerCreated = useGlobalStore((state) => state.sellerCreated)
   const navigate = useNavigate()
 
-  const user = useAuthStore((state) => state.user)
   const [currentStep, setCurrentStep] = useState(1)
 
   const CurrentComponent = steps[currentStep - 1].Component
@@ -101,9 +104,8 @@ export const RegisterRoute = () => {
                 >
                   <div className="flex flex-col items-center flex-grow">
                     <div
-                      className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                        step.id <= currentStep ? "bg-primary" : "bg-gray-400"
-                      }`}
+                      className={`flex items-center justify-center w-8 h-8 rounded-full ${step.id <= currentStep ? "bg-primary" : "bg-gray-400"
+                        }`}
                     >
                       <span className="text-white text-sm font-medium">
                         {step.id}
@@ -130,8 +132,8 @@ export const RegisterRoute = () => {
 
           <footer className="border-t-[1px] flex items-center justify-between mt-16 border-collapse h-20 border-black/20">
             <Button
-              disabled={sellerCreated}
-              onClick={() => setCurrentStep((value) => value - 1)}
+              disabled={sellerCreated || currentStep === 1}
+              onClick={() => setCurrentStep((value) => value > 1 ? value - 1 : value)}
               type="button"
               variant={"outline"}
             >
@@ -140,6 +142,7 @@ export const RegisterRoute = () => {
             <div className="flex items-center gap-4">
               <Button
                 onClick={handleClickNext}
+                disabled={!sellerCreated}
                 type="button"
               >{`${sellerCreated ? "Bắt đầu ngay" : "Tiếp theo"}`}</Button>
             </div>

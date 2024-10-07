@@ -1,15 +1,38 @@
 export const settingsSlider = {
   dots: false,
   className: "center",
-  centerMode: true,
   infinite: true,
-  centerPadding: "0px",
-  slidesToShow: 5,
-  speed: 500,
+  speed: 3000,
   rows: 2,
   slidesPerRow: 1,
-  autoplaySpeed: 2000,
+  slidesToShow: 5,
+  autoplaySpeed: 5000,
   autoplay: true,
   cssEase: "linear",
-  arrows: true,
+  responsive: [
+    {
+      breakpoint: 1530,
+      settings: {
+        slidesToShow: 5,
+      }
+    },
+    {
+      breakpoint: 1024,
+      settings: {
+        slidesToShow: 4,
+      }
+    },
+    {
+      breakpoint: 600,
+      settings: {
+        slidesToShow: 4,
+      }
+    },
+    {
+      breakpoint: 480,
+      settings: {
+        slidesToShow: 2,
+      }
+    }
+  ]
 }

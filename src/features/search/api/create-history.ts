@@ -10,17 +10,21 @@ export const createHistory = ({
   data,
 }: {
   data: {
-    keyWords: string;
+    keyWords: string
     userId: string
   }
 }): Promise<{ keyWords: string; create_by: string; validateTime: string }> => {
   return api.post(`/searchHistory/add`, data)
 }
 
-export const useCreateHistory = ({ page, limit, userId }: {
-  page: number | undefined;
-  limit: number | undefined;
-  userId: string | undefined;
+export const useCreateHistory = ({
+  page,
+  limit,
+  userId,
+}: {
+  page: number | undefined
+  limit: number | undefined
+  userId: string | undefined
 }) => {
   const queryClient = useQueryClient()
   return useMutation({

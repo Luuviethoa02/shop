@@ -17,7 +17,6 @@ const useNotificationSound = (audioUrl: string) => {
     }
   }, [audioUrl])
 
-  
   useEffect(() => {
     const enableAudio = () => setCanPlay(true)
 

@@ -1,36 +1,46 @@
-import { ProfileLayout } from '@/components/layouts'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import LayoutWapper from '@/components/warper/layout.wrapper'
-import { Controller, useForm, FormProvider } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Input } from '@/components/ui/input'
+import { ProfileLayout } from "@/components/layouts"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import LayoutWapper from "@/components/warper/layout.wrapper"
+import { Controller, useForm, FormProvider } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Input } from "@/components/ui/input"
 
 // Define Zod schema
-const schema = z.object({
-  currentPassword: z.string().min(1, "Current Password is required"),
-  newPassword: z.string().min(6, "New Password must be at least 6 characters"),
-  confirmPassword: z.string().min(6, "Confirm Password must be at least 6 characters"),
-}).refine(data => data.newPassword === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const schema = z
+  .object({
+    currentPassword: z.string().min(1, "Current Password is required"),
+    newPassword: z
+      .string()
+      .min(6, "New Password must be at least 6 characters"),
+    confirmPassword: z
+      .string()
+      .min(6, "Confirm Password must be at least 6 characters"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  })
 
 export const ChangePasswordRoute = () => {
   const methods = useForm({
     resolver: zodResolver(schema),
-  });
+  })
 
-  const { handleSubmit, control, formState: { errors } } = methods;
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = methods
 
-  const onSubmit = (data:any) => {
-    console.log('Form submitted:', data);
+  const onSubmit = (data: any) => {
+    console.log("Form submitted:", data)
     // Handle form submission
-  };
+  }
 
   return (
-    <LayoutWapper size='small'>
+    <LayoutWapper size="small">
       <ProfileLayout>
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>

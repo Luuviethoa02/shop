@@ -1,63 +1,43 @@
 import { useQuery } from "@tanstack/react-query"
 
 import { api } from "@/lib/api-client"
-import { QueryConfig } from "@/lib/react-query"
-import { commentsResponse, historyResponse } from "@/types/api"
+import {  ResponseSuccess } from "@/types/api"
 
-type UseCommentsOptions = {
-    page: number
-    limit: number
-    userId: string | undefined
-    queryConfig?: QueryConfig<typeof getHistoryQueryOptions>
+type UsehistoryOptions = {
+  page?: number
+  limit?: number
+  userId?: string
 }
 
 export const getHistoryByUserId = ({
-    userId,
-    page,
-    limit,
-}: {
-    userId: string | undefined
-    page: number | undefined
-    limit: number | undefined
-}): Promise<historyResponse> => {
-    return api.get(`/searchHistory/getAll/${userId}`, {
-        params: {
-            page,
-            limit,
-        },
-    })
+  userId,
+  ...args
+}: UsehistoryOptions): Promise<ResponseSuccess<{_id:string; count: number; relativeTime: string; keyWords: string }[]>> => {
+  return api.get(`/searchHistory/getAll/${userId}`, {
+    params: {
+      ...args
+    },
+  })
 }
 
 export const getHistoryQueryOptions = (
-    {
-        page,
-        limit,
-        userId,
-    }: {
-        page: number | undefined
-        limit: number | undefined
-        userId: string | undefined
-    } = {
-            page: undefined,
-            limit: undefined,
-            userId: undefined,
-        }
+  {
+    userId,
+    ...args
+  }: UsehistoryOptions
 ) => {
-    return {
-        queryKey: ["get-all-history", page, limit, userId],
-        queryFn: () => getHistoryByUserId({ userId, page, limit }),
-        enabled: !!userId,
-    }
+  return {
+    queryKey: ["get-all-history", userId, { ...args }],
+    queryFn: () => getHistoryByUserId({ userId, ...args }),
+    enabled: !!userId,
+  }
 }
 
 export const useGetHistoryByUserId = ({
-    userId,
-    page,
-    limit,
-    queryConfig,
-}: UseCommentsOptions) => {
-    return useQuery({
-        ...getHistoryQueryOptions({ userId, page, limit }),
-        ...queryConfig,
-    })
+  userId,
+  ...args
+}: UsehistoryOptions) => {
+  return useQuery({
+    ...getHistoryQueryOptions({ userId, ...args }),
+  })
 }

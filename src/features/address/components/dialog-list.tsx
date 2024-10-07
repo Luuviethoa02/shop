@@ -30,7 +30,14 @@ interface Iprops {
   addressActive: address | undefined
   setAddressActive: Dispatch<SetStateAction<address | undefined>>
 }
-const DialogList = ({ setAddressActive, addressActive, open, setOpen, address, setAddress }: Iprops) => {
+const DialogList = ({
+  setAddressActive,
+  addressActive,
+  open,
+  setOpen,
+  address,
+  setAddress,
+}: Iprops) => {
   const [openAdd, setOpenAdd] = useState<boolean>(false)
   const [addressEdit, setAddressEdit] = useState<address>()
   const [addressDefault, setAddressDefault] = useState<address>()
@@ -42,10 +49,11 @@ const DialogList = ({ setAddressActive, addressActive, open, setOpen, address, s
 
   useEffect(() => {
     if (address && addressActive) {
-      setAddressDefault(address?.find((item) => item.default === true) || addressActive)
+      setAddressDefault(
+        address?.find((item) => item.default === true) || addressActive
+      )
     }
   }, [address, addressActive])
-
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -76,20 +84,26 @@ const DialogList = ({ setAddressActive, addressActive, open, setOpen, address, s
   }
 
   const handleDefaultClick = (addressId: string) => {
-    toast.promise(setDefaultAdrress.mutateAsync({
-      data: {
-        addressId: addressId
-      },
-    }, {
-      onSuccess: (data) => {
-        setOpen(false)
-        return data
-      },
-    }), {
-      loading: "Đang xử lý",
-      success: "Đặt mặc định thành công",
-      error: "Đặt mặc định thất bại",
-    })
+    toast.promise(
+      setDefaultAdrress.mutateAsync(
+        {
+          data: {
+            addressId: addressId,
+          },
+        },
+        {
+          onSuccess: (data) => {
+            setOpen(false)
+            return data
+          },
+        }
+      ),
+      {
+        loading: "Đang xử lý",
+        success: "Đặt mặc định thành công",
+        error: "Đặt mặc định thất bại",
+      }
+    )
   }
 
   if (loading) {
@@ -120,16 +134,24 @@ const DialogList = ({ setAddressActive, addressActive, open, setOpen, address, s
             </AlertDialogTitle>
           </AlertDialogHeader>
           <RadioGroup onValueChange={handleInputchange}>
-            {(address && address.length == 0) && (
+            {address && address.length == 0 && (
               <h1>Hiện chưa có địa chỉ nào</h1>
             )}
 
-            {(address && addressActive && address.length > 0) && (
+            {address && addressActive && address.length > 0 && (
               <>
                 {address.map((item, index) => (
-                  <div key={index} className="flex group/item gap-2 hover:bg-black/5 transition-all p-2 py-3 rounded-md items-center space-x-2">
+                  <div
+                    key={index}
+                    className="flex group/item gap-2 hover:bg-black/5 transition-all p-2 py-3 rounded-md items-center space-x-2"
+                  >
                     <div>
-                      <RadioGroupItem checked={item._id === addressActive?._id} className="size-5" value={item._id} id={`r${index}`} />
+                      <RadioGroupItem
+                        checked={item._id === addressActive?._id}
+                        className="size-5"
+                        value={item._id}
+                        id={`r${index}`}
+                      />
                     </div>
                     <Label htmlFor={`address-${index}`} className="flex-grow">
                       <div className="flex items-center justify-between min-w-full">
@@ -137,32 +159,43 @@ const DialogList = ({ setAddressActive, addressActive, open, setOpen, address, s
                           <h4 className="scroll-m-20 capitalize text-lg border-r-[1px] pr-2 border-gray-500 font-semibold tracking-tight">
                             {item.name}
                           </h4>
-                          <p className="text-sm block ml-2 text-slate-500 truncate">{
-                            convertToVietnamesePhone(item.phone)
-                          }</p>
+                          <p className="text-sm block ml-2 text-slate-500 truncate">
+                            {convertToVietnamesePhone(item.phone)}
+                          </p>
                         </div>
-
                       </div>
                       <div className="text-sm capitalize text-gray-500">
                         {item.address}
                       </div>
-                      <div className="text-sm text-gray-500">{
-                        `${item.ward}, ${item.district.split('-')[1]}, ${item.city.split('-')[1]}`
-                      }</div>
+                      <div className="text-sm text-gray-500">{`${item.ward}, ${item.district.split("-")[1]}, ${item.city.split("-")[1]}`}</div>
                     </Label>
-                    {(addressDefault?._id === item._id) && (
+                    {addressDefault?._id === item._id && (
                       <div className="flex flex-col items-center justify-between min-h-full">
-                        <p onClick={() => handleClickUpdate(item)} className="capitalize hover:underline text-primary cursor-pointer">cập nhật</p>
+                        <p
+                          onClick={() => handleClickUpdate(item)}
+                          className="capitalize hover:underline text-primary cursor-pointer"
+                        >
+                          cập nhật
+                        </p>
                         <Badge className="text-center min-w-24 font-medium pb-1 flex items-center justify-center">
                           Mặc định
                         </Badge>
                       </div>
                     )}
 
-                    {(addressDefault?._id !== item._id) && (
+                    {addressDefault?._id !== item._id && (
                       <div className="flex flex-col items-center justify-between min-h-full">
-                        <p onClick={() => handleClickUpdate(item)} className="capitalize hover:underline text-primary cursor-pointer">cập nhật</p>
-                        <Badge variant={'outline'} onClick={() => handleDefaultClick(item._id)} className="text-center min-w-24 cursor-pointer mr-3 invisible group-hover/item:visible font-medium pb-1 flex items-center justify-center">
+                        <p
+                          onClick={() => handleClickUpdate(item)}
+                          className="capitalize hover:underline text-primary cursor-pointer"
+                        >
+                          cập nhật
+                        </p>
+                        <Badge
+                          variant={"outline"}
+                          onClick={() => handleDefaultClick(item._id)}
+                          className="text-center min-w-24 cursor-pointer mr-3 invisible group-hover/item:visible font-medium pb-1 flex items-center justify-center"
+                        >
                           Đặt mặc định
                         </Badge>
                       </div>
@@ -171,7 +204,6 @@ const DialogList = ({ setAddressActive, addressActive, open, setOpen, address, s
                 ))}
               </>
             )}
-
           </RadioGroup>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setOpen(false)}>

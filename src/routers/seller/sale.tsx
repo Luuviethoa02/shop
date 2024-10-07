@@ -1,6 +1,5 @@
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -22,11 +21,9 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
 
 import {
   Pagination,
@@ -53,7 +50,7 @@ import { CalendarIcon, MoreHorizontal } from "lucide-react"
 import React, { useEffect, useState } from "react"
 import Countdown from "react-countdown"
 import toast from "react-hot-toast"
-import { isAfter, isBefore, parse } from "date-fns"
+import {isBefore, parse } from "date-fns"
 import LoadingMain from "@/components/share/LoadingMain"
 import {
   DropdownMenu,
@@ -63,7 +60,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useDeleteDiscount } from "@/features/saleProduct/api/delete-discount"
 import { useUpdateStatusDiscount } from "@/features/saleProduct/api/update-status-discount"
-
 
 export const SaleRoute = () => {
   const currentUser = useAuthStore((state) => state.user)
@@ -83,7 +79,10 @@ export const SaleRoute = () => {
   const [productAdd, setProductAdd] = useState<productRespose[]>()
   const [discountDetail, setDiscountDetail] = useState<Discount>()
 
-  const { data: discountApi, status: statusGet, refetch } = useDiscountSellerId(queryKey)
+  const {
+    data: discountApi,
+    status: statusGet,
+  } = useDiscountSellerId(queryKey)
 
   const deleteDiscount = useDeleteDiscount(queryKey)
   const updateStatus = useUpdateStatusDiscount(queryKey)
@@ -161,23 +160,7 @@ export const SaleRoute = () => {
     }
   }
 
-  if (statusGet == "success" && (discountApi?.data?.length ?? 0) === 0) {
-    return (
-      <div className="flex items-center flex-col min-h-full gap-7 justify-center">
-        <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-          Hiện chưa có mã giảm giá nào!
-        </h2>
-        <Button size="sm" onClick={() => setShowModalAdd(true)}>
-          Thêm mới mã giảm giá
-        </Button>
-        <DialogAddDiscount
-          queryKey={queryKey}
-          open={showModal}
-          setOpen={setShowModalAdd}
-        />
-      </div>
-    )
-  }
+ 
 
   const handleClickRemove = (discount: Discount) => {
     setDialog(true)
@@ -232,7 +215,7 @@ export const SaleRoute = () => {
     }) => {
       if (completed) {
         updateStatus.mutate({
-          discountId: discountId
+          discountId: discountId,
         })
       } else {
         let reuslt = ""
@@ -268,6 +251,24 @@ export const SaleRoute = () => {
         ) : (
           <p>0</p>
         )}
+      </div>
+    )
+  }
+
+  if (statusGet == "success" && (discountApi?.data?.length ?? 0) === 0) {
+    return (
+      <div className="flex items-center flex-col min-h-full gap-7 justify-center">
+        <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+          Hiện chưa có mã giảm giá nào!
+        </h2>
+        <Button size="sm" onClick={() => setShowModalAdd(true)}>
+          Thêm mới mã giảm giá
+        </Button>
+        <DialogAddDiscount
+          queryKey={queryKey}
+          open={showModal}
+          setOpen={setShowModalAdd}
+        />
       </div>
     )
   }
@@ -353,10 +354,10 @@ export const SaleRoute = () => {
                             discount.end_date
                           )
                         ].variant as
-                        | "default"
-                        | "secondary"
-                        | "destructive"
-                        | "outline"
+                          | "default"
+                          | "secondary"
+                          | "destructive"
+                          | "outline"
                       }
                       className={
                         ObjectStatusDiscount[
@@ -449,12 +450,12 @@ export const SaleRoute = () => {
                                 discount.start_date,
                                 discount.end_date
                               ) == "expired" && (
-                                  <DropdownMenuItem
-                                    onClick={() => handleClickRemove(discount)}
-                                  >
-                                    Xóa
-                                  </DropdownMenuItem>
-                                )}
+                                <DropdownMenuItem
+                                  onClick={() => handleClickRemove(discount)}
+                                >
+                                  Xóa
+                                </DropdownMenuItem>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
@@ -497,7 +498,7 @@ export const SaleRoute = () => {
                 <PaginationNext
                   className={
                     page ===
-                      Math.ceil(discountApi?.total! / LIMIT_PAE_PRODUCT_LIST)
+                    Math.ceil(discountApi?.total! / LIMIT_PAE_PRODUCT_LIST)
                       ? "pointer-events-none opacity-50"
                       : "cursor-pointer"
                   }
@@ -554,10 +555,10 @@ export const SaleRoute = () => {
                               discountDetail?.end_date!
                             )
                           ].variant as
-                          | "default"
-                          | "secondary"
-                          | "destructive"
-                          | "outline"
+                            | "default"
+                            | "secondary"
+                            | "destructive"
+                            | "outline"
                         }
                         className={
                           ObjectStatusDiscount[

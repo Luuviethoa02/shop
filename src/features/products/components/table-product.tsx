@@ -202,7 +202,7 @@ const TableProduct = ({ status }: { status: "active" | "inactive" }) => {
             ? "Hiện chưa có sản phẩm nào!"
             : "Hiện chưa có sản phẩm nào trong thùng rác"}
         </h2>
-        {status === "inactive" && (
+        {status === "active" && (
           <>
             <Button size="sm" onClick={() => setShowModalAdd(true)}>
               Thêm mới sản phẩm
@@ -215,10 +215,6 @@ const TableProduct = ({ status }: { status: "active" | "inactive" }) => {
             />
           </>
         )}
-        <Button variant="outline" size="icon">
-          <RefreshCcw className="h-4 w-4" />
-          <span className="sr-only">Làm mới</span>
-        </Button>
       </div>
     )
   }

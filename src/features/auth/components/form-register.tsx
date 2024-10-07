@@ -90,9 +90,9 @@ const ForRegister = () => {
           </Button>
         </form>
       </Form>
-      <div className="mt-4 text-center text-sm">
+      <div className="mt-4 text-center text-sm max-sm:text-lg">
         Bạn đã có tài khoản?{" "}
-        <Link to="/auth/login" className="underline">
+        <Link to="/auth/login" className="underline max-sm:text-lg">
           Đăng nhập
         </Link>
       </div>

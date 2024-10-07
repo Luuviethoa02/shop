@@ -42,8 +42,6 @@ import { useCreateOder } from "@/features/oder/api/create-oder-product"
 import { useCreateOderWithMomo } from "@/features/oder/api/create-oder-with-momo"
 import { useNavigate } from "react-router-dom"
 
-
-
 const formSchemaVoucher = z.object({
   voucherCode: z
     .string({
@@ -56,7 +54,6 @@ const formSchemaVoucher = z.object({
 
 export function CheckoutRoute() {
   const carts = useCartStore((state) => state.carts)
-
 
   const createOder = useCreateOder()
   const createOderWithMomo = useCreateOderWithMomo()
@@ -78,7 +75,7 @@ export function CheckoutRoute() {
   const checkInfoCode = useCheckInfoCode()
   const [addressEdit, setAddressEdit] = useState<address>()
   const [refresh, setRefresh] = useState<boolean>(false)
-  const [typePay, setTypePay] = useState<'momo' | 'cash'>('cash')
+  const [typePay, setTypePay] = useState<"momo" | "cash">("cash")
 
   const methods = useForm({
     resolver: zodResolver(schemaAddress),
@@ -183,24 +180,23 @@ export function CheckoutRoute() {
     setShippingActive(id)
   }
   const getTotalPrice = () => {
-    return Object.values(carts).reduce(
-      (acc, cur) => acc + cur.quantity * +cur.product.price,
-      0
-    ) +
+    return (
+      Object.values(carts).reduce(
+        (acc, cur) => acc + cur.quantity * +cur.product.price,
+        0
+      ) +
       Object.values(stateOder).reduce(
-        (acc, cur) =>
-          acc + SHIPPING_UNIT[cur.type_tranfer].price_shipped,
+        (acc, cur) => acc + SHIPPING_UNIT[cur.type_tranfer].price_shipped,
         0
       ) -
       Object.values(stateOder).reduce(
         (acc, cur) =>
           acc +
-          (cur?.vouchers?.reduce(
-            (acc, cur) => acc + cur?.discount_amount,
-            0
-          ) ?? 0),
+          (cur?.vouchers?.reduce((acc, cur) => acc + cur?.discount_amount, 0) ??
+            0),
         0
       )
+    )
   }
 
   const handleOpenchangeVoucher = (
@@ -241,10 +237,10 @@ export function CheckoutRoute() {
   }
 
   const getProductOderDetai = () => {
-    const oderDetail: OdersProduct['oderDetails'][] = []
+    const oderDetail: OdersProduct["oderDetails"][] = []
     if (Object.entries(carts).length > 0) {
       Object.entries(carts).forEach(([id, cartItem]) => {
-        const oderDetailItem: OdersProduct['oderDetails'] = {
+        const oderDetailItem: OdersProduct["oderDetails"] = {
           product: cartItem.product.name,
           sellerId: cartItem.selelrId._id,
           price: +cartItem.product.price,
@@ -254,8 +250,8 @@ export function CheckoutRoute() {
           size: cartItem.size,
           type_tranfer: {
             name: stateOder[id]?.type_tranfer,
-            fee: SHIPPING_UNIT[stateOder[id]?.type_tranfer]?.price_shipped
-          }
+            fee: SHIPPING_UNIT[stateOder[id]?.type_tranfer]?.price_shipped,
+          },
         }
         oderDetail.push(oderDetailItem)
       })
@@ -266,76 +262,89 @@ export function CheckoutRoute() {
 
   const handleClickOder = () => {
     if (user?._id && addressActive) {
-      const oder: OdersProduct['oder'] = {
+      const oder: OdersProduct["oder"] = {
         user_id: user?._id!,
         address_id: { ...addressActive },
         type_pay: typePay,
-        totalPrice: getTotalPrice()
+        totalPrice: getTotalPrice(),
       }
-      const oderDetails: OdersProduct['oderDetails'][] = getProductOderDetai()
+      const oderDetails: OdersProduct["oderDetails"][] = getProductOderDetai()
 
-      if (typePay === 'momo') {
-        toast.promise(createOderWithMomo.mutateAsync({
-          data: { oder, oderDetails }
-        }, {
-          onSuccess(data, variables, context) {
-            history.replaceState(null, '', '/order-summary');
-            location.href = data.payUrl;
-          },
-          onError(error, variables, context) {
-            console.log("Error momo", error);
-            toast.error(error.message || "Có lỗi xảy ra, vui lòng thử lại")
-            return;
+      if (typePay === "momo") {
+        toast.promise(
+          createOderWithMomo.mutateAsync(
+            {
+              data: { oder, oderDetails },
+            },
+            {
+              onSuccess(data, variables, context) {
+                history.replaceState(null, "", "/order-summary")
+                location.href = data.payUrl
+              },
+              onError(error, variables, context) {
+                console.log("Error momo", error)
+                toast.error(error.message || "Có lỗi xảy ra, vui lòng thử lại")
+                return
+              },
+            }
+          ),
+          {
+            loading: "Đang chuyển hướng đến thanh toán...",
+            success: "Chuyển hướng thanh toán thành công",
+            error: "Có lỗi xảy ra, vui lòng thử lại",
           }
-        }
-        ), {
-          loading: "Đang chuyển hướng đến thanh toán...",
-          success: "Chuyển hướng thanh toán thành công",
-          error: "Có lỗi xảy ra, vui lòng thử lại"
-        })
+        )
       } else {
-        toast.promise(createOder.mutateAsync({
-          data: { oder, oderDetails }
-        },{
-        onSuccess(data, variables, context) {
-          navigation('/order-successfully')
-        },
-        }), {
-          loading: "Đang xử lý đơn hàng...",
-          success: "Đặt hàng thành công",
-          error: "Có lỗi xảy ra, vui lòng thử lại"
-        })
+        toast.promise(
+          createOder.mutateAsync(
+            {
+              data: { oder, oderDetails },
+            },
+            {
+              onSuccess(data, variables, context) {
+                navigation("/order-successfully")
+              },
+            }
+          ),
+          {
+            loading: "Đang xử lý đơn hàng...",
+            success: "Đặt hàng thành công",
+            error: "Có lỗi xảy ra, vui lòng thử lại",
+          }
+        )
       }
     }
   }
 
   useEffect(() => {
     if ((addresses?.data?.data?.length ?? 0) > 0) {
-      const addressDefault = addresses?.data?.data.find(address => address.default) || addresses?.data?.data[0]
+      const addressDefault =
+        addresses?.data?.data.find((address) => address.default) ||
+        addresses?.data?.data[0]
 
-      const updatedAddress = addresses?.data?.data ? [...addresses.data.data] : [];
+      const updatedAddress = addresses?.data?.data
+        ? [...addresses.data.data]
+        : []
 
       // Kiểm tra nếu không có item nào có default: true
-      const hasDefault = addresses?.data?.data?.some(item => item.default);
+      const hasDefault = addresses?.data?.data?.some((item) => item.default)
       if (!hasDefault && (addresses?.data?.data?.length ?? 0) > 0) {
-        updatedAddress[0].default = true;
+        updatedAddress[0].default = true
       }
       setAddress(updatedAddress)
       setAddressActive(addressDefault)
     }
   }, [addresses?.data?.data])
 
-
   useEffect(() => {
     if (addressActive) {
       methods.setValue("name", addressActive?.name)
       methods.setValue("phone", addressActive?.phone)
-      methods.setValue("city", addressActive?.city.split('-')[1])
-      methods.setValue("district", addressActive?.district.split('-')[1])
+      methods.setValue("city", addressActive?.city.split("-")[1])
+      methods.setValue("district", addressActive?.district.split("-")[1])
       methods.setValue("ward", addressActive?.ward)
       methods.setValue("address", addressActive?.address)
     }
-
   }, [addressActive])
 
   useEffect(() => {
@@ -483,8 +492,8 @@ export function CheckoutRoute() {
                                           </div>
                                           {methodsVoucher.formState.errors
                                             .voucherCode && (
-                                              <p className="text-red-500">{`${methodsVoucher.formState.errors.voucherCode.message}`}</p>
-                                            )}
+                                            <p className="text-red-500">{`${methodsVoucher.formState.errors.voucherCode.message}`}</p>
+                                          )}
                                         </div>
                                       </div>
                                     </CardContent>
@@ -586,25 +595,30 @@ export function CheckoutRoute() {
                   Thông tin vận chuyển
                 </h4>
 
-                {(addresses.data?.data && addresses.data.data.length > 0) ? (<p
-                  className="cursor-pointer text-base hover:underline hover:text-primary transition-all duration-100"
-                  onClick={() => setOpen(true)}
-                >
-                  Thay đổi
-                </p>) : (<p
-                  className="cursor-pointer text-base hover:underline hover:text-primary transition-all duration-100"
-                  onClick={() => setOpenAddAdress(true)}
-                >
-                  Thêm địa chỉ
-                </p>)
-                }
-
+                {addresses.data?.data && addresses.data.data.length > 0 ? (
+                  <p
+                    className="cursor-pointer text-base hover:underline hover:text-primary transition-all duration-100"
+                    onClick={() => setOpen(true)}
+                  >
+                    Thay đổi
+                  </p>
+                ) : (
+                  <p
+                    className="cursor-pointer text-base hover:underline hover:text-primary transition-all duration-100"
+                    onClick={() => setOpenAddAdress(true)}
+                  >
+                    Thêm địa chỉ
+                  </p>
+                )}
               </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {(addresses.status === "pending" || addresses.isFetching) && <LoadingMain />}
-            {(addresses.status === "success" && !addresses.isFetching) &&
+            {(addresses.status === "pending" || addresses.isFetching) && (
+              <LoadingMain />
+            )}
+            {addresses.status === "success" &&
+              !addresses.isFetching &&
               (addresses.data.data.length == 0 ? (
                 <>
                   <p className="text-destructive">
@@ -751,7 +765,11 @@ export function CheckoutRoute() {
             <CardTitle>Phương thức thanh toán</CardTitle>
           </CardHeader>
           <CardContent>
-            <RadioGroup defaultValue={typePay} onValueChange={(value: 'cash' | 'momo') => setTypePay(value)} className="grid gap-4">
+            <RadioGroup
+              defaultValue={typePay}
+              onValueChange={(value: "cash" | "momo") => setTypePay(value)}
+              className="grid gap-4"
+            >
               <div>
                 <RadioGroupItem
                   value="cash"
@@ -833,17 +851,17 @@ export function CheckoutRoute() {
                   ) == 0
                     ? "0 đ"
                     : "- " +
-                    formatNumberToVND(
-                      Object.values(stateOder).reduce(
-                        (acc, cur) =>
-                          acc +
-                          (cur?.vouchers?.reduce(
-                            (acc, cur) => acc + cur?.discount_amount,
-                            0
-                          ) ?? 0),
-                        0
-                      )
-                    )}
+                      formatNumberToVND(
+                        Object.values(stateOder).reduce(
+                          (acc, cur) =>
+                            acc +
+                            (cur?.vouchers?.reduce(
+                              (acc, cur) => acc + cur?.discount_amount,
+                              0
+                            ) ?? 0),
+                          0
+                        )
+                      )}
                 </p>
               </div>
               <div className="flex items-center justify-between">
@@ -859,27 +877,31 @@ export function CheckoutRoute() {
                       (acc, cur) => acc + cur.quantity * +cur.product.price,
                       0
                     ) +
-                    Object.values(stateOder).reduce(
-                      (acc, cur) =>
-                        acc + SHIPPING_UNIT[cur.type_tranfer].price_shipped,
-                      0
-                    ) -
-                    Object.values(stateOder).reduce(
-                      (acc, cur) =>
-                        acc +
-                        (cur?.vouchers?.reduce(
-                          (acc, cur) => acc + cur?.discount_amount,
-                          0
-                        ) ?? 0),
-                      0
-                    )
+                      Object.values(stateOder).reduce(
+                        (acc, cur) =>
+                          acc + SHIPPING_UNIT[cur.type_tranfer].price_shipped,
+                        0
+                      ) -
+                      Object.values(stateOder).reduce(
+                        (acc, cur) =>
+                          acc +
+                          (cur?.vouchers?.reduce(
+                            (acc, cur) => acc + cur?.discount_amount,
+                            0
+                          ) ?? 0),
+                        0
+                      )
                   )}
                 </p>
               </div>
             </div>
           </CardContent>
           <CardFooter>
-            <Button onClick={handleClickOder} disabled={(addresses?.data?.data?.length ?? 0) === 0} className="w-full">
+            <Button
+              onClick={handleClickOder}
+              disabled={(addresses?.data?.data?.length ?? 0) === 0}
+              className="w-full"
+            >
               Đặt hàng
             </Button>
           </CardFooter>
@@ -891,7 +913,9 @@ export function CheckoutRoute() {
         setAddressActive={setAddressActive}
         address={address}
         setAddress={setAddress}
-        open={open} setOpen={setOpen} />
+        open={open}
+        setOpen={setOpen}
+      />
 
       <DialogShippingUnit
         open={openShipping}

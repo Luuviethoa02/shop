@@ -85,9 +85,9 @@ export const ProductDetail = ({ data, status }: Iprops) => {
 
   useEffect(() => {
     if (data?.data) {
-      setSelectedColor(data.data.productDetail.colors[0]._id)
-      setAvatar(data.data.productDetail.colors[0].image)
-      setSelectedSize(data.data.productDetail.sizes[0].name)
+      setSelectedColor(data?.data?.productDetail?.colors[0]?._id)
+      setAvatar(data?.data?.productDetail?.colors[0]?.image)
+      setSelectedSize(data?.data?.productDetail?.sizes[0]?.name)
     }
   }, [data?.data])
 
@@ -174,7 +174,7 @@ export const ProductDetail = ({ data, status }: Iprops) => {
         product: {
           name,
           price,
-          brand: brand_id.name,
+          brand: brand_id?.name,
         },
         color: colors.find((color) => color._id === selectedColor) as ColorIpi,
         size: sizes.find((size) => size.name === selectedSize) as Size,
@@ -243,7 +243,7 @@ export const ProductDetail = ({ data, status }: Iprops) => {
 
     const {
       productDetail: { colors, brand_id, des, name, price, sizes },
-      sellerInfo: { businessName, city, createdAt, follower, logo },
+      sellerInfo: { businessName, averageRating, totalComments, city, createdAt, follower, logo, totalProducts },
     } = data?.data
 
     return (
@@ -268,9 +268,9 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                     className="aspect-[4/3] overflow-hidden rounded-lg bg-gray-100"
                   >
                     <img
-                      src={color.image}
-                      alt={color.name}
-                      onClick={() => handleColorChange(color._id)}
+                      src={color?.image}
+                      alt={color?.name}
+                      onClick={() => handleColorChange(color?._id)}
                       width={200}
                       height={150}
                       className={`h-full w-full rounded-lg object-cover object-center transition-opacity duration-300 ease-in-out hover:opacity-80 ${avatar === color.image ? "border-2 border-primary border-collapse opacity-60" : ""}`}
@@ -280,13 +280,13 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                 ))}
               </div>
             </div>
-            <div className="grid">
-              <h4 className="scroll-m-20 h-0 text-xl font-semibold tracking-tight">
+            <div>
+              <h4 className="text-xl font-semibold">
                 {name}
               </h4>
-              <p className="text-xl h-0 text-muted-foreground">
-                Danh mục: {brand_id.name}
-              </p>
+              <h4 className="text-xl font-normal capitalize">
+                Danh mục: {brand_id?.name}
+              </h4>
               <div className="grid gap-2">
                 <div className="h-auto">
                   <span className="text-2xl font-bold h-0">
@@ -320,12 +320,12 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                           <RadioGroupItem id={color._id} value={color._id} />
                           <div className="size-11">
                             <img
-                              src={color.image}
-                              alt={color.name}
+                              src={color?.image}
+                              alt={color?.name}
                               className="h-full w-full object-cover rounded"
                             />
                           </div>
-                          {color.name}
+                          {color?.name}
                         </Label>
                       ))}
                     </RadioGroup>
@@ -342,15 +342,15 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                     >
                       {sizes?.map((size) => (
                         <Label
-                          key={size.name}
+                          key={size?.name}
                           htmlFor={`size-${size}`}
                           className="border cursor-pointer rounded-md p-2 flex items-center gap-2 [&:has(:checked)]:bg-muted"
                         >
                           <RadioGroupItem
                             id={`size-${size}`}
-                            value={size.name}
+                            value={size?.name}
                           />
-                          {`${size.name.toUpperCase()}<${size.weight}kg>`}
+                          {`${size?.name.toUpperCase()}<${size.weight}kg>`}
                         </Label>
                       ))}
                     </RadioGroup>
@@ -390,11 +390,11 @@ export const ProductDetail = ({ data, status }: Iprops) => {
               </div>
             </div>
           </div>
-          <div className="mt-20 mb-5">
-            <Card className="w-full max-h-[200px] overflow-hidden">
-              <CardContent className="p-4 flex flex-col sm:flex-row gap-4 h-full">
-                <div className="flex items-center sm:items-start gap-4 sm:w-1/3">
-                  <Avatar className="size-20 border">
+          <div className="mt-20 max-sm:mt-10 mb-5">
+            <Card className="w-full max-md:max-h-[200px] max-sm:h-auto overflow-hidden">
+              <CardContent className="p-4 max-sm:p-2 flex flex-col sm:flex-row gap-4 h-full">
+                <div className="flex items-start sm:items-start gap-4 sm:w-1/3">
+                  <Avatar className="size-14 border">
                     <AvatarImage src={logo} alt={businessName} />
                     <AvatarFallback>
                       {" "}
@@ -407,26 +407,34 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                     </h3>
                     <div className="flex items-center">
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="ml-1 text-sm">4.8 (256)</span>
+                      <span className="ml-1 text-sm">{averageRating} ({totalComments + ' đánh giá'})</span>
                     </div>
                     <Button variant={"outline"} className="mt-2" size="sm">
                       Xem shop
                       <ChevronRight className="ml-1 h-4 w-4" />
                     </Button>
                   </div>
+                  <div className="hidden max-sm:flex items-end justify-end flex-1">
+                    <div className="flex items-center gap-2 justify-between">
+                      <span className="capitalize">Theo dõi</span>
+                      <Button variant="outline" size="icon">
+                        <Plus />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
                 <div className="flex flex-col justify-between sm:w-2/3">
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div className="flex items-center gap-1">
                       <Package className="h-4 w-4 text-muted-foreground" />
-                      <span className="capitalize">152 sản phẩm</span>
+                      <span className="capitalize">{totalProducts} sản phẩm</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
                         <span className="capitalize">{city}</span>
                       </div>
-                      <div className="flex items-center gap-2 justify-between">
+                      <div className="flex max-sm:hidden items-center gap-2 justify-between">
                         <span className="capitalize">Theo dõi</span>
                         <Button variant="outline" size="icon">
                           <Plus />
@@ -571,7 +579,7 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                       )}
 
                       <div className="flex items-center gap-2">
-                        <Label htmlFor="rating">Đánh giá của bạn:</Label>
+                        <Label className="max-sm:hidden" htmlFor="rating">Đánh giá của bạn:</Label>
                         <Controller
                           name="rating"
                           control={control}

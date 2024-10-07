@@ -45,31 +45,30 @@ export type Size = {
 
 export type OdersProduct = {
   oder: {
-    user_id: string;
-    address_id: Omit<address, 'user_id' | '_id' | 'default'>;
-    type_pay: 'cash' | 'momo';
+    user_id: string
+    address_id: Omit<address, "user_id" | "_id" | "default">
+    type_pay: "cash" | "momo"
     totalPrice: number
   }
   oderDetails: {
     product: string
-    sellerId: string;
-    price: number;
+    sellerId: string
+    price: number
     vouchers: {
       discount_code: string
       discount_percentage: number
       discount_amount: number
       description: string
-    }[];
-    quantity: number;
-    color: Omit<ColorIpi, 'quantity'>;
-    size?: Size;
+    }[]
+    quantity: number
+    color: Omit<ColorIpi, "quantity">
+    size?: Size
     type_tranfer: {
-      name: 'save' | 'fast'
+      name: "save" | "fast"
       fee: number
     }
   }
 }
-
 
 export type CartItem = {
   product: {
@@ -127,27 +126,27 @@ export type Notification = {
 }
 
 export type OrderNotification = {
-  _id: string;
+  _id: string
   userId: {
-    _id: string;
-    username: string;
-    img: string;
-  };
-  sellerId: string;
+    _id: string
+    username: string
+    img: string
+  }
+  sellerId: string
   orderDetailId: {
     color: {
-      _id: string,
-      name: string,
+      _id: string
+      name: string
       image: string
-    },
+    }
     _id: string
-    quantity: number;
-  };
-  isRead: boolean;
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
-  __v: number;
-  relativeTime: string;
+    quantity: number
+  }
+  isRead: boolean
+  createdAt: string // ISO date string
+  updatedAt: string // ISO date string
+  __v: number
+  relativeTime: string
 }
 
 export type Comments = {
@@ -218,21 +217,21 @@ export type queryKeyProducts = {
 export type stateOderItemType = {
   [key: string]: {
     vouchers:
-    | {
-      discount_code: string
-      discount_percentage: number
-      discount_amount: number
-      description: string
-    }[]
-    | []
+      | {
+          discount_code: string
+          discount_percentage: number
+          discount_amount: number
+          description: string
+        }[]
+      | []
     type_tranfer: "fast" | "save"
     totalPrice: number
   }
 }
 
-export type oderDetail = OdersProduct['oderDetails'] & {
+export type oderDetail = OdersProduct["oderDetails"] & {
   sellerId: {
-    businessName: string;
+    businessName: string
     logo: string
   }
   status_oder: {
@@ -249,17 +248,17 @@ export type oderDetail = OdersProduct['oderDetails'] & {
       created_at?: string
     }
     canceled: {
-      message?: string,
+      message?: string
       status: boolean
       created_at?: string
       created_by?: {
-        infoId:string | null,
-        shopper:'seller' | 'user' | null
+        infoId: string | null
+        shopper: "seller" | "user" | null
       }
     }
   }
-  _id: string,
-  oder_id: OdersProduct['oder'] & {
+  _id: string
+  oder_id: OdersProduct["oder"] & {
     user_id: {
       username: string
       img: string
@@ -272,33 +271,32 @@ export type oderDetail = OdersProduct['oderDetails'] & {
       district: string
       ward: string
       address: string
-    },
+    }
     status_pay: {
-      status: 'wait' | 'success' | 'failure'
+      status: "wait" | "success" | "failure"
       messages?: string
       oderId?: string
       payUrl?: string
     }
-    type_pay: 'cash' | 'momo'
+    type_pay: "cash" | "momo"
   }
-
 }
 
 export type orderNotification = {
-  orderDetail: string;
-  product: Product;
+  orderDetail: string
+  product: Product
   user: User
 }
 
 export type Filters = {
-  text: string;
-  page: number;
-  limit: number;
-  categoris: string[];
-  minPrice?: number;
-  maxPrice?: number;
-  color?: string[];
-  province?: string[];
-  rating?: number;
-  is_discount: boolean;
+  text: string
+  page: number
+  limit: number
+  categoris: string[]
+  minPrice?: number
+  maxPrice?: number
+  color?: string[]
+  province?: string[]
+  rating?: number
+  is_discount: boolean
 }

@@ -14,7 +14,10 @@ import LayoutWapper from "@/components/warper/layout.wrapper"
 import { useParams } from "react-router-dom"
 import { useGetProductByCategory } from "@/features/products/api/get-by-category"
 import Product from "@/features/products/components/product"
-import { colorSelects, LIMIT_PAE_PRODUCT_LIST } from "@/features/products/constants"
+import {
+  colorSelects,
+  LIMIT_PAE_PRODUCT_LIST,
+} from "@/features/products/constants"
 import SekeletonList from "@/features/products/components/sekeleton-list"
 import { Button } from "@/components/ui/button"
 import { Category, Filters } from "@/types/client"
@@ -27,26 +30,28 @@ import LoadingMain from "@/components/share/LoadingMain"
 export const CategoriesRoute = () => {
   const params = useParams()
   const [page, setPage] = useState<number>(1)
-  const [priceFrom, setPriceFrom] = useState('')
-  const [priceTo, setPriceTo] = useState('')
+  const [priceFrom, setPriceFrom] = useState("")
+  const [priceTo, setPriceTo] = useState("")
 
   const [citis, setCities] = useState<{
     data: ProvincesCommonType[]
-    status: 'little' | 'more'
+    status: "little" | "more"
   }>({
     data: [],
-    status: 'little'
+    status: "little",
   })
 
   const [categories, setCategories] = useState<{
     data: Category[]
-    status: 'little' | 'more'
+    status: "little" | "more"
   }>({
     data: [],
-    status: 'little'
+    status: "little",
   })
 
-  const [filters, setFilters] = useState<Omit<Filters, 'text'> & { slugCategory: string | undefined }>({
+  const [filters, setFilters] = useState<
+    Omit<Filters, "text"> & { slugCategory: string | undefined }
+  >({
     slugCategory: params.slug,
     page: 1,
     limit: LIMIT_PAE_PRODUCT_LIST,
@@ -55,118 +60,131 @@ export const CategoriesRoute = () => {
     maxPrice: undefined,
     color: [],
     province: [],
-    rating: 5,
+    rating: 1,
     is_discount: false,
-  });
+  })
 
   const datacategories = useCategories()
   const dataProvinces = useFetchProvinces()
-  const { data, isLoading, refetch, isRefetching } = useGetProductByCategory(filters)
+  const { data, isLoading, refetch, isRefetching } =
+    useGetProductByCategory(filters)
 
   useEffect(() => {
     if (dataProvinces?.data) {
-      const newData = dataProvinces.data.filter((data) => data.full_name.startsWith('Th'))
+      const newData = dataProvinces.data.filter((data) =>
+        data.full_name.startsWith("Th")
+      )
       setCities({
         data: newData,
-        status: 'little'
+        status: "little",
       })
     }
   }, [dataProvinces?.data])
-
 
   useEffect(() => {
     if (datacategories?.data) {
       setCategories({
         data: datacategories?.data?.data.slice(0, 6),
-        status: 'little'
+        status: "little",
       })
     }
   }, [datacategories?.data?.data])
 
   useEffect(() => {
     if (datacategories?.data?.data) {
-      if (categories.status === 'more') {
+      if (categories.status === "more") {
         setCategories({
           data: datacategories.data?.data,
-          status: 'more'
+          status: "more",
         })
       } else {
         const newData = datacategories.data?.data.slice(0, 6)
         setCategories({
           data: newData,
-          status: 'little'
+          status: "little",
         })
         window.scrollTo(0, 0)
       }
     }
-
   }, [categories.status])
 
   useEffect(() => {
     if (params?.slug && categories?.data) {
-      const categoryActive = categories?.data?.find(c => c.slug === params.slug)!
+      const categoryActive = categories?.data?.find(
+        (c) => c.slug === params.slug
+      )!
       setFilters({
         ...filters,
-        categoris: [categoryActive?._id]
+        categoris: [categoryActive?._id],
       })
     }
   }, [params?.slug, categories?.data])
 
   useEffect(() => {
     if (dataProvinces.data) {
-      const newData = dataProvinces?.data?.filter((data) => data.full_name.startsWith('Th'))
-      if (citis.status === 'more') {
-        const newData2 = dataProvinces?.data?.filter((data) => !data.full_name.startsWith('Th'))
+      const newData = dataProvinces?.data?.filter((data) =>
+        data.full_name.startsWith("Th")
+      )
+      if (citis.status === "more") {
+        const newData2 = dataProvinces?.data?.filter(
+          (data) => !data.full_name.startsWith("Th")
+        )
         setCities({
           data: [...citis.data, ...newData2],
-          status: 'more'
+          status: "more",
         })
       } else {
         setCities({
           data: newData,
-          status: 'little'
+          status: "little",
         })
         window.scrollTo(0, 0)
       }
     }
-
   }, [citis.status])
 
-
-
   const handleFilterChange = (checked: any, name: string, value: string) => {
-    if (name === 'color') {
-      const newColor = checked ? [...(filters.color || []), value] : (filters.color || []).filter((color) => color !== value)
+    if (name === "color") {
+      const newColor = checked
+        ? [...(filters.color || []), value]
+        : (filters.color || []).filter((color) => color !== value)
       setFilters({
         ...filters,
-        color: newColor
+        color: newColor,
       })
       return
     }
 
-    if (name === 'province') {
-      const newProvince = checked ? [...(filters.province || []), value] : (filters.province || []).filter((province) => province !== value)
+    if (name === "province") {
+      const newProvince = checked
+        ? [...(filters.province || []), value]
+        : (filters.province || []).filter((province) => province !== value)
       setFilters({
         ...filters,
-        province: newProvince
+        province: newProvince,
       })
       return
     }
 
-    if (name === 'categories') {
-      const newCategories = checked ? [...(filters.categoris || []), value] : (filters.categoris || []).filter((category) => category !== value)
+    if (name === "categories") {
+      const newCategories = checked
+        ? [...(filters.categoris || []), value]
+        : (filters.categoris || []).filter((category) => category !== value)
       setFilters({
         ...filters,
-        categoris: newCategories
+        categoris: newCategories,
       })
       return
     }
   }
 
-  const handlePriceChange = (event: React.ChangeEvent<HTMLInputElement>, type: 'from' | 'to') => {
+  const handlePriceChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    type: "from" | "to"
+  ) => {
     const value = event.target.value
     if (/^\d*\.?\d*$/.test(value)) {
-      if (type === 'from') {
+      if (type === "from") {
         setPriceFrom(value)
       } else {
         setPriceTo(value)
@@ -195,222 +213,338 @@ export const CategoriesRoute = () => {
               <h3 className="text-base font-medium mb-2">Màu sắc</h3>
               <div className="grid grid-cols-3 gap-2">
                 {colorSelects.map((color, index) => (
-                  <Label key={index} className="flex items-center gap-2 cursor-pointer">
+                  <Label
+                    key={index}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
                     <Checkbox
-                      onCheckedChange={(checked) => handleFilterChange(checked, 'color', color)}
+                      onCheckedChange={(checked) =>
+                        handleFilterChange(checked, "color", color)
+                      }
                       name="color"
-                      value={color} />
+                      value={color}
+                    />
                     <span className="capitalize">{color}</span>
-                  </Label>))}
+                  </Label>
+                ))}
               </div>
             </div>
             <div>
-              <h3 className="text-base font-medium mb-2 capitalize">Danh mục</h3>
-              {datacategories.status === 'pending' && (
+              <h3 className="text-base font-medium mb-2 capitalize">
+                Danh mục
+              </h3>
+              {datacategories.status === "pending" && (
                 <>
                   <LoadingMain size={50} />
                 </>
               )}
               <div className="space-y-2">
-                {categories?.data?.length > 0 && categories.data.map(data => (
-                  <div key={data._id} className="grid gap-2">
-                    <Label className="flex items-center gap-2 cursor-pointer">
-                      <Checkbox
-                        disabled={data.slug === params.slug}
-                        checked={filters.categoris.includes(data._id)}
-                        onCheckedChange={(checked) => handleFilterChange(checked, 'categories', data._id)}
-                      />
-                      <span className="capitalize font-normal">{data.name}</span>
-                    </Label>
-                  </div>))}
+                {categories?.data?.length > 0 &&
+                  categories.data.map((data) => (
+                    <div key={data._id} className="grid gap-2">
+                      <Label className="flex items-center gap-2 cursor-pointer">
+                        <Checkbox
+                          disabled={data.slug === params.slug}
+                          checked={filters.categoris.includes(data._id)}
+                          onCheckedChange={(checked) =>
+                            handleFilterChange(checked, "categories", data._id)
+                          }
+                        />
+                        <span className="capitalize font-normal">
+                          {data.name}
+                        </span>
+                      </Label>
+                    </div>
+                  ))}
               </div>
               <div className="flex items-center pl-5 mt-2 p-1 cursor-pointer gap-1">
-                <p onClick={() => setCategories({
-                  ...categories,
-                  status: categories.status === 'little' ? 'more' : 'little'
-                })} className="font-normal capitalize">
-                  {`${categories.status === 'little' ? ' Hiện Thêm' : 'ẩn bớt'}`}
+                <p
+                  onClick={() =>
+                    setCategories({
+                      ...categories,
+                      status:
+                        categories.status === "little" ? "more" : "little",
+                    })
+                  }
+                  className="font-normal capitalize"
+                >
+                  {`${categories.status === "little" ? " Hiện Thêm" : "ẩn bớt"}`}
                 </p>
-                {categories.status === 'little' && (<ChevronDown size={14} />)}
+                {categories.status === "little" && <ChevronDown size={14} />}
 
-                {categories.status === 'more' && (<ChevronUp size={14} />)}
-
+                {categories.status === "more" && <ChevronUp size={14} />}
               </div>
             </div>
             <div>
-              <h3 className="text-base font-medium mb-2 capitalize">khoảng giá</h3>
+              <h3 className="text-base font-medium mb-2 capitalize">
+                khoảng giá
+              </h3>
               <div className="grid gap-2">
                 <div className="flex items-center gap-2">
-                  <Label htmlFor="min-price" className="font-normal capitalize min-w-10">
+                  <Label
+                    htmlFor="min-price"
+                    className="font-normal capitalize min-w-10"
+                  >
                     Từ
                   </Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">đ</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                      đ
+                    </span>
                     <Input
                       type="text"
                       id="price"
                       placeholder="00.000"
                       value={priceFrom}
-                      onChange={(e) => handlePriceChange(e, 'from')}
+                      onChange={(e) => handlePriceChange(e, "from")}
                       className="pl-7"
                     />
                   </div>
-
                 </div>
                 <div className="flex items-center gap-2">
-                  <Label htmlFor="max-price" className="font-normal min-w-10 capitalize">
+                  <Label
+                    htmlFor="max-price"
+                    className="font-normal min-w-10 capitalize"
+                  >
                     đến
                   </Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">đ</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                      đ
+                    </span>
                     <Input
                       type="text"
                       id="price"
                       placeholder="00.000"
                       value={priceTo}
-                      onChange={(e) => handlePriceChange(e, 'to')}
+                      onChange={(e) => handlePriceChange(e, "to")}
                       className="pl-7"
                     />
                   </div>
                 </div>
                 <div className="mt-4">
                   <Button
-                    onClick={() => setFilters({
-                      ...filters,
-                      minPrice: (!priceFrom || priceFrom == '0') ? undefined : +priceFrom,
-                      maxPrice: (!priceTo || priceTo == '0') ? undefined : +priceTo
-                    })}
-                    variant={'destructive'} disabled={(!priceFrom) || (!priceTo) || (+priceFrom > +priceTo)} className="capitalize w-full">áp dụng</Button>
+                    onClick={() =>
+                      setFilters({
+                        ...filters,
+                        minPrice:
+                          !priceFrom || priceFrom == "0"
+                            ? undefined
+                            : +priceFrom,
+                        maxPrice:
+                          !priceTo || priceTo == "0" ? undefined : +priceTo,
+                      })
+                    }
+                    variant={"destructive"}
+                    disabled={!priceFrom || !priceTo || +priceFrom > +priceTo}
+                    className="capitalize w-full"
+                  >
+                    áp dụng
+                  </Button>
                 </div>
               </div>
             </div>
             <div>
               <h3 className="text-base font-medium mb-2 capitalize">nơi bán</h3>
-              {dataProvinces.status === 'pending' && (
+              {dataProvinces.status === "pending" && (
                 <>
                   <LoadingMain />
                 </>
               )}
 
               <div className="space-y-2">
-                {citis.data.length > 0 && citis.data.map(data => (
-                  <div key={data.id} className="grid gap-2">
-                    <Label className="flex items-center gap-2 cursor-pointer">
-                      <Checkbox
-                        onCheckedChange={(checked) => handleFilterChange(checked, 'province', data.full_name)}
-                        name="province"
-                        value={data.full_name}
-                      />
-                      <span className="capitalize font-normal">{data.full_name}</span>
-                    </Label>
-                  </div>
-                ))}
+                {citis.data.length > 0 &&
+                  citis.data.map((data) => (
+                    <div key={data.id} className="grid gap-2">
+                      <Label className="flex items-center gap-2 cursor-pointer">
+                        <Checkbox
+                          onCheckedChange={(checked) =>
+                            handleFilterChange(
+                              checked,
+                              "province",
+                              data.full_name
+                            )
+                          }
+                          name="province"
+                          value={data.full_name}
+                        />
+                        <span className="capitalize font-normal">
+                          {data.full_name}
+                        </span>
+                      </Label>
+                    </div>
+                  ))}
               </div>
               <div className="flex items-center pl-5 mt-2 p-1 cursor-pointer gap-1">
-                <p onClick={() => setCities({
-                  ...citis,
-                  status: citis.status === 'little' ? 'more' : 'little'
-                })} className="font-normal capitalize">
-                  {`${citis.status === 'little' ? ' Hiện Thêm' : 'ẩn bớt'}`}
+                <p
+                  onClick={() =>
+                    setCities({
+                      ...citis,
+                      status: citis.status === "little" ? "more" : "little",
+                    })
+                  }
+                  className="font-normal capitalize"
+                >
+                  {`${citis.status === "little" ? " Hiện Thêm" : "ẩn bớt"}`}
                 </p>
-                {citis.status === 'little' && (<ChevronDown size={14} />)}
+                {citis.status === "little" && <ChevronDown size={14} />}
 
-                {citis.status === 'more' && (<ChevronUp size={14} />)}
-
+                {citis.status === "more" && <ChevronUp size={14} />}
               </div>
             </div>
 
             <div>
-              <h3 className="text-base font-medium mb-2 capitalize">Đánh giá</h3>
+              <h3 className="text-base font-medium mb-2 capitalize">
+                Đánh giá
+              </h3>
               <div
-                onClick={() => setFilters({
-                  ...filters,
-                  rating: 5
-                })}
-                className={`flex items-center cursor-pointer px-2 py-[4px] rounded gap-1 ${filters.rating === 5 && 'bg-slate-100'}`}>
+                onClick={() =>
+                  setFilters({
+                    ...filters,
+                    rating: 5,
+                  })
+                }
+                className={`flex items-center cursor-pointer px-2 py-[4px] rounded gap-1 ${filters.rating === 5 && "bg-slate-100"}`}
+              >
                 {Array.from({ length: 5 }).map((i, j) => (
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={
-                    j < 6 ? "#fde047" : "none"
-                  } stroke="currentColor" key={j
-                  } className="size-4">
-                    <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill={j < 6 ? "#fde047" : "none"}
+                    stroke="currentColor"
+                    key={j}
+                    className="size-4"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 ))}
               </div>
               <div
-                onClick={() => setFilters({
-                  ...filters,
-                  rating: 4
-                })}
-                className={`${filters.rating === 4 && 'bg-slate-100'} flex items-center cursor-pointer px-2 py-[4px] gap-1 rounded`}>
+                onClick={() =>
+                  setFilters({
+                    ...filters,
+                    rating: 4,
+                  })
+                }
+                className={`${filters.rating === 4 && "bg-slate-100"} flex items-center cursor-pointer px-2 py-[4px] gap-1 rounded`}
+              >
                 {Array.from({ length: 5 }).map((i, j) => (
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={
-                    j < 4 ? "#fde047" : "none"
-                  } stroke="currentColor" key={j
-                  } className="size-4">
-                    <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clipRule="evenodd" />
-                  </svg>
-                ))}
-                trở lên
-              </div>
-              <div
-                onClick={() => setFilters({
-                  ...filters,
-                  rating: 3
-                })}
-                className={`${filters.rating === 3 && 'bg-slate-100'} flex items-center cursor-pointer px-2 py-[4px] gap-1 rounded`}>
-                {Array.from({ length: 5 }).map((i, j) => (
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={
-                    j < 3 ? "#fde047" : "none"
-                  } stroke="currentColor" key={j
-                  } className="size-4">
-                    <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clipRule="evenodd" />
-                  </svg>
-                ))}
-                trở lên
-              </div>
-              <div
-                onClick={() => setFilters({
-                  ...filters,
-                  rating: 2
-                })}
-                className={`${filters.rating === 2 && 'bg-slate-100'} flex items-center cursor-pointer px-2 py-[4px] gap-1 rounded`}>
-                {Array.from({ length: 5 }).map((i, j) => (
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={
-                    j < 2 ? "#fde047" : "none"
-                  } stroke="currentColor" key={j
-                  } className="size-4">
-                    <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill={j < 4 ? "#fde047" : "none"}
+                    stroke="currentColor"
+                    key={j}
+                    className="size-4"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 ))}
                 trở lên
               </div>
               <div
-                onClick={() => setFilters({
-                  ...filters,
-                  rating: 1
-                })}
-                className={`${filters.rating === 1 && 'bg-slate-100'} flex items-center cursor-pointer px-2 py-[4px] gap-1 rounded`}>
+                onClick={() =>
+                  setFilters({
+                    ...filters,
+                    rating: 3,
+                  })
+                }
+                className={`${filters.rating === 3 && "bg-slate-100"} flex items-center cursor-pointer px-2 py-[4px] gap-1 rounded`}
+              >
                 {Array.from({ length: 5 }).map((i, j) => (
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={
-                    j < 1 ? "#fde047" : "none"
-                  } stroke="currentColor" key={j
-                  } className="size-4">
-                    <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill={j < 3 ? "#fde047" : "none"}
+                    stroke="currentColor"
+                    key={j}
+                    className="size-4"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                ))}
+                trở lên
+              </div>
+              <div
+                onClick={() =>
+                  setFilters({
+                    ...filters,
+                    rating: 2,
+                  })
+                }
+                className={`${filters.rating === 2 && "bg-slate-100"} flex items-center cursor-pointer px-2 py-[4px] gap-1 rounded`}
+              >
+                {Array.from({ length: 5 }).map((i, j) => (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill={j < 2 ? "#fde047" : "none"}
+                    stroke="currentColor"
+                    key={j}
+                    className="size-4"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                ))}
+                trở lên
+              </div>
+              <div
+                onClick={() =>
+                  setFilters({
+                    ...filters,
+                    rating: 1,
+                  })
+                }
+                className={`${filters.rating === 1 && "bg-slate-100"} flex items-center cursor-pointer px-2 py-[4px] gap-1 rounded`}
+              >
+                {Array.from({ length: 5 }).map((i, j) => (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill={j < 1 ? "#fde047" : "none"}
+                    stroke="currentColor"
+                    key={j}
+                    className="size-4"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 ))}
                 trở lên
               </div>
             </div>
             <div>
-              <h3 className="text-base font-medium mb-2 capitalize">giảm giá</h3>
+              <h3 className="text-base font-medium mb-2 capitalize">
+                giảm giá
+              </h3>
               <div className="grid gap-2">
                 <Label className="flex items-center gap-2 cursor-pointer">
                   <Checkbox
-                    onCheckedChange={(checked) => setFilters({
-                      ...filters,
-                      is_discount: !!checked
-                    })}
+                    onCheckedChange={(checked) =>
+                      setFilters({
+                        ...filters,
+                        is_discount: !!checked,
+                      })
+                    }
                   />
                   <span className="capitalize">Sản phẩm đang giảm giá</span>
                 </Label>
@@ -420,15 +554,22 @@ export const CategoriesRoute = () => {
         </div>
         <div>
           <div className="flex flex-wrap max-w-full">
-            {(isLoading || isRefetching) ?
+            {isLoading || isRefetching ? (
               Array.from({ length: 8 }).map((_, index) => (
                 <SekeletonList key={index} />
-              )) : data?.data?.length === 0 ? (
-                <div className="w-full text-center py-10">
-                  <h2 className="text-2xl font-semibold">Không tìm thấy sản phẩm</h2>
-                </div>) : data?.data && data?.data?.map((product) => (
-                  <Product key={product?._id} product={product} />
-                ))}
+              ))
+            ) : data?.data?.length === 0 ? (
+              <div className="w-full text-center py-10">
+                <h2 className="text-2xl font-semibold">
+                  Không tìm thấy sản phẩm
+                </h2>
+              </div>
+            ) : (
+              data?.data &&
+              data?.data?.map((product) => (
+                <Product key={product?._id} product={product} />
+              ))
+            )}
           </div>
 
           {((data?.data && data?.data?.length) ?? 0) > 1 && (
@@ -437,7 +578,6 @@ export const CategoriesRoute = () => {
                 <PaginationContent>
                   <PaginationItem>
                     <PaginationPrevious
-
                       className={
                         page <= 1
                           ? "pointer-events-none opacity-50"
@@ -462,7 +602,7 @@ export const CategoriesRoute = () => {
                     <PaginationNext
                       className={
                         page ===
-                          Math.ceil(data?.total! / LIMIT_PAE_PRODUCT_LIST)
+                        Math.ceil(data?.total! / LIMIT_PAE_PRODUCT_LIST)
                           ? "pointer-events-none opacity-50"
                           : "cursor-pointer"
                       }
@@ -473,10 +613,8 @@ export const CategoriesRoute = () => {
               </Pagination>
             </div>
           )}
-
-
         </div>
       </div>
-    </LayoutWapper >
+    </LayoutWapper>
   )
 }

@@ -6,22 +6,21 @@ import { addressResponse } from "@/types/api"
 import { getAddressQueryOptions } from "./get-address-user"
 
 export const deleteAddress = ({
-    addressId,
+  addressId,
 }: {
-    addressId: string
+  addressId: string
 }): Promise<addressResponse> => {
-    return api.delete(`/address/delete/${addressId}`)
+  return api.delete(`/address/delete/${addressId}`)
 }
 
 export const useDeleteAddress = ({ userId }: { userId: string }) => {
-    const queryClient = useQueryClient()
-    return useMutation({
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: getAddressQueryOptions({ userId })
-                    .queryKey,
-            })
-        },
-        mutationFn: deleteAddress,
-    })
+  const queryClient = useQueryClient()
+  return useMutation({
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getAddressQueryOptions({ userId }).queryKey,
+      })
+    },
+    mutationFn: deleteAddress,
+  })
 }

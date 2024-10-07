@@ -1,6 +1,10 @@
 import { QueryClient } from "@tanstack/react-query"
 import { createBrowserRouter } from "react-router-dom"
-import { AdminLayout, MainLayout, ProfileLayout, SellerLayout } from "@/components/layouts"
+import {
+  AdminLayout,
+  MainLayout,
+  SellerLayout,
+} from "@/components/layouts"
 import { ProtectedRoute } from "@/components/layouts/main.layout"
 
 export const createRouter = (queryClient: QueryClient) =>
@@ -85,16 +89,15 @@ export const createRouter = (queryClient: QueryClient) =>
             const { OderRoute } = await import("./seller/oder")
             return { Component: OderRoute }
           },
-          children:[
+          children: [
             {
               path: ":oderDetailId",
               lazy: async () => {
                 const { OderRoute } = await import("./seller/oder")
                 return { Component: OderRoute }
               },
-
-            }
-          ]
+            },
+          ],
         },
         {
           path: "products",
@@ -140,7 +143,7 @@ export const createRouter = (queryClient: QueryClient) =>
         },
       ],
     },
-    
+
     {
       path: "/",
       element: <MainLayout />,
@@ -150,6 +153,27 @@ export const createRouter = (queryClient: QueryClient) =>
           lazy: async () => {
             const { LandingRoute } = await import("./landing")
             return { Component: LandingRoute }
+          },
+        },
+        {
+          path: "/about-us",
+          lazy: async () => {
+            const { UsRoute } = await import("./us")
+            return { Component: UsRoute }
+          },
+        },
+        {
+          path: "/services",
+          lazy: async () => {
+            const { ServiceRoute } = await import("./service")
+            return { Component: ServiceRoute }
+          },
+        },
+        {
+          path: "/contact",
+          lazy: async () => {
+            const { ContactRoute } = await import("./contact")
+            return { Component: ContactRoute }
           },
         },
         {
@@ -220,19 +244,12 @@ export const createRouter = (queryClient: QueryClient) =>
               },
             },
             {
-              path: "change-password",
-              lazy: async () => {
-                const { ChangePasswordRoute } = await import("./profile/change-password")
-                return { Component: ChangePasswordRoute }
-              },
-            },
-            {
               path: "purchase",
               lazy: async () => {
                 const { OdersRoute } = await import("./profile/oders")
                 return { Component: OdersRoute }
               },
-              children:[
+              children: [
                 {
                   path: ":oderId",
                   lazy: async () => {
@@ -240,28 +257,16 @@ export const createRouter = (queryClient: QueryClient) =>
                     return { Component: OdersRoute }
                   },
                 },
-              ]
-            },
-            {
-              path: "notification",
-              lazy: async () => {
-                const { NotificationRoute } = await import("./profile/notification")
-                return { Component: NotificationRoute }
-              },
-            },
-            {
-              path: "vouchers",
-              lazy: async () => {
-                const { VoucherRoute } = await import("./profile/voucher")
-                return { Component: VoucherRoute }
-              },
+              ],
             }
           ],
         },
         {
           path: "order-successfully",
           lazy: async () => {
-            const { OderSuccessfullyRoute } = await import("./products/oder-successfully")
+            const { OderSuccessfullyRoute } = await import(
+              "./products/oder-successfully"
+            )
             return {
               Component: () => (
                 <ProtectedRoute>
@@ -271,6 +276,7 @@ export const createRouter = (queryClient: QueryClient) =>
             }
           },
         },
+
         {
           path: "*",
           lazy: async () => {

@@ -65,26 +65,31 @@ export type ColorIpi = {
 export type productRespose = Omit<Product, "brand_id" | "colors"> & {
   colors: ColorIpi[]
   brand_id: { _id: string; img_cover: string; name: string; slug: string }
-  total: number;
+  total: number
   sellerId: {
-    _id: string;
-    city: string;
+    _id: string
+    city: string
   }
   average_rating: number
   discount?: number
+
   createdAt: string
   updatedAt: string
 }
 
 export type producstResponse = ResponseData<productRespose>
-export type historyResponse = ResponseData<{ keyWorks: string, create_by: string, validateTime: string }>
+export type historyResponse = ResponseData<{
+  keyWorks: string
+  create_by: string
+  validateTime: string
+}>
 
 export type discountResponse = ResponseData<Discount>
 
 export type productDetailResponse = ResponseSuccess<{
   productDetail: productRespose
   productSimilars: productRespose
-  sellerInfo: Seller
+  sellerInfo: Seller & { totalProducts: number, totalComments: number, averageRating: number }
 }>
 
 export type sellerResponse = ResponseSuccess<{
@@ -92,12 +97,8 @@ export type sellerResponse = ResponseSuccess<{
   user: User
 }>
 
-export type addressResponse = ResponseSuccess<
-  address[]
->
-export type updateUserResponse = ResponseSuccess<
-  User
->
+export type addressResponse = ResponseSuccess<address[]>
+export type updateUserResponse = ResponseSuccess<User>
 
 export type commentsResponse = ResponseData<Comments>
 
@@ -124,20 +125,20 @@ export type ApiResponseProvincesType = {
 export type oderResponse = ResponseData<{
   _id: string
   user_id: {
-    _id: string;
-    username: string;
-    img: string;
+    _id: string
+    username: string
+    img: string
   }
   address_id: Omit<address, "user_id" | "_id" | "default">
   type_pay: "cash" | "momo"
   status_pay: {
-    status: 'wait' | 'success' | 'failure'
+    status: "wait" | "success" | "failure"
     messages?: string
     oderId?: string
     payUrl?: string
   }
   totalPrice: number
-  createdAt: string;
+  createdAt: string
 }>
 
 export type oderDetailResponse = ResponseSuccess<oderDetail[]>

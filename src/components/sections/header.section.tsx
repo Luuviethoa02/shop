@@ -1,10 +1,9 @@
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet"
 import { Button } from "../ui/button"
-import { BellIcon, MenuIcon, Search, ShoppingCart, X } from "lucide-react"
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom"
+import { BellIcon, History, MenuIcon, Search, ShoppingCart, TrendingUp, X } from "lucide-react"
+import { Link, NavLink, useLocation, useNavigate, useParams } from "react-router-dom"
 import {
   NavigationMenu,
-  NavigationMenuLink,
   NavigationMenuList,
 } from "../ui/navigation-menu"
 import Logo from "../share/Logo"
@@ -18,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
 import DialogLogout from "@/features/auth/components/form-logout"
-import { useEffect, useState } from "react"
+import { MouseEvent, useEffect, useRef, useState } from "react"
 import { useAuthStore, useCartStore } from "@/store"
 import { Input } from "../ui/input"
 import { AnimatePresence, motion } from "framer-motion"
@@ -35,31 +34,47 @@ import { useCreateHistory } from "@/features/search/api/create-history"
 import { useGetTextSearch } from "@/features/search/api/search-by-text"
 import nProgress from "nprogress"
 import toast from "react-hot-toast"
+import { useGetHistoryByUserId } from "@/features/search/api/get-history"
+import { useGetTopSearch } from "@/features/search/api/get-top-search"
+import { navbarHomes } from "@/constants"
+import { useDeleteHistory } from "@/features/search/api/delete.history"
 
 const Header = () => {
   const [open, setOpen] = useState<boolean>(false)
   const user = useAuthStore((state) => state.user)
   const carts = useCartStore((state) => state.carts)
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
+  const [currentParams, setCurrentParams] = useState<string>()
   const params = useParams()
 
   const [searchHistory, setSearchHistory] = useState<string[]>([])
+  const [focus, setFocus] = useState<boolean>(false)
+  const inputElement = useRef<HTMLInputElement>(null)
 
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [searchTermFinal, setSearchTermFinal] = useState<string | undefined>(undefined);
-  const debouncedSearchTerm = useDebounce<string>(searchTerm, 300);
+  const [searchTerm, setSearchTerm] = useState<string>("")
+  const [searchTermFinal, setSearchTermFinal] = useState<string | undefined>(
+    undefined
+  )
+  const debouncedSearchTerm = useDebounce<string>(searchTerm, 300)
 
   const data = useFetchSearchForText(debouncedSearchTerm)
   const create = useCreateHistory({ page: 1, limit: 10, userId: user?._id })
   const search = useGetTextSearch({ text: searchTermFinal, is_discount: false })
+  const history = useGetHistoryByUserId({ userId: user?._id })
+  const topSearch = useGetTopSearch({})
+  const deleteHistory = useDeleteHistory({ userId: user?._id })
+
   const navigation = useNavigate()
   const location = useLocation()
 
   useEffect(() => {
-    if (location.pathname === '/') {
-      setSearchTerm('')
+    if (location.pathname === "/") {
+      setSearchTerm("")
     }
-  }, [location])
+    if (params.text) {
+      setCurrentParams(params.text)
+    }
+  }, [location, params])
 
   useEffect(() => {
     if (searchTermFinal) {
@@ -69,56 +84,78 @@ const Header = () => {
 
   useEffect(() => {
     if (search?.data) {
-      console.log(search.data, "search.data");
-
-      navigation(`/search/${searchTermFinal}`);
+      setIsHistoryOpen(false)
+      setSearchHistory([])
+      navigation(`/search/${searchTermFinal}`)
       nProgress.done()
     }
 
     if (search.error) {
-      toast.error('Đã xảy ra lỗi vui lòng thử lại sau!')
+      toast.error("Đã xảy ra lỗi vui lòng thử lại sau!")
       nProgress.done()
     }
   }, [search.data, search.error, searchTermFinal])
 
+  const handleInputFocus = () => {
+    setFocus(true)
+    setIsHistoryOpen(true)
+  }
+
+  const handleDeleteHistory = (historyId: string) => {
+    console.log(historyId, "historyId");
+
+  }
+
+  const handleInputBlur = () => {
+    setTimeout(() => {
+      setFocus(false);
+      setIsHistoryOpen(false);
+    }, 200);
+  }
+
   useEffect(() => {
     if (debouncedSearchTerm) {
       data.refetch().then((results) => {
-        const { data, statusCode } = results.data as unknown as { data: string[], message: string, statusCode: number }
-        if ((statusCode === 200 && data.length > 0) && searchTerm != params?.text) {
+        const { data } = results.data as unknown as {
+          data: string[]
+          message: string
+        }
+        if (data.length > 0) {
           setSearchHistory(data)
           setIsHistoryOpen(true)
+          setFocus(false)
         } else {
           setIsHistoryOpen(false)
-          setSearchHistory([])
+          setFocus(true)
         }
       })
     } else {
-      setIsHistoryOpen(false)
-      setSearchHistory([])
+      setIsHistoryOpen(true)
+      setFocus(true)
     }
+  }, [debouncedSearchTerm])
 
-  }, [debouncedSearchTerm]);
+  const handleSuggestClick = (e: MouseEvent<HTMLElement>, item: string) => {
 
-  const handleSuggestClick = (item: string) => {
-    setSearchTerm(item);
-    setIsHistoryOpen(false);
-    setSearchHistory([])
+    e.preventDefault()
+    e.stopPropagation()
     if (user?._id) {
       create.mutate({ data: { keyWords: item, userId: user?._id } })
     }
+    setSearchTerm(item)
     setSearchTermFinal(item)
+    setIsHistoryOpen(false);
   }
 
   const handleKeyUpInputSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      const inputElement = e.currentTarget;
+    if (e.key === "Enter") {
+      const inputElement = e.currentTarget
 
       if (user?._id) {
         create.mutate({ data: { keyWords: searchTerm, userId: user?._id } })
       }
       setSearchTermFinal(searchTerm)
-      inputElement.blur();
+      inputElement.blur()
     }
   }
 
@@ -160,128 +197,139 @@ const Header = () => {
       <div
         className={`bg-white/70 backdrop-blur-3xl transition-all duration-100 ease-in-out top-0 z-50 sticky shrink-0`}
       >
-        <header className="flex h-20 w-full items-center px-4 md:px-16">
+        <header className="flex h-20 max-h-20 w-full items-center px-2 max-sm:pt-0 pt-5 lg:pt-0 md:px-16">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="lg:hidden">
+              <div className="hidden max-sm:flex">
                 <MenuIcon className="h-6 w-6" />
-              </Button>
+              </div>
             </SheetTrigger>
-            <SheetContent side="left">
+            <SheetContent onOpenAutoFocus={(e: Event) => e.preventDefault()} side="left">
               <Logo />
               <div className="grid gap-2 py-6 left-10">
-                <Link
-                  to="/"
-                  className="flex bg-transparent w-full items-center py-2 text-lg font-semibold"
-                >
-                  Trang chủ
-                </Link>
-                <Link
-                  to="#"
-                  className="flex w-full items-center py-2 text-lg font-semibold"
-                >
-                  Về chúng tôi
-                </Link>
-                <Link
-                  to="#"
-                  className="flex w-full items-center py-2 text-lg font-semibold"
-                >
-                  Dịch vụ
-                </Link>
-                <Link
-                  to="#"
-                  className="flex w-full items-center py-2 text-lg font-semibold"
-                >
-                  Liên hệ
-                </Link>
+                {navbarHomes.map((item, index) => (
+                  <NavLink
+                    key={index}
+                    to={item.path}
+                    className={({ isActive }) => `flex capitalize bg-transparent w-full items-center py-2 text-lg font-semibold ${isActive ? 'text-primary bg-primary' : ''}`}
+                  >
+                    {item.lable}
+                  </NavLink>
+                ))}
               </div>
             </SheetContent>
           </Sheet>
-          <Logo />
           <NavigationMenu className="hidden lg:flex">
-            <NavigationMenuList className="left-10 ml-14">
-              <NavigationMenuLink asChild>
-                <Link
-                  to="/"
-                  className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
+            <NavigationMenuList className="left-20">
+              <Logo />
+              {navbarHomes.map((item, index) => (
+                <NavLink
+                  key={index}
+                  to={item.path}
+                  className={({ isActive }) => `group capitalize inline-flex w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:text-primary ${isActive ? 'text-primary' : ''}`}
                 >
-                  Trang chủ
-                </Link>
-              </NavigationMenuLink>
-              <NavigationMenuLink asChild>
-                <Link
-                  to="#"
-                  className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
-                >
-                  Về chúng tôi
-                </Link>
-              </NavigationMenuLink>
-              <NavigationMenuLink asChild>
-                <Link
-                  to="#"
-                  className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
-                >
-                  Dịch vụ
-                </Link>
-              </NavigationMenuLink>
-
-              <NavigationMenuLink asChild>
-                <Link
-                  to="#"
-                  className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
-                >
-                  Liên Hệ
-                </Link>
-              </NavigationMenuLink>
+                  {item.lable}
+                </NavLink>
+              ))}
             </NavigationMenuList>
           </NavigationMenu>
-          <div className="ml-auto flex gap-2">
-            <div className="bg-transparent">
+          <div className="flex gap-2 w-full justify-between">
+            <div className="bg-transparent flex-1">
               <div className="mx-auto px-2">
                 <div className="flex items-center justify-between h-16">
                   <div className="flex-1 flex items-center justify-center px-2 lg:ml-6 lg:justify-end">
-                    <div className="relative min-w-[600px]">
+                    <div className="relative w-full">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Search className="h-5 w-5 text-muted-foreground" />
                       </div>
                       <Input
+                        ref={inputElement}
                         type="search"
                         placeholder="Tìm kiếm ..."
                         className={`block focus:border-1 focus:ring-1 focus:ring-offset-1
-                        focus-visible:outline-1 focus-visible:ring-1 focus-visible:ring-slate-50 ring-offset-transparent outline-none ring-offset-0 focus-visible:ring-offset-1
-                        relative z-10 focus-within:border-b-transparent overflow-hidden min-w-[600px] focus-within:outline-none focus-within:ring-offset-0 focus-within:border-0
-                        pl-10  bg-transparent outline-offset-0 pr-3 py-2 ${isHistoryOpen ? 'rounded-br-none border-b-transparent rounded-bl-none' : ''}`}
+                        focus-visible:outline-0 focus-visible:ring-0 focus-visible:bg-white focus-visible:ring-slate-200 ring-offset-transparent outline-none ring-offset-0 focus-visible:ring-offset-1
+                        relative z-10 focus-within:border-b-transparent overflow-hidden min-w-full focus-within:outline-none focus-within:ring-offset-0 focus-within:border-0
+                        pl-10 bg-transparent outline-offset-0 pr-3 py-2 ${isHistoryOpen ? "rounded-br-none border-b-transparent rounded-bl-none" : ""}`}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         onKeyUp={handleKeyUpInputSearch}
+                        onFocus={handleInputFocus}
+                        onBlur={handleInputBlur}
                       />
                       <motion.div
-                        className={`absolute border-t-0 -z-10 border-t-transparent rounded-bl-lg -translate-y-1 rounded-br-lg overflow-hidden w-full bg-background shadow-lg outline-1
+                        className={`absolute border-t-0  -z-10 border-t-transparent rounded-bl-lg -translate-y-1 rounded-br-lg overflow-hidden w-full bg-background shadow-lg outline-1
                           ${isHistoryOpen} ? 'border' : ''`}
                         initial={{ height: 0 }}
-                        animate={{ height: isHistoryOpen ? 'auto' : 0 }}
-                        transition={{ duration: 0.5, ease: 'linear' }}
+                        animate={{ height: isHistoryOpen ? "auto" : 0 }}
+                        transition={{ duration: 0.5, ease: "linear" }}
                       >
-                        {(isHistoryOpen && data.status === 'pending') && (
+                        {(isHistoryOpen && !focus) && data.status === "pending" && (
                           <LoadingMain />
                         )}
-                        {data?.data && isHistoryOpen && searchHistory.length > 0 && (
+                        {data?.data &&
+                          isHistoryOpen &&
+                          searchHistory.length > 0 &&
+                          !focus &&
+                          (
+                            <ul className="py-1 space-y-2">
+                              {searchHistory?.map((item, index) => (
+                                <li
+                                  key={index}
+                                  className="flex hover:bg-accent px-3 items-center gap-4"
+                                  onClick={(e) => handleSuggestClick(e, item)}
+                                >
+                                  <div className="flex items-start">
+                                    <Search color={"#696969"} size={20} />
+                                  </div>
+                                  <span
+                                    onClick={(e) => handleSuggestClick(e, item)}
+                                    className="text-base lowercase font-light line-clamp-2 cursor-pointer">
+                                    {item}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        {focus &&
                           <ul className="py-1 space-y-2">
-                            {searchHistory?.map((item, index) => (
+                            {topSearch?.data?.data?.map((item, index) => (
                               <li
                                 key={index}
-                                className="px-4 text-base lowercase font-light line-clamp-2 hover:bg-accent cursor-pointer"
-                                onClick={() => handleSuggestClick(item)}
+                                className="flex hover:bg-accent px-3 py-1 items-center gap-4"
+                                onClick={(e) => handleSuggestClick(e, item._id)}
+
                               >
-                                {item}
+                                <div className="flex items-start">
+                                  <TrendingUp color={"#696969"} size={20} />
+                                </div>
+                                <span className="text-base lowercase font-light line-clamp-2 cursor-pointer flex-1">
+                                  {item._id}
+                                </span>
+                              </li>
+                            ))}
+                            <hr />
+                            {(history?.data?.data?.length ?? 0) > 0 && history?.data?.data?.map((item, index) => (
+                              <li
+                                key={index}
+                                className="flex hover:bg-accent px-3 py-1 items-center gap-4"
+                                onClick={(e) => handleSuggestClick(e, item.keyWords)}
+                              >
+                                <div className="flex items-start">
+                                  <History color={"#696969"} size={20} />
+                                </div>
+                                <span className="text-base lowercase font-light line-clamp-2 cursor-pointer flex-1">
+                                  {item.keyWords}
+                                </span>
+                                <div onClick={() => handleDeleteHistory(item._id)} className="flex items-start cursor-pointer">
+                                  <X className="hover:scale-105 transition-all" color={"#696969"} size={20} />
+                                </div>
                               </li>
                             ))}
                           </ul>
-                        )}
+                        }
                       </motion.div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="hidden md:flex items-center gap-2">
                     <div className="flex items-center lg:ml-6">
                       <Button
                         variant="ghost"
@@ -353,6 +401,12 @@ const Header = () => {
                     onPointerMove={(event) => event.preventDefault()}
                   >
                     <Link to={"/profile/account"}>Hồ sơ</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onPointerLeave={(event) => event.preventDefault()}
+                    onPointerMove={(event) => event.preventDefault()}
+                  >
+                    <Link to={"/profile/purchase"}>Đơn mua</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onPointerLeave={(event) => event.preventDefault()}
