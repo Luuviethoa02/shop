@@ -186,8 +186,8 @@ export type Seller = {
   _id: string
   logo: string
   img_cover: string
-  follower: number
-  following: number
+  followers: { createdAt: string; _id: string }[]
+  followings: string[]
   slug: string
   status: "wait" | "finished" | "rejected"
   businessName: string
@@ -217,13 +217,13 @@ export type queryKeyProducts = {
 export type stateOderItemType = {
   [key: string]: {
     vouchers:
-      | {
-          discount_code: string
-          discount_percentage: number
-          discount_amount: number
-          description: string
-        }[]
-      | []
+    | {
+      discount_code: string
+      discount_percentage: number
+      discount_amount: number
+      description: string
+    }[]
+    | []
     type_tranfer: "fast" | "save"
     totalPrice: number
   }

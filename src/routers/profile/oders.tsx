@@ -610,7 +610,7 @@ export const OdersRoute = () => {
                                   <div className="flex-grow">
                                     <div className="flex items-center justify-between min-w-full">
                                       <div className="font-medium flex items-center">
-                                        <h4 className="scroll-m-20 capitalize text-lg border-r-[1px] pr-2 border-gray-500 font-semibold tracking-tight">
+                                        <h4 className="text-nowrap capitalize text-lg border-r-[1px] pr-2 border-gray-500 font-semibold tracking-tight">
                                           {order?.address_id?.name}
                                         </h4>
                                         <p className="text-sm block ml-2 text-slate-500 truncate">

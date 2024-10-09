@@ -22,6 +22,7 @@ import { commentSchema } from "@/features/comments/validators"
 import { useCreateComment } from "@/features/comments/api/create-comment"
 import { useNotificationSound } from "@/hooks"
 import {
+  Check,
   ChevronRight,
   EllipsisVertical,
   MapPin,
@@ -42,46 +43,78 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useDeleteComment } from "@/features/comments/api/delete-comment"
-import { useLocation } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import useSocket from "@/hooks/useSocket"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Card, CardContent } from "@/components/ui/card"
 import useFormatDateVN from "@/hooks/useFormatDateVN"
+import { useCreateFollower } from "@/features/seller/api/follower-seller"
+import { useUnCreateFollower } from "@/features/seller/api/unfollower-seller"
+import nProgress from "nprogress"
+import { useGetShopBySlug } from "@/features/seller/api/get-shop-by-slug"
 
 interface Iprops {
   data: productDetailResponse | undefined
   status: "error" | "success" | "pending"
+  refetch: () => void
 }
 
 type ReviewFormValues = z.infer<typeof commentSchema>
 
-export const ProductDetail = ({ data, status }: Iprops) => {
+export const ProductDetail = ({ data, status, refetch }: Iprops) => {
   const auth = useAuthStore()
   const userId = auth?.user?._id!
   const location = useLocation()
   const socket = useSocket(userId)
   const createComment = useCreateComment()
+  const navigate = useNavigate()
+
   const deleteComents = useDeleteComment({
     productId: data?.data?.productDetail?._id!,
     page: 1,
     limit: 5,
   })
+
   const playCommentSound = useNotificationSound(commentSound)
+
   const commentsRessponse = useCommentsByProductId({
     productId: data?.data?.productDetail?._id!,
     page: 1,
     limit: 5,
   })
 
+  const createFlower = useCreateFollower()
+  const unCreateFlower = useUnCreateFollower()
+
   const [selectedColor, setSelectedColor] = useState<string>()
   const [selectedSize, setSelectedSize] = useState<string>()
   const [avatar, setAvatar] = useState<string>()
   const [quantity, setQuantity] = useState<number>(1)
   const { setCart, updateQuantity } = useCartStore()
+  const [slugShop, setSlugShop] = useState<string | undefined>()
+
+  const getShop = useGetShopBySlug({ slug: slugShop })
 
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
+
+  useEffect(() => {
+    if (slugShop) {
+      nProgress.start()
+    }
+  }, [slugShop])
+
+  useEffect(() => {
+    if (getShop?.data) {
+      navigate('/shop/' + slugShop)
+      nProgress.done()
+    }
+    if (getShop?.error) {
+      toast.error('Có lỗi xảy ra! thử lại sau.')
+      nProgress.done()
+    }
+  }, [getShop,slugShop])
 
   useEffect(() => {
     if (data?.data) {
@@ -166,6 +199,12 @@ export const ProductDetail = ({ data, status }: Iprops) => {
     )
   }
 
+  const handleClickViewDetailShop = () => {
+    if (data?.data?.sellerInfo?.slug) {
+      setSlugShop(data?.data?.sellerInfo?.slug)
+    }
+  }
+
   const handleAddToCart = () => {
     if (data?.data?.productDetail) {
       const { name, price, colors, _id, brand_id, sizes } =
@@ -199,7 +238,7 @@ export const ProductDetail = ({ data, status }: Iprops) => {
       } else {
         setCart(Cart, cartId)
       }
-      toast.success("Sản phẩm đã đươc thêm vào giỏ hàng!")
+      toast.success("Sản phẩm đã được thêm vào giỏ hàng!")
     }
   }
 
@@ -238,6 +277,47 @@ export const ProductDetail = ({ data, status }: Iprops) => {
     )
   }
 
+  const handleClickFlower = () => {
+    createFlower.mutate(
+      {
+        data: {
+          userId: auth.user?._id!,
+          sellerId: data?.data?.sellerInfo?._id!,
+        }
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đã theo dõi")
+          playCommentSound();
+          refetch()
+        },
+        onError: () => {
+          toast.error("Có lỗi xảy ra!")
+        },
+      }
+    )
+  }
+
+  const handleClickUnFlower = () => {
+    unCreateFlower.mutate(
+      {
+        data: {
+          userId: auth.user?._id!,
+          sellerId: data?.data?.sellerInfo?._id!,
+        }
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đã bỏ theo dõi")
+          refetch()
+        },
+        onError: () => {
+          toast.error("Có lỗi xảy ra!")
+        },
+      }
+    )
+  }
+
   if (data?.data) {
     const { formatNumberToVND } = useFormatNumberToVND()
 
@@ -249,9 +329,10 @@ export const ProductDetail = ({ data, status }: Iprops) => {
         totalComments,
         city,
         createdAt,
-        follower,
+        followers,
         logo,
         totalProducts,
+        slug
       },
     } = data?.data
 
@@ -418,18 +499,24 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                         {averageRating} ({totalComments + " đánh giá"})
                       </span>
                     </div>
-                    <Button variant={"outline"} className="mt-2" size="sm">
+                    <Button onClick={handleClickViewDetailShop} variant={"outline"} className="mt-2" size="sm">
                       Xem shop
                       <ChevronRight className="ml-1 h-4 w-4" />
                     </Button>
                   </div>
                   <div className="hidden max-sm:flex items-end justify-end flex-1">
-                    <div className="flex items-center gap-2 justify-between">
-                      <span className="capitalize">Theo dõi</span>
-                      <Button variant="outline" size="icon">
+                    {followers?.find((follower) => follower._id === auth.user?._id) ? (<div className="flex items-center gap-2 justify-between">
+                      <span className="capitalize">Hủy Theo dõi</span>
+                      <Button onClick={handleClickUnFlower} variant="outline" size="icon">
                         <Plus />
                       </Button>
-                    </div>
+                    </div>) : (<div className="flex items-center gap-2 justify-between">
+                      <span className="capitalize">Theo dõi</span>
+                      <Button onClick={handleClickFlower} variant="outline" size="icon">
+                        <Plus />
+                      </Button>
+                    </div>)}
+
                   </div>
                 </div>
                 <div className="flex flex-col justify-between sm:w-2/3">
@@ -445,17 +532,25 @@ export const ProductDetail = ({ data, status }: Iprops) => {
                         <MapPin className="h-4 w-4 text-muted-foreground" />
                         <span className="capitalize">{city}</span>
                       </div>
-                      <div className="flex max-sm:hidden items-center gap-2 justify-between">
-                        <span className="capitalize">Theo dõi</span>
-                        <Button variant="outline" size="icon">
-                          <Plus />
+                      {followers?.find((follower) => follower._id === auth.user?._id) ? (<div className="flex max-sm:hidden items-center gap-2 justify-between">
+                        <span className="capitalize">Đã Theo dõi</span>
+                        <Button onClick={handleClickUnFlower} variant="outline" size="icon">
+                          <Check />
                         </Button>
-                      </div>
+                      </div>) : (
+                        <div className="flex max-sm:hidden items-center gap-2 justify-between">
+                          <span className="capitalize">Theo dõi</span>
+                          <Button onClick={handleClickFlower} variant="outline" size="icon">
+                            <Plus />
+                          </Button>
+                        </div>
+                      )}
+
                     </div>
                     <div className="flex items-center gap-1">
                       <Users className="h-4 w-4 text-muted-foreground" />
                       <span className="capitalize">
-                        {follower} người theo dõi
+                        {followers?.length} người theo dõi
                       </span>
                     </div>
                     <div className="text-muted-foreground">

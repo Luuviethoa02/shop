@@ -21,6 +21,6 @@ export const ProductDetailRoute = () => {
   const productDetail = useDetailProduct({ slug: slug! })
 
   return (
-    <ProductDetail status={productDetail.status} data={productDetail.data} />
+    <ProductDetail status={productDetail.status} refetch={productDetail.refetch} data={productDetail.data} />
   )
 }

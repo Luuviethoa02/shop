@@ -14,7 +14,7 @@ export const createSeller = ({
 }: {
   data: CreateSeller
 }): Promise<sellerResponse> => {
-  return api.post(`/seller/add`, data)
+  return api.post(`/seller/follower`, data)
 }
 
 type UseCreateSellerOptions = {

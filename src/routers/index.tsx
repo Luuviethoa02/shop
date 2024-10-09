@@ -182,6 +182,15 @@ export const createRouter = (queryClient: QueryClient) =>
           },
         },
         {
+          path: "shop/:slug",
+          lazy: async () => {
+            const { ProfileDetailRoute } = await import(
+              "./seller/profile-detail"
+            )
+            return { Component: ProfileDetailRoute }
+          },
+        },
+        {
           path: "category/:slug",
           lazy: async () => {
             const { CategoriesRoute } = await import("./products/categories")
