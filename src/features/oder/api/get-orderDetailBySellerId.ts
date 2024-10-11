@@ -5,36 +5,39 @@ import { oderDetailSellerResponse } from "@/types/api"
 
 type UseOrrderDetailOptions = {
   sellerId: string | undefined
+  page?: number
+  limit?: number
 }
 
 export const getOderDetailBySellerId = ({
   sellerId,
-}: {
-  sellerId: string | undefined
-}): Promise<oderDetailSellerResponse> => {
-  return api.get(`/oder/getAlldetail/${sellerId}`)
+  ...args
+}: UseOrrderDetailOptions): Promise<oderDetailSellerResponse> => {
+  return api.get(`/oder/getAlldetail/${sellerId}`, {
+    params: {
+      ...args
+    }
+  })
 }
 
 export const getNotificationQueryOptions = (
   {
     sellerId,
-  }: {
-    sellerId: string | undefined
-  } = {
-    sellerId: undefined,
-  }
+    ...args
+  }: UseOrrderDetailOptions
 ) => {
   return {
-    queryKey: ["get-oder-detail-by-sellerId", sellerId],
-    queryFn: () => getOderDetailBySellerId({ sellerId: sellerId }),
+    queryKey: ["get-oder-detail-by-sellerId", sellerId, args],
+    queryFn: () => getOderDetailBySellerId({ sellerId: sellerId, ...args }),
     enabled: !!sellerId,
   }
 }
 
 export const useGetOderDetailBySellerId = ({
   sellerId,
+  ...args
 }: UseOrrderDetailOptions) => {
   return useQuery({
-    ...getNotificationQueryOptions({ sellerId }),
+    ...getNotificationQueryOptions({ sellerId, ...args }),
   })
 }

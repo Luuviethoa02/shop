@@ -5,59 +5,40 @@ import { QueryConfig } from "@/lib/react-query"
 import { orderNotifiCationResponse } from "@/types/api"
 
 type UseNotificationOptions = {
-  page: number
-  limit: number
-  sellerId: string | undefined
-  queryConfig?: QueryConfig<typeof getOrderNotificationQueryOptions>
+  sellerId?: string
+  page?: number
+  limit?: number
 }
 
 export const getOrderNotificationBysellerId = ({
   sellerId,
-  page,
-  limit,
-}: {
-  sellerId: string | undefined
-  page: number | undefined
-  limit: number | undefined
-}): Promise<orderNotifiCationResponse> => {
+  ...args
+}: UseNotificationOptions): Promise<orderNotifiCationResponse> => {
   return api.get(`/orderNotification/getAll/${sellerId}`, {
     params: {
-      page,
-      limit,
+      ...args
     },
   })
 }
 
 export const getOrderNotificationQueryOptions = (
   {
-    page,
-    limit,
     sellerId,
-  }: {
-    page: number | undefined
-    limit: number | undefined
-    sellerId: string | undefined
-  } = {
-    page: undefined,
-    limit: undefined,
-    sellerId: undefined,
-  }
+    ...args
+  }: UseNotificationOptions
 ) => {
   return {
-    queryKey: ["notifications-order-sellerId", sellerId],
-    queryFn: () => getOrderNotificationBysellerId({ sellerId, page, limit }),
+    queryKey: ["notifications-order-sellerId", sellerId, { ...args }],
+    queryFn: () => getOrderNotificationBysellerId({ sellerId, ...args }),
     enabled: !!sellerId,
   }
 }
 
 export const useOrderNotificationBySellerId = ({
   sellerId,
-  page,
-  limit,
-  queryConfig,
+  ...args
 }: UseNotificationOptions) => {
   return useQuery({
-    ...getOrderNotificationQueryOptions({ sellerId, page, limit }),
-    ...queryConfig,
+    ...getOrderNotificationQueryOptions({ sellerId, ...args }),
   })
 }

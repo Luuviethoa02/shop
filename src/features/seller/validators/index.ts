@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 export const phoneRegex = new RegExp(
-  /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/
+  /^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$/
 )
 
 export const schemaSeller = z.object({
@@ -15,8 +15,8 @@ export const schemaSeller = z.object({
     .string({
       required_error: "Email là bắt buộc nhập",
     })
-    .email("Invalid email address")
-    .min(1, "Email is required"),
+    .email("Email không hợp lệ")
+    .min(1, "Email là bắt buộc nhập"),
   phone: z
     .string({
       required_error: "Số điện thoại là bắt buộc nhập",

@@ -8,7 +8,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { ColorIpi, productDetailResponse } from "@/types/api"
 import useFormatNumberToVND from "@/hooks/useFormatNumberToVND"
 import LayoutWapper from "@/components/warper/layout.wrapper"
-import { CartItem, Size } from "@/types/client"
+import { CartItem, Seller, Size } from "@/types/client"
 import toast from "react-hot-toast"
 import { Textarea } from "@/components/ui/textarea"
 import { ToggleGroup } from "@radix-ui/react-toggle-group"
@@ -107,14 +107,14 @@ export const ProductDetail = ({ data, status, refetch }: Iprops) => {
 
   useEffect(() => {
     if (getShop?.data) {
-      navigate('/shop/' + slugShop)
+      navigate("/shop/" + slugShop)
       nProgress.done()
     }
     if (getShop?.error) {
-      toast.error('Có lỗi xảy ra! thử lại sau.')
+      toast.error("Có lỗi xảy ra! thử lại sau.")
       nProgress.done()
     }
-  }, [getShop,slugShop])
+  }, [getShop, slugShop])
 
   useEffect(() => {
     if (data?.data) {
@@ -283,12 +283,12 @@ export const ProductDetail = ({ data, status, refetch }: Iprops) => {
         data: {
           userId: auth.user?._id!,
           sellerId: data?.data?.sellerInfo?._id!,
-        }
+        },
       },
       {
         onSuccess: () => {
           toast.success("Đã theo dõi")
-          playCommentSound();
+          playCommentSound()
           refetch()
         },
         onError: () => {
@@ -304,7 +304,7 @@ export const ProductDetail = ({ data, status, refetch }: Iprops) => {
         data: {
           userId: auth.user?._id!,
           sellerId: data?.data?.sellerInfo?._id!,
-        }
+        },
       },
       {
         onSuccess: () => {
@@ -332,9 +332,12 @@ export const ProductDetail = ({ data, status, refetch }: Iprops) => {
         followers,
         logo,
         totalProducts,
-        slug
+        _id,
       },
     } = data?.data
+
+
+
 
     return (
       <LayoutWapper>
@@ -483,7 +486,9 @@ export const ProductDetail = ({ data, status, refetch }: Iprops) => {
               <CardContent className="p-4 max-sm:p-2 flex flex-col sm:flex-row gap-4 h-full">
                 <div className="flex items-start sm:items-start gap-4 sm:w-1/3">
                   <Avatar className="size-14 border">
-                    <AvatarImage src={logo} alt={businessName} />
+                    <AvatarImage
+                      className="size-full object-cover"
+                      src={logo} alt={businessName} />
                     <AvatarFallback>
                       {" "}
                       {getInitials(businessName)}
@@ -499,23 +504,45 @@ export const ProductDetail = ({ data, status, refetch }: Iprops) => {
                         {averageRating} ({totalComments + " đánh giá"})
                       </span>
                     </div>
-                    <Button onClick={handleClickViewDetailShop} variant={"outline"} className="mt-2" size="sm">
+                    <Button
+                      onClick={handleClickViewDetailShop}
+                      variant={"outline"}
+                      className="mt-2"
+                      size="sm"
+                    >
                       Xem shop
                       <ChevronRight className="ml-1 h-4 w-4" />
                     </Button>
                   </div>
                   <div className="hidden max-sm:flex items-end justify-end flex-1">
-                    {followers?.find((follower) => follower._id === auth.user?._id) ? (<div className="flex items-center gap-2 justify-between">
-                      <span className="capitalize">Hủy Theo dõi</span>
-                      <Button onClick={handleClickUnFlower} variant="outline" size="icon">
-                        <Plus />
-                      </Button>
-                    </div>) : (<div className="flex items-center gap-2 justify-between">
-                      <span className="capitalize">Theo dõi</span>
-                      <Button onClick={handleClickFlower} variant="outline" size="icon">
-                        <Plus />
-                      </Button>
-                    </div>)}
+                    {(auth?.user?.sellerId as Seller)?._id !== _id ?
+                      (followers?.find(
+                        (follower) => follower._id === auth.user?._id
+                      ) ? (
+                        <div className="flex items-center gap-2 justify-between">
+                          <span className="capitalize">Hủy Theo dõi</span>
+                          <Button
+                            onClick={handleClickUnFlower}
+                            variant="outline"
+                            size="icon"
+                          >
+                            <Plus />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 justify-between">
+                          <span className="capitalize">Theo dõi</span>
+                          <Button
+                            onClick={handleClickFlower}
+                            variant="outline"
+                            size="icon"
+                          >
+                            <Plus />
+                          </Button>
+                        </div>
+                      ))
+                      : undefined
+                    }
 
                   </div>
                 </div>
@@ -532,19 +559,31 @@ export const ProductDetail = ({ data, status, refetch }: Iprops) => {
                         <MapPin className="h-4 w-4 text-muted-foreground" />
                         <span className="capitalize">{city}</span>
                       </div>
-                      {followers?.find((follower) => follower._id === auth.user?._id) ? (<div className="flex max-sm:hidden items-center gap-2 justify-between">
-                        <span className="capitalize">Đã Theo dõi</span>
-                        <Button onClick={handleClickUnFlower} variant="outline" size="icon">
-                          <Check />
-                        </Button>
-                      </div>) : (
+                      {(auth?.user?.sellerId as Seller)?._id !== _id ? followers?.find(
+                        (follower) => follower._id === auth.user?._id
+                      ) ? (
+                        <div className="flex max-sm:hidden items-center gap-2 justify-between">
+                          <span className="capitalize">Đã Theo dõi</span>
+                          <Button
+                            onClick={handleClickUnFlower}
+                            variant="outline"
+                            size="icon"
+                          >
+                            <Check />
+                          </Button>
+                        </div>
+                      ) : (
                         <div className="flex max-sm:hidden items-center gap-2 justify-between">
                           <span className="capitalize">Theo dõi</span>
-                          <Button onClick={handleClickFlower} variant="outline" size="icon">
+                          <Button
+                            onClick={handleClickFlower}
+                            variant="outline"
+                            size="icon"
+                          >
                             <Plus />
                           </Button>
                         </div>
-                      )}
+                      ) : undefined}
 
                     </div>
                     <div className="flex items-center gap-1">

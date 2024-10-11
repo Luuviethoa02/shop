@@ -55,7 +55,7 @@ export const navLinkSeller: {
   {
     path: "/seller/dashboard",
     Icon: HomeIcon,
-    lable: "Bảng điều khiển",
+    lable: "Tổng quan",
   },
   {
     path: "/seller/products",
@@ -81,11 +81,6 @@ export const navLinkSeller: {
     path: "/seller/customers",
     Icon: CircleUser,
     lable: "Khách hàng",
-  },
-  {
-    path: "/seller/analytics",
-    Icon: ChartNoAxesCombined,
-    lable: "Thống kê",
   },
   {
     path: "/seller/profile",

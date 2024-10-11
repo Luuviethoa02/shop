@@ -10,9 +10,9 @@ const deleteStatusOrder = (
 }
 
 export const useDeletesOrderNotification = (
-  sellerId: string | undefined,
-  page: number,
-  limit: number
+  sellerId?: string,
+  page?: number,
+  limit?: number
 ) => {
   const queryClient = useQueryClient()
   return useMutation({

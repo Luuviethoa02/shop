@@ -51,6 +51,7 @@ export type OdersProduct = {
     totalPrice: number
   }
   oderDetails: {
+    productId:string;
     product: string
     sellerId: string
     price: number
@@ -217,13 +218,13 @@ export type queryKeyProducts = {
 export type stateOderItemType = {
   [key: string]: {
     vouchers:
-    | {
-      discount_code: string
-      discount_percentage: number
-      discount_amount: number
-      description: string
-    }[]
-    | []
+      | {
+          discount_code: string
+          discount_percentage: number
+          discount_amount: number
+          description: string
+        }[]
+      | []
     type_tranfer: "fast" | "save"
     totalPrice: number
   }

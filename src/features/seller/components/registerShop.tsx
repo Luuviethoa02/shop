@@ -32,6 +32,7 @@ import { schemaSeller } from "../validators"
 import { useCreateSeller } from "../api/create.seller"
 import toast from "react-hot-toast"
 import { SpokeSpinner } from "@/components/ui/spinner"
+import { z } from "zod"
 
 const RegisterShop = () => {
   const currentUser = useAuthStore((state) => state.user)
@@ -56,7 +57,7 @@ const RegisterShop = () => {
   const handleCityChange = (idCity: string, field: any) => {
     const id = idCity.split("-")[0]
     const value = idCity.split("-")[1]
-    field.onChange(value)
+    field.onChange(idCity)
     setCityId(id)
     setCity(value)
   }
@@ -64,7 +65,7 @@ const RegisterShop = () => {
   const handleDistrictChange = (idDistrict: string, field: any) => {
     const id = idDistrict.split("-")[0]
     const value = idDistrict.split("-")[1]
-    field.onChange(value)
+    field.onChange(idDistrict)
     setDistrictId(id)
     setDistrict(value)
   }
@@ -74,7 +75,7 @@ const RegisterShop = () => {
     setWard(value)
   }
 
-  const methods = useForm({
+  const methods = useForm<z.infer<typeof schemaSeller>>({
     resolver: zodResolver(schemaSeller),
     defaultValues: {
       userId: currentUser?._id,
@@ -100,7 +101,7 @@ const RegisterShop = () => {
     formState: { errors },
   } = methods
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: z.infer<typeof schemaSeller>) => {
     const toastId = toast.loading("Đang tạo kênh người bán...")
     seller.mutate(
       { data },

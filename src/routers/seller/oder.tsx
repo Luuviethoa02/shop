@@ -67,6 +67,8 @@ import useSellerSocket from "@/hooks/useSellerSocket"
 import { useNavigate, useParams } from "react-router-dom"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { useGetOderDetailBySellerIdAndId } from "@/features/oder/api/getOrderDetail-by-id"
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 
 interface stepTypes {
   id: number
@@ -147,6 +149,10 @@ export const OderRoute = () => {
   const [currentStep, setCurrentStep] = useState<stepTypes[]>(steps)
   const [openListReason, setOpenListReason] = useState<boolean>(false)
   const [reason, setReason] = useState<string>()
+  const [orderIdParams, setOrderIdParams] = useState<string>()
+
+  const [page, setPage] = useState<number>(1)
+  const [limit, setLimit] = useState<number>(7)
 
   const navigate = useNavigate()
 
@@ -171,18 +177,30 @@ export const OderRoute = () => {
 
   const orders = useGetOderDetailBySellerId({
     sellerId: (user?.sellerId as Seller)?._id,
+    page,
+    limit
+  })
+
+  const orderDetailApi = useGetOderDetailBySellerIdAndId({
+    sellerId: (user?.sellerId as Seller)?._id,
+    orderDetailId: orderIdParams
   })
 
   const params = useParams()
 
   useEffect(() => {
-    if (params.oderDetailId && orders?.data?.data) {
-      setOderDetail(
-        orders?.data?.data?.find((order) => order._id === params.oderDetailId)
-      )
-      setIsOpen(true)
+    if (params.oderDetailId && !isOpen) {
+      setOrderIdParams(params.oderDetailId)
     }
   }, [params.oderDetailId])
+
+  useEffect(() => {
+    if (orderDetailApi?.data?.data) {
+      setOderDetail(orderDetailApi.data?.data[0])
+      setIsOpen(true)
+    }
+
+  }, [orderDetailApi.data?.data])
 
   useEffect(() => {
     if (!sellerSocket) return
@@ -234,18 +252,18 @@ export const OderRoute = () => {
               prev.map((step) =>
                 step.id <= stepId
                   ? {
-                      ...step,
-                      preview: "obvious",
-                      time:
-                        step.status === "shipping" &&
+                    ...step,
+                    preview: "obvious",
+                    time:
+                      step.status === "shipping" &&
                         step.title.startsWith("Đang")
-                          ? fullDate
-                          : formatDate(
-                              order?.status_oder[
-                                step.status as keyof typeof order.status_oder
-                              ].created_at
-                            ),
-                    }
+                        ? fullDate
+                        : formatDate(
+                          order?.status_oder[
+                            step.status as keyof typeof order.status_oder
+                          ].created_at
+                        ),
+                  }
                   : { ...step, preview: "hidden" }
               )
             )
@@ -295,6 +313,14 @@ export const OderRoute = () => {
           status: "canceled",
           ...data,
         },
+      }, {
+        onSuccess: () => {
+          navigate("/seller/orders")
+          setStatusUpdate({ status: null, data: null })
+          setOpenListReason(false)
+          setOderDetail(undefined)
+          setIsOpen(false)
+        }
       }),
       {
         loading: "Đang cập nhật trạng thái đơn hàng...",
@@ -302,11 +328,6 @@ export const OderRoute = () => {
         error: "Cập nhật trạng thái đơn hàng thất bại!",
       }
     )
-    navigate("/seller/orders")
-    setStatusUpdate({ status: null, data: null })
-    setOpenListReason(false)
-    setIsOpen(false)
-    setOderDetail(undefined)
   }
 
   const handleConfirmUpdateStatus = () => {
@@ -318,17 +339,23 @@ export const OderRoute = () => {
             status: statusUpdate.status,
             ...statusUpdate.data,
           },
-        }),
+        },
+          {
+            onSuccess: () => {
+              navigate("/seller/orders")
+              setStatusUpdate({ status: null, data: null })
+              setOderDetail(undefined)
+              setIsOpen(false)
+            }
+          }
+        ),
         {
           loading: "Đang cập nhật trạng thái đơn hàng...",
           success: "Cập nhật trạng thái đơn hàng thành công!",
           error: "Cập nhật trạng thái đơn hàng thất bại!",
         }
       )
-      navigate("/seller/orders")
-      setStatusUpdate({ status: null, data: null })
-      setIsOpen(false)
-      setOderDetail(undefined)
+
     }
   }
 
@@ -432,6 +459,47 @@ export const OderRoute = () => {
             ))}
         </TableBody>
       </Table>
+        <div className="flex justify-end mt-6">
+          {(orders?.data?.data?.length ?? 0) > 0 && (
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    className={
+                      page <= 1
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                    onClick={() => setPage(page - 1)}
+                  />
+                </PaginationItem>
+                {Array.from({
+                  length: Math.ceil(orders?.data?.total! / limit),
+                }).map((_, p) => (
+                  <PaginationItem className="cursor-pointer" key={p}>
+                    <PaginationLink
+                      isActive={p + 1 === page}
+                      onClick={() => setPage(p + 1)}
+                    >
+                      {p + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    className={
+                      page ===
+                        Math.ceil(orders?.data?.total! / limit)
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                    onClick={() => setPage(page + 1)}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
+        </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent
@@ -571,8 +639,8 @@ export const OderRoute = () => {
                 <div className="flex items-center justify-center gap-3">
                   <div className="w-12 h-12">
                     <img
-                      src={oderDetail?.color.image}
-                      alt={oderDetail?.color.name}
+                      src={oderDetail?.color?.image}
+                      alt={oderDetail?.color?.name}
                       className="min-w-full object-cover rounded-lg"
                     />
                   </div>
@@ -609,14 +677,14 @@ export const OderRoute = () => {
               <div className="flex items-center gap-2">
                 <p>Họ tên:</p>
                 <p className="font-medium">
-                  {oderDetail?.oder_id.user_id.username}
+                  {oderDetail?.oder_id?.user_id?.username}
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <p>Email:</p>
                 <p className="font-medium">
                   {" "}
-                  {oderDetail?.oder_id.user_id.email}
+                  {oderDetail?.oder_id?.user_id?.email}
                 </p>
               </div>
             </div>
@@ -634,15 +702,15 @@ export const OderRoute = () => {
                     : oderDetail?.oder_id?.type_pay}
                 </p>
                 {oderDetail?.oder_id?.type_pay == "momo" &&
-                  (oderDetail?.oder_id?.status_pay.status == "wait" ? (
+                  (oderDetail?.oder_id?.status_pay?.status == "wait" ? (
                     <Badge
                       variant="secondary"
                       className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 text-nowrap"
                     >
                       <Clock className="w-4 h-4 mr-2" />
-                      {oderDetail?.oder_id?.status_pay.messages}
+                      {oderDetail?.oder_id?.status_pay?.messages}
                     </Badge>
-                  ) : oderDetail?.oder_id?.status_pay.status == "success" ? (
+                  ) : oderDetail?.oder_id?.status_pay?.status == "success" ? (
                     <Badge className="bg-green-500 text-nowrap text-white hover:bg-green-600">
                       <CheckCircle className="w-4 h-4 mr-2" />
                       {`Đã thanh toán`}
@@ -653,7 +721,7 @@ export const OderRoute = () => {
                       className="text-blue-600 border-blue-600 hover:bg-blue-100 text-nowrap"
                     >
                       <Package className="w-4 h-4 mr-2" />
-                      {oderDetail?.oder_id?.status_pay.messages}
+                      {oderDetail?.oder_id?.status_pay?.messages}
                     </Badge>
                   ))}
               </div>
@@ -667,7 +735,7 @@ export const OderRoute = () => {
               <div>
                 <div className="flex items-center gap-3">
                   <p className="font-semibold border-r-2 pr-2 capitalize">
-                    {oderDetail?.oder_id.address_id.name}
+                    {oderDetail?.oder_id?.address_id?.name}
                   </p>
                   <p className="font-semibold">
                     {oderDetail?.oder_id?.address_id?.phone}
@@ -678,7 +746,7 @@ export const OderRoute = () => {
                 </p>
                 <p>
                   {oderDetail?.oder_id?.address_id?.ward},{" "}
-                  {oderDetail?.oder_id.address_id?.district?.split("-")[1]},{" "}
+                  {oderDetail?.oder_id?.address_id?.district?.split("-")[1]},{" "}
                   {oderDetail?.oder_id?.address_id?.city?.split("-")[1]}
                 </p>
               </div>
@@ -727,7 +795,7 @@ export const OderRoute = () => {
               defaultValue={listReasons[0].title}
             >
               {listReasons.map((reason) => (
-                <div className="flex items-center space-x-2">
+                <div key={reason.id} className="flex items-center space-x-2">
                   <RadioGroupItem
                     value={reason.title}
                     id={reason.id.toString()}

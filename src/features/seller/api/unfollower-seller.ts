@@ -4,13 +4,12 @@ import { api } from "@/lib/api-client"
 
 import { sellerResponse } from "@/types/api"
 
-
 export const uncreateFollower = ({
   data,
 }: {
   data: {
-    userId:string;
-    sellerId:string;
+    userId: string
+    sellerId: string
   }
 }): Promise<sellerResponse> => {
   return api.patch(`/seller/unfollower`, data)
@@ -25,6 +24,6 @@ export const useUnCreateFollower = () => {
         queryKey: ["un-follower-create"],
       })
     },
-    mutationFn: uncreateFollower
+    mutationFn: uncreateFollower,
   })
 }

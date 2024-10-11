@@ -60,7 +60,7 @@ function Product({ product }: Iprops) {
     price,
   } = product
   return (
-    <div className="max-lg:w-1/2 mb-5 max-sm:w-full max-md:w-1/2 my-3 xl:w-1/4 p-4 w-full mb-4 max-h-[370px] min-h-[370px]">
+    <div className="max-lg:w-1/2 mb-5 max-sm:w-full max-md:w-1/2 my-3 xl:w-1/4 p-4 w-full max-h-[370px] min-h-[370px]">
       <div className="relative w-full max-w-sm overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:border-primary border ease-in-out hover:shadow-xl hover:scale-105">
         {discount && (
           <div className="absolute top-1 right-1 bg-primary text-primary-foreground px-2 py-1 rounded-md text-xs font-medium">
@@ -130,7 +130,7 @@ function Product({ product }: Iprops) {
             <div className="flex items-center gap-1">
               <MapPin size={14} />
               <p className="text-sm block capitalize font-light text-muted-foreground">
-                {sellerId?.city}
+                {sellerId?.city.split('-')[1]}
               </p>
             </div>
           </div>
