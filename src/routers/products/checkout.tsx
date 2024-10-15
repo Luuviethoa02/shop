@@ -239,11 +239,10 @@ export function CheckoutRoute() {
     const oderDetail: OdersProduct["oderDetails"][] = []
     if (Object.entries(carts).length > 0) {
       Object.entries(carts).forEach(([id, cartItem]) => {
-        
         const oderDetailItem: OdersProduct["oderDetails"] = {
           product: cartItem.product.name,
           sellerId: cartItem.selelrId._id,
-          productId:id.split('-')[0],
+          productId: id.split("-")[0],
           price: +cartItem.product.price,
           quantity: cartItem.quantity,
           vouchers: stateOder[id].vouchers,
@@ -400,10 +399,13 @@ export function CheckoutRoute() {
                               {cartItem.product.name}
                             </h3>
                             <p className="text-muted-foreground capitalize text-sm">
-                            {(cartItem?.size?.name && !cartItem?.size?.weight) && ` kích thước: ${cartItem?.size?.name}, `}
-                            {(cartItem?.size?.name && cartItem?.size?.weight) && ` kích thước: ${cartItem?.size?.name}<${cartItem?.size?.weight}kg>, `}
-
-                             Màu: {cartItem?.color?.name}
+                              {cartItem?.size?.name &&
+                                !cartItem?.size?.weight &&
+                                ` kích thước: ${cartItem?.size?.name}, `}
+                              {cartItem?.size?.name &&
+                                cartItem?.size?.weight &&
+                                ` kích thước: ${cartItem?.size?.name}<${cartItem?.size?.weight}kg>, `}
+                              Màu: {cartItem?.color?.name}
                             </p>
                           </div>
                         </div>

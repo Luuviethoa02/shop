@@ -16,7 +16,10 @@ function Product({ product }: Iprops) {
   const { formatNumberToVND } = useFormatNumberToVND()
   const navigate = useNavigate()
   const [slug, setSlug] = useState<string | undefined>(undefined)
-  const { data: response, error } = useDetailProduct({ slug })
+  const { data: response, error } = useDetailProduct({ slug,params:{
+    pageCurrentShop: 1,
+    pageSimilar:1
+  } })
 
   const [hoveredImage, setHoveredImage] = useState<string | null>(null)
 
@@ -59,26 +62,25 @@ function Product({ product }: Iprops) {
     name,
     price,
   } = product
+
   return (
     <div className="max-lg:w-1/2 mb-5 max-sm:w-full max-md:w-1/2 my-3 xl:w-1/4 p-4 w-full max-h-[370px] min-h-[370px]">
-      <div className="relative w-full max-w-sm overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:border-primary border ease-in-out hover:shadow-xl hover:scale-105">
-        {discount && (
+      <div className="relative w-full max-h-[370px] min-h-[370px] min-w-full overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:border-primary border ease-in-out hover:shadow-xl hover:scale-105">
+        {discount && discount.length > 0 && (
           <div className="absolute top-1 right-1 bg-primary text-primary-foreground px-2 py-1 rounded-md text-xs font-medium">
-            - {discount}%
+            - {discount[0].discount_percentage}%
           </div>
         )}
         <div
           onClick={() => handleCardItemClick(slugProduct)}
-          className="block cursor-pointer transition-all duration-300 ease-in-out"
+          className="block min-w-full w-full cursor-pointer transition-all duration-300 ease-in-out"
           onMouseEnter={() => handleMouseEnter(colors[1]?.image || "")}
           onMouseLeave={handleMouseLeave}
         >
           <img
             src={hoveredImage || colors[0]?.image || ""}
             alt={`this is image ${colors[0].name}`}
-            width={500}
-            height={500}
-            className="w-full max-h-44 min-h-44 object-cover transition-all duration-300 ease-in-out group-hover:scale-105"
+            className="min-w-full max-h-44 min-h-44 object-cover transition-all duration-300 ease-in-out group-hover:scale-105"
             style={{ aspectRatio: "500/500", objectFit: "cover" }}
           />
         </div>
@@ -87,18 +89,18 @@ function Product({ product }: Iprops) {
             {name}
           </h5>
           <div className="flex items-center justify-between w-full mt-1">
-            {!discount && (
+            {discount?.length === 0 && (
               <p className="text-lg block font-medium">
                 {formatNumberToVND(price)}
               </p>
             )}
-            {discount && (
+            {discount && discount.length > 0 && (
               <>
                 <p className="text-lg block line-through font-medium">
                   {formatNumberToVND(price)}
                 </p>
                 <p className="text-lg text-destructive block font-medium">
-                  {formatNumberToVND(calculatePercentage(discount, price))}
+                  {formatNumberToVND(calculatePercentage(discount[0].discount_percentage, price))}
                 </p>
               </>
             )}
@@ -130,7 +132,7 @@ function Product({ product }: Iprops) {
             <div className="flex items-center gap-1">
               <MapPin size={14} />
               <p className="text-sm block capitalize font-light text-muted-foreground">
-                {sellerId?.city.split('-')[1]}
+                {sellerId?.city.split("-")[1]}
               </p>
             </div>
           </div>

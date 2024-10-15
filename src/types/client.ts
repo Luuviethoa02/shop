@@ -51,7 +51,7 @@ export type OdersProduct = {
     totalPrice: number
   }
   oderDetails: {
-    productId:string;
+    productId: string
     product: string
     sellerId: string
     price: number
@@ -162,6 +162,7 @@ export type Comments = {
   createdAt: string
   __v: number
   relativeTime: string
+  imgs: string[]
 }
 
 export type CommentsNotification = Comments & {
@@ -218,13 +219,13 @@ export type queryKeyProducts = {
 export type stateOderItemType = {
   [key: string]: {
     vouchers:
-      | {
-          discount_code: string
-          discount_percentage: number
-          discount_amount: number
-          description: string
-        }[]
-      | []
+    | {
+      discount_code: string
+      discount_percentage: number
+      discount_amount: number
+      description: string
+    }[]
+    | []
     type_tranfer: "fast" | "save"
     totalPrice: number
   }

@@ -1,5 +1,4 @@
 import Slider from "react-slick"
-import LayoutWapper from "@/components/warper/layout.wrapper"
 import { settingsSlider } from "../constants"
 import { useCategories } from "../api/get-categories"
 import CategoryItem from "./category"
@@ -13,7 +12,7 @@ const CategoryList = () => {
 
   return (
     <>
-      <h2 className="scroll-m-20 mb-5 max-sm:text-center pb-2 max-sm:text-xl text-3xl font-semibold tracking-tight first:mt-0">
+      <h2 className="scroll-m-20 mb-5 max-sm:text-center pb-2 max-sm:text-xl text-3xl font-semibold tracking-tight text-gray-600 first:mt-0">
         Danh Mục sản phẩm
       </h2>
       <div className="slider-container">

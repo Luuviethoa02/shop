@@ -1,63 +1,45 @@
 import { useQuery } from "@tanstack/react-query"
 
 import { api } from "@/lib/api-client"
-import { QueryConfig } from "@/lib/react-query"
 import { commentsResponse } from "@/types/api"
 
 type UseCommentsOptions = {
-  page: number
-  limit: number
-  productId: string | undefined
-  queryConfig?: QueryConfig<typeof getProductDetailQueryOptions>
+  productId?: string 
 }
 
 export const getCommentsByProduct = ({
   productId,
-  page,
-  limit,
+  ...args
 }: {
-  productId: string | undefined
-  page: number | undefined
-  limit: number | undefined
+  productId?: string
 }): Promise<commentsResponse> => {
   return api.get(`/comment/product/${productId}`, {
     params: {
-      page,
-      limit,
+      ...args
     },
   })
 }
 
 export const getProductDetailQueryOptions = (
   {
-    page,
-    limit,
     productId,
+    ...args
   }: {
-    page: number | undefined
-    limit: number | undefined
-    productId: string | undefined
-  } = {
-    page: undefined,
-    limit: undefined,
-    productId: undefined,
-  }
+    productId?: string 
+  } 
 ) => {
   return {
-    queryKey: ["comments", productId],
-    queryFn: () => getCommentsByProduct({ productId, page, limit }),
+    queryKey: ["comments", productId, {...args}],
+    queryFn: () => getCommentsByProduct({ productId, ...args }),
     enabled: !!productId,
   }
 }
 
 export const useCommentsByProductId = ({
   productId,
-  page,
-  limit,
-  queryConfig,
+  ...args
 }: UseCommentsOptions) => {
   return useQuery({
-    ...getProductDetailQueryOptions({ productId, page, limit }),
-    ...queryConfig,
+    ...getProductDetailQueryOptions({ productId, ...args }),
   })
 }

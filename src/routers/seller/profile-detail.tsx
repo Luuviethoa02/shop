@@ -62,19 +62,19 @@ export const ProfileDetailRoute = () => {
       commentRecents,
       city,
       createdAt,
-      topSellingProducts
+      topSellingProducts,
     } = data?.data?.data
 
     return (
       <div className="min-h-screen bg-background">
-        <div className="relative h-64 md:h-80">
+        <div className="relative h-64 w-full md:h-80">
           {img_cover && (
             <img
               src={img_cover}
-              className="brightness-50 min-h-72 bg-slate-500 object-cover"
+              className="brightness-50 min-h-full min-w-full max-h-full bg-slate-500 object-cover"
             />
           )}
-          {!img_cover && <div className="w-full min-h-full bg-slate-500" />}
+          {!img_cover && <div className="min-w-full min-h-full max-h-full bg-slate-500" />}
           <div className="absolute top-20 inset-0 flex  items-center justify-center">
             <div className="text-center flex flex-col items-center">
               <Avatar className="size-14 border">
@@ -184,7 +184,17 @@ export const ProfileDetailRoute = () => {
                   <>
                     <div className="flex flex-wrap">
                       {topSellingProducts.map((product) => (
-                        <Product key={product?._id} product={{ ...product.product, total: product.quantity, sellerId: { _id: data?.data?.data?._id, city: data?.data?.data?.city } }} />
+                        <Product
+                          key={product?._id}
+                          product={{
+                            ...product.product,
+                            total: product.quantity,
+                            sellerId: {
+                              _id: data?.data?.data?._id,
+                              city: data?.data?.data?.city,
+                            },
+                          }}
+                        />
                       ))}
                     </div>
                   </>

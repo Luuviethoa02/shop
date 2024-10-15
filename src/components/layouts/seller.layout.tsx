@@ -1,4 +1,4 @@
-import discordSound from "@/assets/sounds/discord-notification.mp3";
+import discordSound from "@/assets/sounds/discord-notification.mp3"
 import {
   Link,
   Navigate,
@@ -6,8 +6,8 @@ import {
   Outlet,
   useLocation,
   useNavigate,
-} from "react-router-dom";
-import { Input } from "@/components/ui/input";
+} from "react-router-dom"
+import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -15,13 +15,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
 
-import Logo from "../share/Logo";
-import { navLinkSeller } from "@/constants";
-import SEO from "../seo";
-import { MouseEvent, useEffect, useState } from "react";
+import Logo from "../share/Logo"
+import { navLinkSeller } from "@/constants"
+import SEO from "../seo"
+import { MouseEvent, useEffect, useState } from "react"
 import {
   BellIcon,
   Dot,
@@ -29,76 +29,78 @@ import {
   Package2Icon,
   SearchIcon,
   X,
-} from "lucide-react";
-import DialogLogout from "@/features/auth/components/form-logout";
-import ProgressBar from "../share/ProgressBar";
-import { useAuthStore } from "@/store";
-import { OrderNotification, orderNotification, Seller } from "@/types/client";
-import useSellerSocket from "@/hooks/useSellerSocket";
-import { useNotificationSound } from "@/hooks";
-import { Toaster } from "@/components/ui/sonner";
-import { toast } from "sonner";
-import { useOrderNotificationBySellerId } from "@/features/notifications/api/order-notification";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { getInitials } from "@/lib/utils";
-import { useUpdateManyStatusOrder } from "@/features/notifications/api/updateMany-status-order";
-import { LIMIT_PAGE_ORDER_NOTIFICATION } from "@/features/oder/constants";
-import { useGetOderDetailBySellerId } from "@/features/oder/api/get-orderDetailBySellerId";
-import nProgress from "nprogress";
-import { useUpdateStatusOrder } from "@/features/notifications/api/update-status-order";
-import { Skeleton } from "../ui/skeleton";
-import { useGetOderDetailBySellerIdAndId } from "@/features/oder/api/getOrderDetail-by-id";
-import { useDeletesOrderNotification } from "@/features/notifications/api/delete-status-order";
+} from "lucide-react"
+import DialogLogout from "@/features/auth/components/form-logout"
+import ProgressBar from "../share/ProgressBar"
+import { useAuthStore } from "@/store"
+import { OrderNotification, orderNotification, Seller } from "@/types/client"
+import useSellerSocket from "@/hooks/useSellerSocket"
+import { useNotificationSound } from "@/hooks"
+import { Toaster } from "@/components/ui/sonner"
+import { toast } from "sonner"
+import { useOrderNotificationBySellerId } from "@/features/notifications/api/order-notification"
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { getInitials } from "@/lib/utils"
+import { useUpdateManyStatusOrder } from "@/features/notifications/api/updateMany-status-order"
+import { LIMIT_PAGE_ORDER_NOTIFICATION } from "@/features/oder/constants"
+import { useGetOderDetailBySellerId } from "@/features/oder/api/get-orderDetailBySellerId"
+import nProgress from "nprogress"
+import { useUpdateStatusOrder } from "@/features/notifications/api/update-status-order"
+import { Skeleton } from "../ui/skeleton"
+import { useGetOderDetailBySellerIdAndId } from "@/features/oder/api/getOrderDetail-by-id"
+import { useDeletesOrderNotification } from "@/features/notifications/api/delete-status-order"
 
-const maxPage = 4;
+const maxPage = 4
 
 const SellerLayout = () => {
-  const currentUser = useAuthStore((state) => state.user);
+  const currentUser = useAuthStore((state) => state.user)
 
-  if (!currentUser?._id) return <Navigate to="/" />;
+  if (!currentUser?._id) return <Navigate to="/" />
 
-  if (!currentUser?.sellerId) return <Navigate to="/auth/seller/register" />;
+  if (!currentUser?.sellerId) return <Navigate to="/auth/seller/register" />
 
   if ((currentUser?.sellerId as Seller).status === "wait")
-    return <Navigate to="/auth/seller/waiting" />;
+    return <Navigate to="/auth/seller/waiting" />
 
   if ((currentUser?.sellerId as Seller).status === "rejected")
-    return <Navigate to="/forbidden" />;
+    return <Navigate to="/forbidden" />
 
-  const [modalLogout, setModalLogout] = useState<boolean>(false);
+  const [modalLogout, setModalLogout] = useState<boolean>(false)
   const [navLinkActive, setNavLinkActive] = useState<{
-    path: string;
-    Icon: LucideIcon;
-    lable: string;
-  }>();
+    path: string
+    Icon: LucideIcon
+    lable: string
+  }>()
 
-  const location = useLocation();
-  const navigate = useNavigate();
+  const location = useLocation()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (location.pathname === "/seller") {
-      setNavLinkActive(navLinkSeller[0]);
-      return;
+      setNavLinkActive(navLinkSeller[0])
+      return
     }
     const navLinkActive = navLinkSeller.find(
       (nav) => location.pathname == nav.path
-    );
-    setNavLinkActive(navLinkActive);
-  }, [location.pathname]);
+    )
+    setNavLinkActive(navLinkActive)
+  }, [location.pathname])
 
-  const sellerSocket = useSellerSocket((currentUser?.sellerId as Seller)?._id);
-  const playNotificationSound = useNotificationSound(discordSound);
-  const [page, setPage] = useState<number>(1);
-  const [orderDetailId, setOrderDetailId] = useState<string>();
-  const [hasMore, setHasMore] = useState(true);
+  const sellerSocket = useSellerSocket((currentUser?.sellerId as Seller)?._id)
+  const playNotificationSound = useNotificationSound(discordSound)
+  const [page, setPage] = useState<number>(1)
+  const [orderDetailId, setOrderDetailId] = useState<string>()
+  const [hasMore, setHasMore] = useState(true)
 
-  const [allOrderNotifications, setAllOrderNotifications] = useState<OrderNotification[]>([]);
+  const [allOrderNotifications, setAllOrderNotifications] = useState<
+    OrderNotification[]
+  >([])
 
   const allOrderNotificationsApi = useOrderNotificationBySellerId({
     sellerId: (currentUser?.sellerId as Seller)?._id,
     page: page,
     limit: LIMIT_PAGE_ORDER_NOTIFICATION,
-  });
+  })
 
   const deleteNotification = useDeletesOrderNotification(
     (currentUser?.sellerId as Seller)?._id,
@@ -106,45 +108,49 @@ const SellerLayout = () => {
     LIMIT_PAGE_ORDER_NOTIFICATION
   )
 
-  const handleBtndeleteNotification = (event: MouseEvent<HTMLDivElement, globalThis.MouseEvent>, id: string) => {
-    event.stopPropagation();
-    event.preventDefault();
-    deleteNotification.mutate(
-      id)
+  const handleBtndeleteNotification = (
+    event: MouseEvent<HTMLDivElement, globalThis.MouseEvent>,
+    id: string
+  ) => {
+    event.stopPropagation()
+    event.preventDefault()
+    deleteNotification.mutate(id)
   }
 
   useEffect(() => {
     if (allOrderNotificationsApi?.data?.data) {
       setAllOrderNotifications((prevNotification) => [
         ...prevNotification,
-        ...allOrderNotificationsApi?.data.data.filter(notification => !prevNotification.includes(notification)),
-      ]);
+        ...allOrderNotificationsApi?.data.data.filter(
+          (notification) => !prevNotification.includes(notification)
+        ),
+      ])
       if (page >= maxPage) {
-        setHasMore(false);
+        setHasMore(false)
       }
     }
-  }, [allOrderNotificationsApi?.data?.data]);
+  }, [allOrderNotificationsApi?.data?.data])
 
   const loadMoreNotification = () => {
-    setPage((prevPage) => prevPage + 1);
-  };
+    setPage((prevPage) => prevPage + 1)
+  }
 
   const orderDetailApi = useGetOderDetailBySellerIdAndId({
     sellerId: (currentUser?.sellerId as Seller)?._id,
     orderDetailId: orderDetailId,
-  });
+  })
 
   const updateManyStatus = useUpdateManyStatusOrder({
     sellerId: (currentUser?.sellerId as Seller)?._id,
     page,
     limit: LIMIT_PAGE_ORDER_NOTIFICATION,
-  });
+  })
 
   const updateStatusOrderNotification = useUpdateStatusOrder({
     sellerId: (currentUser?.sellerId as Seller)?._id!,
     page,
     limit: LIMIT_PAGE_ORDER_NOTIFICATION,
-  });
+  })
 
   const handleClickUpdateManyStatus = () => {
     toast.promise(
@@ -156,61 +162,61 @@ const SellerLayout = () => {
         success: "Đã đánh dấu tất cả đã đọc",
         error: "Đã xảy ra lỗi",
       }
-    );
-  };
+    )
+  }
 
   const handleBackHome = () => {
-    navigate("/");
-  };
+    navigate("/")
+  }
 
   const handleClickLinkNotification = (id: string, item: OrderNotification) => {
     if (item.isRead) {
-      setOrderDetailId(id);
-      return;
+      setOrderDetailId(id)
+      return
     }
     updateStatusOrderNotification.mutate({
       notifiId: item._id,
-    });
-  };
+    })
+  }
 
   useEffect(() => {
     if (orderDetailId) {
-      nProgress.start();
+      nProgress.start()
     }
-  }, [orderDetailId]);
+  }, [orderDetailId])
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    window.scrollTo(0, 0)
+  }, [])
 
   useEffect(() => {
     if (orderDetailApi?.data?.data && orderDetailId) {
-      navigate(`/seller/orders/${orderDetailId}`);
-      nProgress.done();
+      navigate(`/seller/orders/${orderDetailId}`)
+      nProgress.done()
     }
     if (orderDetailApi.error) {
-      console.error("Failed to load product detail:", orderDetailApi.error);
-      nProgress.done();
+      console.error("Failed to load product detail:", orderDetailApi.error)
+      nProgress.done()
     }
-  }, [orderDetailApi?.data?.data, orderDetailApi.error, orderDetailId]);
+  }, [orderDetailApi?.data?.data, orderDetailApi.error, orderDetailId])
 
   useEffect(() => {
-    if (!sellerSocket) return;
+    if (!sellerSocket) return
 
     if (sellerSocket) {
       sellerSocket.on("newOrder", (data: orderNotification) => {
         toast(
           `Bạn có một đơn hàng mới từ ${data.user.username} với mã đơn hàng ${data.orderDetail}`
-        );
-        allOrderNotificationsApi.refetch();
-        playNotificationSound();
-      });
+        )
+        allOrderNotificationsApi.refetch()
+        playNotificationSound()
+      })
 
       return () => {
-        sellerSocket.off("newOrder");
-      };
+        sellerSocket.off("newOrder")
+      }
     }
-  }, [sellerSocket, currentUser?.sellerId]);
+  }, [sellerSocket, currentUser?.sellerId])
 
   return (
     <>
@@ -236,9 +242,10 @@ const SellerLayout = () => {
                 to={item.path}
                 key={index}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-lg px-3 py-2  transition-all hover:text-primary ${isActive
-                    ? "bg-primary text-primary-foreground hover:text-secondary"
-                    : "text-muted-foreground bg-none"
+                  `flex items-center gap-3 rounded-lg px-3 py-2  transition-all hover:text-primary ${
+                    isActive
+                      ? "bg-primary text-primary-foreground hover:text-secondary"
+                      : "text-muted-foreground bg-none"
                   }`
                 }
               >
@@ -349,7 +356,7 @@ const SellerLayout = () => {
                         ))}
 
                       {allOrderNotifications.map((item, index) => {
-                        const uniqueKey = `${item._id}-${index}`;
+                        const uniqueKey = `${item._id}-${index}`
                         if (!item.isRead) {
                           return (
                             <DropdownMenuItem
@@ -381,7 +388,12 @@ const SellerLayout = () => {
                                       </div>
                                     </div>
                                     <Dot size={25} color="#7adeff" />
-                                    <div onClick={(e) => handleBtndeleteNotification(e, item._id)} className="cursor-pointer w-4 text-xs group-hover/item:visible invisible text-muted-foreground">
+                                    <div
+                                      onClick={(e) =>
+                                        handleBtndeleteNotification(e, item._id)
+                                      }
+                                      className="cursor-pointer w-4 text-xs group-hover/item:visible invisible text-muted-foreground"
+                                    >
                                       <X size={14} />
                                     </div>
                                   </div>
@@ -394,7 +406,7 @@ const SellerLayout = () => {
                                 </div>
                               </div>
                             </DropdownMenuItem>
-                          );
+                          )
                         }
                         return (
                           <DropdownMenuItem
@@ -426,8 +438,11 @@ const SellerLayout = () => {
                                     </div>
                                   </div>
                                   <div
-                                    onClick={(e) => handleBtndeleteNotification(e, item._id)}
-                                    className="cursor-pointer w-4 text-xs group-hover/item:visible invisible text-muted-foreground">
+                                    onClick={(e) =>
+                                      handleBtndeleteNotification(e, item._id)
+                                    }
+                                    className="cursor-pointer w-4 text-xs group-hover/item:visible invisible text-muted-foreground"
+                                  >
                                     <X size={14} />
                                   </div>
                                 </div>
@@ -440,7 +455,7 @@ const SellerLayout = () => {
                               </div>
                             </div>
                           </DropdownMenuItem>
-                        );
+                        )
                       })}
                     </div>
 
@@ -474,7 +489,7 @@ const SellerLayout = () => {
       </div>
       <DialogLogout open={modalLogout} setOpen={setModalLogout} />
     </>
-  );
-};
+  )
+}
 
-export default SellerLayout;
+export default SellerLayout

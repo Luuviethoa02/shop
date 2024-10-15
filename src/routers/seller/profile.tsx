@@ -1,19 +1,28 @@
 import { ChangeEvent, useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { MapPin, Phone, Mail, User, Pencil } from "lucide-react"
-import { useImageSize } from 'react-image-size';
+import { useImageSize } from "react-image-size"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useGetShopBySlug } from "@/features/seller/api/get-shop-by-slug"
 import { Skeleton } from "@/components/ui/skeleton"
 import SekeletonList from "@/features/products/components/sekeleton-list"
-import { convertToVietnamesePhone, formatDate, getImageUrl, getInitials } from "@/lib/utils"
+import {
+  convertToVietnamesePhone,
+  formatDate,
+  getImageUrl,
+  getInitials,
+} from "@/lib/utils"
 import Product from "@/features/products/components/product"
 import { useAuthStore } from "@/store"
 import { Seller } from "@/types/client"
 import { Button } from "@/components/ui/button"
 import toast from "react-hot-toast"
 import { useUpdateImageSeller } from "@/features/seller/api/update-image"
-import { AlertDialog, AlertDialogContent, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,11 +34,7 @@ import {
   useFetchProvinces,
   useFetchWards,
 } from "@/hooks/useProvinces"
-import {
-  FormControl,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form"
+import { FormControl, FormItem, FormLabel } from "@/components/ui/form"
 import {
   Select,
   SelectContent,
@@ -40,16 +45,15 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
-import { schemaSeller } from "@/features/seller/validators";
-import { z } from "zod";
-import { useUpdateInfoSeller } from "@/features/seller/api/updateInfo-shop";
+import { schemaSeller } from "@/features/seller/validators"
+import { z } from "zod"
+import { useUpdateInfoSeller } from "@/features/seller/api/updateInfo-shop"
 
 export const ProfileRoute = () => {
   const { user, setUser } = useAuthStore((state) => state)
   const data = useGetShopBySlug({ slug: (user?.sellerId as Seller).slug! })
   const updateImageCover = useUpdateImageSeller({})
   const updateInfo = useUpdateInfoSeller({})
-
 
   const [dialog, setDialog] = useState(false)
 
@@ -66,21 +70,19 @@ export const ProfileRoute = () => {
     useFetchDistricts(cityId)
   const { data: dataWards, isLoading: loadingWards } = useFetchWards(districtId)
 
-
   const [image, setImage] = useState<{
     img: string
     imgFile: FileList | null
-  }>({ img: '', imgFile: null })
+  }>({ img: "", imgFile: null })
 
   const [avatar, setAvatar] = useState<{
     img: string
     imgFile: FileList | null
-  }>({ img: '', imgFile: null })
+  }>({ img: "", imgFile: null })
 
   const methods = useForm<z.infer<typeof schemaSeller>>({
     resolver: zodResolver(schemaSeller),
   })
-
 
   useEffect(() => {
     if (data?.data?.data) {
@@ -92,12 +94,12 @@ export const ProfileRoute = () => {
     }
   }, [data?.data?.data])
 
-  const [dimensions] = useImageSize(image.img);
+  const [dimensions] = useImageSize(image.img)
 
   useEffect(() => {
     if (dimensions) {
       if (dimensions.width < 1297 || dimensions.height < 320) {
-        toast.error('Vui lòng chọn kích thước ảnh phù hợp')
+        toast.error("Vui lòng chọn kích thước ảnh phù hợp")
       }
     }
   }, [dimensions])
@@ -106,13 +108,13 @@ export const ProfileRoute = () => {
     if (data?.data?.data?.img_cover) {
       setImage({
         img: data.data?.data.img_cover,
-        imgFile: null
+        imgFile: null,
       })
     }
     if (data.data?.data.logo) {
       setAvatar({
         img: data.data?.data.logo,
-        imgFile: null
+        imgFile: null,
       })
     }
   }, [data.data?.data])
@@ -161,7 +163,7 @@ export const ProfileRoute = () => {
       commentRecents,
       city,
       createdAt,
-      topSellingProducts
+      topSellingProducts,
     } = data?.data?.data
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -196,16 +198,8 @@ export const ProfileRoute = () => {
             },
             {
               onSuccess() {
-                data.refetch().then((response) => {
-                  setUser({
-                    ...user,
-                    sellerId: {
-                      ...user?.sellerId as Seller,
-                      img_cover: response?.data?.data?.img_cover || (user?.sellerId as Seller).img_cover
-                    }
-                  })
-                })
-              }
+                data.refetch()
+              },
             }
           ),
           {
@@ -231,16 +225,8 @@ export const ProfileRoute = () => {
             },
             {
               onSuccess() {
-                data.refetch().then((response) => {
-                  setUser({
-                    ...user,
-                    sellerId: {
-                      ...user?.sellerId as Seller,
-                      logo: response?.data?.data?.logo || (user?.sellerId as Seller).logo
-                    }
-                  })
-                })
-              }
+                data.refetch()
+              },
             }
           ),
           {
@@ -281,11 +267,16 @@ export const ProfileRoute = () => {
       formState: { errors },
     } = methods
 
-    const onSubmit = (values:z.infer<typeof schemaSeller>) => {
+    const onSubmit = (values: z.infer<typeof schemaSeller>) => {
       const formData = new FormData()
       for (const key in values) {
-        formData.append(key, values[key as keyof z.infer<typeof schemaSeller>]?.toString() as string)
-      }  
+        formData.append(
+          key,
+          values[
+            key as keyof z.infer<typeof schemaSeller>
+          ]?.toString() as string
+        )
+      }
       toast.promise(
         updateInfo.mutateAsync(
           {
@@ -298,13 +289,13 @@ export const ProfileRoute = () => {
                 setUser({
                   ...user,
                   sellerId: {
-                    ...user?.sellerId as Seller,
-                    ...response?.data?.data
-                  }
+                    ...(user?.sellerId as Seller),
+                    ...response?.data?.data,
+                  },
                 })
               })
               setDialog(false)
-            }
+            },
           }
         ),
         {
@@ -324,11 +315,17 @@ export const ProfileRoute = () => {
               className="brightness-50 min-w-full min-h-full max-h-full object-cover"
             />
           )}
-          {!image.img && <div className="w-full min-h-full max-h-full bg-slate-500" />}
+          {!image.img && (
+            <div className="w-full min-h-full max-h-full bg-slate-500" />
+          )}
           <div className="absolute top-44 inset-0 flex  items-center justify-center">
             <div className="text-center flex flex-col items-center">
               <Avatar className="size-14 border object-cover">
-                <AvatarImage className="object-cover" src={avatar.img} alt={businessName} />
+                <AvatarImage
+                  className="object-cover"
+                  src={avatar.img}
+                  alt={businessName}
+                />
                 <AvatarFallback> {getInitials(businessName)}</AvatarFallback>
               </Avatar>
               <h1 className="mt-4 text-3xl font-bold text-white">
@@ -368,11 +365,13 @@ export const ProfileRoute = () => {
           </div>
         </div>
         <div className="mt-5">
-          {(image?.imgFile && ((dimensions?.height ?? 0) >= 320) && ((dimensions?.width ?? 0) >= 1297)) && (
-            <Button onClick={handleClickUpdateImageCover}>
-              Cập nhật ảnh bìa
-            </Button>
-          )}
+          {image?.imgFile &&
+            (dimensions?.height ?? 0) >= 320 &&
+            (dimensions?.width ?? 0) >= 1297 && (
+              <Button onClick={handleClickUpdateImageCover}>
+                Cập nhật ảnh bìa
+              </Button>
+            )}
           {avatar?.imgFile && (
             <Button onClick={handleClickUpdateImageAvatar}>
               Cập nhật đại diện
@@ -387,7 +386,12 @@ export const ProfileRoute = () => {
                 <CardTitle>
                   <div className="flex items-center justify-between">
                     <h2>Thông tin cửa hàng</h2>
-                    <p onClick={() => setDialog(true)} className="font-medium text-sm cursor-pointer text-primary">Cập nhật thông tin</p>
+                    <p
+                      onClick={() => setDialog(true)}
+                      className="font-medium text-sm cursor-pointer text-primary"
+                    >
+                      Cập nhật thông tin
+                    </p>
                   </div>
                 </CardTitle>
               </CardHeader>
@@ -400,9 +404,9 @@ export const ProfileRoute = () => {
                         ", " +
                         ward +
                         ", " +
-                        district.split('-')[1] +
+                        district.split("-")[1] +
                         ", " +
-                        city.split('-')[1]}
+                        city.split("-")[1]}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -445,7 +449,7 @@ export const ProfileRoute = () => {
                       Đánh giá trung bình
                     </span>
                     <span className="font-semibold flex items-center">
-                      {`(${averageRating}) ${" "}`}
+                      {`(${averageRating.toFixed(1)}) ${" "}`}
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
@@ -486,7 +490,17 @@ export const ProfileRoute = () => {
                   <>
                     <div className="flex flex-wrap">
                       {topSellingProducts.map((product) => (
-                        <Product key={product?._id} product={{ ...product.product, total: product.quantity, sellerId: { _id: data?.data?.data?._id, city: data?.data?.data?.city } }} />
+                        <Product
+                          key={product?._id}
+                          product={{
+                            ...product.product,
+                            total: product.quantity,
+                            sellerId: {
+                              _id: data?.data?.data?._id,
+                              city: data?.data?.data?.city,
+                            },
+                          }}
+                        />
                       ))}
                     </div>
                   </>
@@ -512,17 +526,17 @@ export const ProfileRoute = () => {
                         <div key={review._id} className="flex space-x-4">
                           <Avatar className="border">
                             <AvatarImage
-                              src={review.userId.img}
-                              alt={review.userId.username}
+                              src={review?.userId?.img}
+                              alt={review?.userId?.username}
                             />
                             <AvatarFallback>
-                              {getInitials(review.userId.username)}
+                              {getInitials(review?.userId?.username)}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1">
                             <div className="flex items-center justify-between">
                               <h4 className="font-semibold">
-                                {review.userId.username}
+                                {review?.userId?.username}
                               </h4>
                               <div className="flex items-center">
                                 {[...Array(5)].map((_, i) => (
@@ -563,7 +577,10 @@ export const ProfileRoute = () => {
         </main>
 
         <AlertDialog open={dialog} onOpenChange={setDialog}>
-          <AlertDialogContent onOpenAutoFocus={(e: Event) => e.preventDefault()} className="max-w-4xl p-5 overflow-y-auto">
+          <AlertDialogContent
+            onOpenAutoFocus={(e: Event) => e.preventDefault()}
+            className="max-w-4xl p-5 overflow-y-auto"
+          >
             <AlertDialogTitle>Cập nhật thông tin cửa hàng</AlertDialogTitle>
             <div>
               <FormProvider {...methods}>
@@ -574,7 +591,9 @@ export const ProfileRoute = () => {
                       <Controller
                         name="businessName"
                         control={control}
-                        render={({ field }) => <Input id="businessName" {...field} />}
+                        render={({ field }) => (
+                          <Input id="businessName" {...field} />
+                        )}
                       />
                       {errors.businessName && (
                         <p className="text-red-500">{`${errors.businessName.message}`}</p>
@@ -640,7 +659,9 @@ export const ProfileRoute = () => {
                             <FormLabel>Thành Phố</FormLabel>
                             <Select
                               disabled={loadingProvinces}
-                              value={data?.data?.data?.city ? field.value : undefined}
+                              value={
+                                data?.data?.data?.city ? field.value : undefined
+                              }
                               onValueChange={(value) =>
                                 handleCityChange(value, field)
                               }
@@ -678,7 +699,11 @@ export const ProfileRoute = () => {
                             <FormLabel>Quận/Huyện</FormLabel>
                             <Select
                               disabled={loadingDistricts || !cityId}
-                              value={data?.data?.data?.district ? field.value : undefined}
+                              value={
+                                data?.data?.data?.district
+                                  ? field.value
+                                  : undefined
+                              }
                               onValueChange={(value) =>
                                 handleDistrictChange(value, field)
                               }
@@ -719,7 +744,9 @@ export const ProfileRoute = () => {
                               onValueChange={(value) =>
                                 handleStreetChange(value, field)
                               }
-                              value={data?.data?.data?.ward ? field.value : undefined}
+                              value={
+                                data?.data?.data?.ward ? field.value : undefined
+                              }
                             >
                               <SelectTrigger className="min-w-full">
                                 <SelectValue placeholder={"Phường/Xã"} />
@@ -807,7 +834,9 @@ export const ProfileRoute = () => {
                           render={({ field }) => (
                             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                               <div className="space-y-0.5">
-                                <FormLabel className="text-base">Hỏa tốc</FormLabel>
+                                <FormLabel className="text-base">
+                                  Hỏa tốc
+                                </FormLabel>
                               </div>
                               <FormControl>
                                 <Switch
@@ -830,7 +859,9 @@ export const ProfileRoute = () => {
                           render={({ field }) => (
                             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                               <div className="space-y-0.5">
-                                <FormLabel className="text-base">Nhanh</FormLabel>
+                                <FormLabel className="text-base">
+                                  Nhanh
+                                </FormLabel>
                               </div>
                               <FormControl>
                                 <Switch
@@ -853,7 +884,9 @@ export const ProfileRoute = () => {
                           render={({ field }) => (
                             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                               <div className="space-y-0.5">
-                                <FormLabel className="text-base">Tiết kiệm</FormLabel>
+                                <FormLabel className="text-base">
+                                  Tiết kiệm
+                                </FormLabel>
                               </div>
                               <FormControl>
                                 <Switch
@@ -897,10 +930,7 @@ export const ProfileRoute = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button
-                      type="submit"
-                      className="mt-5 w-full"
-                    >
+                    <Button type="submit" className="mt-5 w-full">
                       Cập nhật
                     </Button>
                     <Button

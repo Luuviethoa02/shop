@@ -1,19 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { api } from "@/lib/api-client"
-import {
-  UseGetAllSellersOptions,
-} from "./get-all-sellers"
+import { UseGetAllSellersOptions } from "./get-all-sellers"
 import { ResponseSuccess } from "@/types/api"
 import { Seller, User } from "@/types/client"
 import { getShopQueryOptions } from "./get-shop-by-slug"
 
 export const updateInfoSellers = ({
   sellerId,
-  data
+  data,
 }: {
   sellerId: string
-  data:FormData
+  data: FormData
 }): Promise<ResponseSuccess<Seller & { user: User }>> => {
   return api.patch(`/seller/updateInfo/${sellerId}`, data)
 }

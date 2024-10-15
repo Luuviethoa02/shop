@@ -114,14 +114,16 @@ export default function DialogDetail({ open, setOpen, productDetail }: Iprops) {
                       <Label
                         key={size.name}
                         htmlFor={`size-${size}`}
-                        className="border rounded-md p-2 flex flex-wrap items-center gap-2 [&:has(:checked)]:bg-muted"
+                        className="border rounded-md p-2 px-4 flex flex-wrap items-center gap-2 [&:has(:checked)]:bg-muted"
                       >
                         <RadioGroupItem
                           id={`size-${size}`}
                           disabled
                           value={size.name}
                         />
-                        <p className="text-nowrap">{`${size.name.toUpperCase()}<${size.weight}kg>`}</p>
+                        {size?.weight && <p className="text-nowrap">{`${size.name.toUpperCase()}<${size.weight}kg>`}</p>}
+                        {!size?.weight && <p className="text-nowrap">{`${size.name.toUpperCase()}`}</p>}
+                        
                       </Label>
                     ))}
                   </RadioGroup>

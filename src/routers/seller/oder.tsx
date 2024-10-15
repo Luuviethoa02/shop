@@ -68,7 +68,14 @@ import { useNavigate, useParams } from "react-router-dom"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { useGetOderDetailBySellerIdAndId } from "@/features/oder/api/getOrderDetail-by-id"
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 
 interface stepTypes {
   id: number
@@ -178,12 +185,12 @@ export const OderRoute = () => {
   const orders = useGetOderDetailBySellerId({
     sellerId: (user?.sellerId as Seller)?._id,
     page,
-    limit
+    limit,
   })
 
   const orderDetailApi = useGetOderDetailBySellerIdAndId({
     sellerId: (user?.sellerId as Seller)?._id,
-    orderDetailId: orderIdParams
+    orderDetailId: orderIdParams,
   })
 
   const params = useParams()
@@ -199,7 +206,6 @@ export const OderRoute = () => {
       setOderDetail(orderDetailApi.data?.data[0])
       setIsOpen(true)
     }
-
   }, [orderDetailApi.data?.data])
 
   useEffect(() => {
@@ -252,18 +258,18 @@ export const OderRoute = () => {
               prev.map((step) =>
                 step.id <= stepId
                   ? {
-                    ...step,
-                    preview: "obvious",
-                    time:
-                      step.status === "shipping" &&
+                      ...step,
+                      preview: "obvious",
+                      time:
+                        step.status === "shipping" &&
                         step.title.startsWith("Đang")
-                        ? fullDate
-                        : formatDate(
-                          order?.status_oder[
-                            step.status as keyof typeof order.status_oder
-                          ].created_at
-                        ),
-                  }
+                          ? fullDate
+                          : formatDate(
+                              order?.status_oder[
+                                step.status as keyof typeof order.status_oder
+                              ].created_at
+                            ),
+                    }
                   : { ...step, preview: "hidden" }
               )
             )
@@ -307,21 +313,24 @@ export const OderRoute = () => {
       shopper: "seller",
     }
     toast.promise(
-      updateStatusOrder.mutateAsync({
-        orderDetailId: oderDetail?._id!,
-        data: {
-          status: "canceled",
-          ...data,
+      updateStatusOrder.mutateAsync(
+        {
+          orderDetailId: oderDetail?._id!,
+          data: {
+            status: "canceled",
+            ...data,
+          },
         },
-      }, {
-        onSuccess: () => {
-          navigate("/seller/orders")
-          setStatusUpdate({ status: null, data: null })
-          setOpenListReason(false)
-          setOderDetail(undefined)
-          setIsOpen(false)
+        {
+          onSuccess: () => {
+            navigate("/seller/orders")
+            setStatusUpdate({ status: null, data: null })
+            setOpenListReason(false)
+            setOderDetail(undefined)
+            setIsOpen(false)
+          },
         }
-      }),
+      ),
       {
         loading: "Đang cập nhật trạng thái đơn hàng...",
         success: "Cập nhật trạng thái đơn hàng thành công!",
@@ -333,20 +342,21 @@ export const OderRoute = () => {
   const handleConfirmUpdateStatus = () => {
     if (statusUpdate?.status) {
       toast.promise(
-        updateStatusOrder.mutateAsync({
-          orderDetailId: oderDetail?._id!,
-          data: {
-            status: statusUpdate.status,
-            ...statusUpdate.data,
+        updateStatusOrder.mutateAsync(
+          {
+            orderDetailId: oderDetail?._id!,
+            data: {
+              status: statusUpdate.status,
+              ...statusUpdate.data,
+            },
           },
-        },
           {
             onSuccess: () => {
               navigate("/seller/orders")
               setStatusUpdate({ status: null, data: null })
               setOderDetail(undefined)
               setIsOpen(false)
-            }
+            },
           }
         ),
         {
@@ -355,7 +365,6 @@ export const OderRoute = () => {
           error: "Cập nhật trạng thái đơn hàng thất bại!",
         }
       )
-
     }
   }
 
@@ -459,47 +468,46 @@ export const OderRoute = () => {
             ))}
         </TableBody>
       </Table>
-        <div className="flex justify-end mt-6">
-          {(orders?.data?.data?.length ?? 0) > 0 && (
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    className={
-                      page <= 1
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
-                    }
-                    onClick={() => setPage(page - 1)}
-                  />
+      <div className="flex justify-end mt-6">
+        {(orders?.data?.data?.length ?? 0) > 0 && (
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  className={
+                    page <= 1
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                  onClick={() => setPage(page - 1)}
+                />
+              </PaginationItem>
+              {Array.from({
+                length: Math.ceil(orders?.data?.total! / limit),
+              }).map((_, p) => (
+                <PaginationItem className="cursor-pointer" key={p}>
+                  <PaginationLink
+                    isActive={p + 1 === page}
+                    onClick={() => setPage(p + 1)}
+                  >
+                    {p + 1}
+                  </PaginationLink>
                 </PaginationItem>
-                {Array.from({
-                  length: Math.ceil(orders?.data?.total! / limit),
-                }).map((_, p) => (
-                  <PaginationItem className="cursor-pointer" key={p}>
-                    <PaginationLink
-                      isActive={p + 1 === page}
-                      onClick={() => setPage(p + 1)}
-                    >
-                      {p + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                <PaginationItem>
-                  <PaginationNext
-                    className={
-                      page ===
-                        Math.ceil(orders?.data?.total! / limit)
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
-                    }
-                    onClick={() => setPage(page + 1)}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          )}
-        </div>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  className={
+                    page === Math.ceil(orders?.data?.total! / limit)
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                  onClick={() => setPage(page + 1)}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
+      </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent

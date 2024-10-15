@@ -16,17 +16,15 @@ export const getOrderNotificationBysellerId = ({
 }: UseNotificationOptions): Promise<orderNotifiCationResponse> => {
   return api.get(`/orderNotification/getAll/${sellerId}`, {
     params: {
-      ...args
+      ...args,
     },
   })
 }
 
-export const getOrderNotificationQueryOptions = (
-  {
-    sellerId,
-    ...args
-  }: UseNotificationOptions
-) => {
+export const getOrderNotificationQueryOptions = ({
+  sellerId,
+  ...args
+}: UseNotificationOptions) => {
   return {
     queryKey: ["notifications-order-sellerId", sellerId, { ...args }],
     queryFn: () => getOrderNotificationBysellerId({ sellerId, ...args }),

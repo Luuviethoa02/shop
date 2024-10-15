@@ -25,8 +25,12 @@ const CartItem = ({ item, id }: { id: string; item: CartItemType }) => {
         <h3 className="font-semibold line-clamp-2">{item?.product?.name}</h3>
         <p className="text-sm text-muted-foreground">
           Màu: {item?.color?.name}
-          {(item?.size?.name && !item?.size?.weight) && `, kích thước ${item?.size?.name}`}
-          {(item?.size?.name && item?.size?.weight) && `, kích thước ${item?.size?.name}<${item?.size?.weight}kg>`}
+          {item?.size?.name &&
+            !item?.size?.weight &&
+            `, kích thước ${item?.size?.name}`}
+          {item?.size?.name &&
+            item?.size?.weight &&
+            `, kích thước ${item?.size?.name}<${item?.size?.weight}kg>`}
         </p>
         <p className="font-medium">{formatNumberToVND(item?.product?.price)}</p>
       </div>

@@ -12,7 +12,7 @@ export type CreatePCommentInput = z.infer<typeof commentSchema>
 export const createComments = ({
   data,
 }: {
-  data: CreatePCommentInput
+  data: FormData
 }): Promise<productRespose> => {
   return api.post(`/comment/add`, data)
 }

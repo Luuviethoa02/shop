@@ -6,6 +6,7 @@ export const commentSchema = z.object({
   productId: z.string().optional(),
   userId: z.string().optional(),
   sellerId: z.string().optional(),
+  imgs: z.array(z.any()).optional(),
 })
 
 export const deleteCommentSchema = z.object({

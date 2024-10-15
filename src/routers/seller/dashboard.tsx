@@ -47,24 +47,34 @@ const chartConfig = {
 
 export const DashboardRoute = () => {
   const user = useAuthStore((state) => state.user)
-  const data = useGetAnalysticsBySellerId({ sellerId: (user?.sellerId as Seller)._id! })
+  const data = useGetAnalysticsBySellerId({
+    sellerId: (user?.sellerId as Seller)._id!,
+  })
 
   if (data.isLoading) {
-    return (<>
-      <div className="flex items-center gap-5">
-        <Skeleton className="w-1/4 h-36 rounded-lg" />
-        <Skeleton className="w-1/4 h-36 rounded-lg" />
-        <Skeleton className="w-1/4 h-36 rounded-lg" />
-        <Skeleton className="w-1/4 h-36 rounded-lg" />
-      </div>
-      <div className="w-full mt-10">
-        <Skeleton className="w-full h-[450px] rounded-lg" />
-      </div>
-    </>)
+    return (
+      <>
+        <div className="flex items-center gap-5">
+          <Skeleton className="w-1/4 h-36 rounded-lg" />
+          <Skeleton className="w-1/4 h-36 rounded-lg" />
+          <Skeleton className="w-1/4 h-36 rounded-lg" />
+          <Skeleton className="w-1/4 h-36 rounded-lg" />
+        </div>
+        <div className="w-full mt-10">
+          <Skeleton className="w-full h-[450px] rounded-lg" />
+        </div>
+      </>
+    )
   }
 
   if (data?.data?.data) {
-    const { totalOrders, totalProducts, totalComments, totalFollowers, revenueProducts } = data?.data?.data
+    const {
+      totalOrders,
+      totalProducts,
+      totalComments,
+      totalFollowers,
+      revenueProducts,
+    } = data?.data?.data
 
     return (
       <div className="flex flex-col gap-4">
@@ -74,9 +84,7 @@ export const DashboardRoute = () => {
               <CardTitle>Tổng Số lượt theo dõi</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold">
-                {totalFollowers}
-              </div>
+              <div className="text-4xl font-bold">{totalFollowers}</div>
             </CardContent>
           </Card>
           <Card>
@@ -84,20 +92,20 @@ export const DashboardRoute = () => {
               <CardTitle>Tổng số đơn hàng</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold">{
-                totalOrders.totalOrdersPending + totalOrders.totalOrdersShipping + totalOrders.totalOrdersSuccess + totalOrders.totalOrdersCanceled
-              }</div>
+              <div className="text-4xl font-bold">
+                {totalOrders.totalOrdersPending +
+                  totalOrders.totalOrdersShipping +
+                  totalOrders.totalOrdersSuccess +
+                  totalOrders.totalOrdersCanceled}
+              </div>
             </CardContent>
-
           </Card>
           <Card>
             <CardHeader className="pb-3">
               <CardTitle>Tổng số lượt đánh giá</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold">{
-                totalComments
-              }</div>
+              <div className="text-4xl font-bold">{totalComments}</div>
             </CardContent>
           </Card>
           <Card>
@@ -115,7 +123,10 @@ export const DashboardRoute = () => {
               <CardTitle>Thống kê doanh thu</CardTitle>
             </CardHeader>
             <CardContent>
-              <ChartContainer className="max-h-[500px] min-w-full" config={chartConfig}>
+              <ChartContainer
+                className="max-h-[500px] min-w-full"
+                config={chartConfig}
+              >
                 <BarChart accessibilityLayer data={chartData}>
                   <CartesianGrid vertical={false} />
                   <XAxis
@@ -129,7 +140,11 @@ export const DashboardRoute = () => {
                     cursor={false}
                     content={<ChartTooltipContent hideLabel />}
                   />
-                  <Bar dataKey="desktop" fill="var(--color-desktop)" radius={8} />
+                  <Bar
+                    dataKey="desktop"
+                    fill="var(--color-desktop)"
+                    radius={8}
+                  />
                 </BarChart>
               </ChartContainer>
             </CardContent>

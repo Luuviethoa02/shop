@@ -5,44 +5,48 @@ import { oderDetailSellerResponse, ResponseSuccess } from "@/types/api"
 import { oderDetail } from "@/types/client"
 
 type UseOrrderDetailOptions = {
-    sellerId?: string
-    orderDetailId?: string
+  sellerId?: string
+  orderDetailId?: string
 }
 
 export const getOderDetailBySellerId = ({
-    sellerId,
-    orderDetailId
+  sellerId,
+  orderDetailId,
 }: {
-    sellerId?: string
-    orderDetailId?: string
+  sellerId?: string
+  orderDetailId?: string
 }): Promise<ResponseSuccess<oderDetail[]>> => {
-    return api.get(`/oder/getOrderDetailById/${sellerId}/${orderDetailId}`)
+  return api.get(`/oder/getOrderDetailById/${sellerId}/${orderDetailId}`)
 }
 
 export const getOrderDetailByIdQueryOptions = (
-    {
-        sellerId,
-        orderDetailId
-    }: {
-        sellerId: string | undefined
-        orderDetailId: string | undefined
-    } = {
-            sellerId: undefined,
-            orderDetailId: undefined
-        }
+  {
+    sellerId,
+    orderDetailId,
+  }: {
+    sellerId: string | undefined
+    orderDetailId: string | undefined
+  } = {
+    sellerId: undefined,
+    orderDetailId: undefined,
+  }
 ) => {
-    return {
-        queryKey: ["get-oder-detail-by-sellerId-and-id", sellerId, orderDetailId],
-        queryFn: () => getOderDetailBySellerId({ sellerId: sellerId, orderDetailId: orderDetailId }),
-        enabled: !!sellerId && !!orderDetailId,
-    }
+  return {
+    queryKey: ["get-oder-detail-by-sellerId-and-id", sellerId, orderDetailId],
+    queryFn: () =>
+      getOderDetailBySellerId({
+        sellerId: sellerId,
+        orderDetailId: orderDetailId,
+      }),
+    enabled: !!sellerId && !!orderDetailId,
+  }
 }
 
 export const useGetOderDetailBySellerIdAndId = ({
-    sellerId,
-    orderDetailId
+  sellerId,
+  orderDetailId,
 }: UseOrrderDetailOptions) => {
-    return useQuery({
-        ...getOrderDetailByIdQueryOptions({ sellerId, orderDetailId }),
-    })
+  return useQuery({
+    ...getOrderDetailByIdQueryOptions({ sellerId, orderDetailId }),
+  })
 }

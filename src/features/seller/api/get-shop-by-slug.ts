@@ -15,7 +15,11 @@ export type shopInfoType = Seller & {
   user: User
   followers: { _id: string; createdAt: string }
   totalProducts: number
-  topSellingProducts: { _id: string; quantity: number; product: productRespose }[]
+  topSellingProducts: {
+    _id: string
+    quantity: number
+    product: productRespose
+  }[]
   commentRecents: Comments[]
   productDiscountRecents: productRespose[]
   totalComments: number

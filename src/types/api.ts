@@ -71,8 +71,7 @@ export type productRespose = Omit<Product, "brand_id" | "colors"> & {
     city: string
   }
   average_rating: number
-  discount?: number
-
+  discount?: Discount[]
   createdAt: string
   updatedAt: string
 }
@@ -87,14 +86,22 @@ export type historyResponse = ResponseData<{
 export type discountResponse = ResponseData<Discount>
 
 export type productDetailResponse = ResponseSuccess<{
-  productDetail: productRespose
-  productSimilars: productRespose
+  productDetail: productRespose & { totalQuantity: number }
+  productSimilars: ResponseData<productRespose>
+  productCurrentShops: ResponseData<productRespose>
   sellerInfo: Seller & {
     totalProducts: number
     totalComments: number
     averageRating: number
   }
 }>
+
+export type topSellers = Seller & {
+  productsTotal: number,
+  totalComments: number,
+  averageRating: number,
+  followers: { _id: string, createdAt: string }
+}
 
 export type sellerResponse = ResponseSuccess<{
   seller: Seller

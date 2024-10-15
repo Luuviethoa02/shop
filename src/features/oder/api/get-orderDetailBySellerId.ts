@@ -15,17 +15,15 @@ export const getOderDetailBySellerId = ({
 }: UseOrrderDetailOptions): Promise<oderDetailSellerResponse> => {
   return api.get(`/oder/getAlldetail/${sellerId}`, {
     params: {
-      ...args
-    }
+      ...args,
+    },
   })
 }
 
-export const getNotificationQueryOptions = (
-  {
-    sellerId,
-    ...args
-  }: UseOrrderDetailOptions
-) => {
+export const getNotificationQueryOptions = ({
+  sellerId,
+  ...args
+}: UseOrrderDetailOptions) => {
   return {
     queryKey: ["get-oder-detail-by-sellerId", sellerId, args],
     queryFn: () => getOderDetailBySellerId({ sellerId: sellerId, ...args }),

@@ -20,7 +20,7 @@ const ProductList = () => {
   })
 
   useEffect(() => {
-    if (productsApi?.data) {      
+    if (productsApi?.data) {
       setProducts((prevProducts) => [...prevProducts, ...productsApi.data])
       if (page >= maxPage) {
         setHasMore(false)

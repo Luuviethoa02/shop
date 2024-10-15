@@ -17,6 +17,7 @@ export function generRateCartdId(
 
 export function getInitials(fullName: string) {
   // Chuyển tên thành chữ thường rồi tách thành mảng
+  if (!fullName) return '';
   const names = fullName.toLowerCase().split(" ")
 
   // Lấy chữ cái đầu tiên của mỗi phần tử trong mảng và chuyển thành chữ hoa
@@ -29,6 +30,12 @@ export function getImageUrl(file: FileList | undefined): string | null {
   if (!file) return null
 
   return URL.createObjectURL(file[0])
+}
+
+export function getImageUrlOnly(file: File | undefined): string | null {
+  if (!file) return null
+
+  return URL.createObjectURL(file)
 }
 
 export const getFormattedDate = (): string => {

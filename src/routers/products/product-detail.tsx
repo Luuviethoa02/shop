@@ -18,13 +18,10 @@ import { useParams } from "react-router-dom"
 
 export const ProductDetailRoute = () => {
   const { slug } = useParams()
-  const productDetail = useDetailProduct({ slug: slug! })
 
   return (
     <ProductDetail
-      status={productDetail.status}
-      refetch={productDetail.refetch}
-      data={productDetail.data}
+      slug={slug}
     />
   )
 }

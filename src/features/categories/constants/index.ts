@@ -7,7 +7,7 @@ export const settingsSlider = {
   slidesPerRow: 1,
   slidesToShow: 5,
   autoplaySpeed: 5000,
-  autoplay: true,
+  autoplay: false,
   cssEase: "linear",
   responsive: [
     {

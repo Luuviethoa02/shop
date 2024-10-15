@@ -10,10 +10,10 @@ import { Seller, User } from "@/types/client"
 
 export const updateImageSellers = ({
   sellerId,
-  data
+  data,
 }: {
   sellerId: string
-  data:FormData
+  data: FormData
 }): Promise<ResponseSuccess<Seller & { user: User }>> => {
   return api.patch(`/seller/updateLogo/${sellerId}`, data)
 }
