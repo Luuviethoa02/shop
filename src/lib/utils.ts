@@ -17,7 +17,7 @@ export function generRateCartdId(
 
 export function getInitials(fullName: string) {
   // Chuyển tên thành chữ thường rồi tách thành mảng
-  if (!fullName) return '';
+  if (!fullName) return ""
   const names = fullName.toLowerCase().split(" ")
 
   // Lấy chữ cái đầu tiên của mỗi phần tử trong mảng và chuyển thành chữ hoa

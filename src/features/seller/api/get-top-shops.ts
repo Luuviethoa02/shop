@@ -4,30 +4,30 @@ import { api } from "@/lib/api-client"
 import { ResponseData, ResponseSuccess, topSellers } from "@/types/api"
 
 export type UseGetTopSellersOptions = {
-    limit?: number
+  limit?: number
 }
 
 export const getTopSellers = ({
-    ...agrs
+  ...agrs
 }: UseGetTopSellersOptions): Promise<ResponseSuccess<topSellers[]>> => {
-    return api.get(`/seller/topshops`, {
-        params: {
-            ...agrs,
-        },
-    })
+  return api.get(`/seller/topshops`, {
+    params: {
+      ...agrs,
+    },
+  })
 }
 
 export const getTopSellersQueryOptions = ({
-    ...agrs
+  ...agrs
 }: UseGetTopSellersOptions) => {
-    return {
-        queryKey: ["get-top-shops", { ...agrs }],
-        queryFn: () => getTopSellers({ ...agrs }),
-    }
+  return {
+    queryKey: ["get-top-shops", { ...agrs }],
+    queryFn: () => getTopSellers({ ...agrs }),
+  }
 }
 
 export const useGetTopSellers = ({ ...args }: UseGetTopSellersOptions) => {
-    return useQuery({
-        ...getTopSellersQueryOptions({ ...args }),
-    })
+  return useQuery({
+    ...getTopSellersQueryOptions({ ...args }),
+  })
 }

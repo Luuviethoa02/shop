@@ -13,7 +13,13 @@ import toast from "react-hot-toast"
 import { Textarea } from "@/components/ui/textarea"
 import { ToggleGroup } from "@radix-ui/react-toggle-group"
 import { ToggleGroupItem } from "@/components/ui/toggle-group"
-import { calculatePercentage, formatDate, generRateCartdId, getImageUrlOnly, getInitials } from "@/lib/utils"
+import {
+  calculatePercentage,
+  formatDate,
+  generRateCartdId,
+  getImageUrlOnly,
+  getInitials,
+} from "@/lib/utils"
 import { z } from "zod"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -51,9 +57,23 @@ import { useCreateFollower } from "@/features/seller/api/follower-seller"
 import { useUnCreateFollower } from "@/features/seller/api/unfollower-seller"
 import nProgress from "nprogress"
 import { useGetShopBySlug } from "@/features/seller/api/get-shop-by-slug"
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 import { Input } from "@/components/ui/input"
-import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import Product from "./product"
 import SekeletonList from "./sekeleton-list"
 import { useDetailProduct } from "../api/get-detailProduct"
@@ -68,14 +88,21 @@ const limitComment = 3
 const limitProductSimilar = 3
 const limitProductCurrentShop = 3
 
-const optionsFilterComments = ['5', '4', '3', '2', '1']
+const optionsFilterComments = ["5", "4", "3", "2", "1"]
 
 export const ProductDetail = ({ slug }: Iprops) => {
-  const [query, setQuery] = useState<{ pageSimilar: number; pageCurrentShop: number }>({
+  const [query, setQuery] = useState<{
+    pageSimilar: number
+    pageCurrentShop: number
+  }>({
     pageSimilar: 1,
-    pageCurrentShop: 1
+    pageCurrentShop: 1,
   })
-  const { data, isPending: status, refetch } = useDetailProduct({ slug: slug!, params: query })
+  const {
+    data,
+    isPending: status,
+    refetch,
+  } = useDetailProduct({ slug: slug!, params: query })
 
   const auth = useAuthStore()
   const userId = auth?.user?._id!
@@ -90,15 +117,22 @@ export const ProductDetail = ({ slug }: Iprops) => {
 
   const [open, setOpen] = useState<boolean>(false)
 
-  const [imgs, setImgs] = useState<{
-    img: string
-    imgFile: File | null
-  }[]>()
+  const [imgs, setImgs] = useState<
+    {
+      img: string
+      imgFile: File | null
+    }[]
+  >()
 
-  const [queryKeyComment, setQueryKeyComments] = useState<{ page: number, productId?: string; rating?: string, limit: number }>({
+  const [queryKeyComment, setQueryKeyComments] = useState<{
+    page: number
+    productId?: string
+    rating?: string
+    limit: number
+  }>({
     page: pageComment,
     limit: limitComment,
-    productId: data?.data?.productDetail?._id
+    productId: data?.data?.productDetail?._id,
   })
 
   const deleteComents = useDeleteComment(queryKeyComment)
@@ -108,23 +142,19 @@ export const ProductDetail = ({ slug }: Iprops) => {
     setQueryKeyComments({
       page: pageComment,
       limit: limitComment,
-      productId: data?.data?.productDetail?._id!
+      productId: data?.data?.productDetail?._id!,
     })
-  }, [
-    pageComment,
-    limitComment,
-    data?.data?.productDetail?._id!
-  ])
+  }, [pageComment, limitComment, data?.data?.productDetail?._id!])
 
   useEffect(() => {
     setQuery({
       pageSimilar: pageProductSimilar,
-      pageCurrentShop: pageProductCrrentShop
+      pageCurrentShop: pageProductCrrentShop,
     })
   }, [
     pageProductSimilar,
     pageProductCrrentShop,
-    data?.data?.productDetail?._id!
+    data?.data?.productDetail?._id!,
   ])
 
   const createFlower = useCreateFollower()
@@ -214,7 +244,10 @@ export const ProductDetail = ({ slug }: Iprops) => {
     const userId = auth?.user?._id!
     const sellerId = data?.data?.sellerInfo?._id!
     const dataCreated = {
-      ...values, productId, userId, sellerId
+      ...values,
+      productId,
+      userId,
+      sellerId,
     }
     if (imgs && imgs.length > 0) {
       dataCreated.imgs = imgs.map((img) => img.imgFile)
@@ -222,36 +255,40 @@ export const ProductDetail = ({ slug }: Iprops) => {
 
     for (const key in dataCreated) {
       if (dataCreated.hasOwnProperty(key)) {
-        if (key === 'imgs') {
+        if (key === "imgs") {
           dataCreated[key]?.forEach((img: File) => {
-            formData.append('imgs', img)
+            formData.append("imgs", img)
           })
           continue
         } else {
-          formData.append(key, dataCreated[key as unknown as keyof ReviewFormValues] as string)
+          formData.append(
+            key,
+            dataCreated[key as unknown as keyof ReviewFormValues] as string
+          )
         }
       }
     }
-    toast.promise(createComment.mutateAsync(
-      { data: formData },
+    toast.promise(
+      createComment.mutateAsync(
+        { data: formData },
+        {
+          onSuccess: () => {
+            commentsRessponse.refetch()
+            playCommentSound()
+            reset()
+            setImgs([])
+          },
+          onError: () => {
+            toast.error("Có lỗi xảy ra! vui lòng thử lại.")
+          },
+        }
+      ),
       {
-        onSuccess: () => {
-          commentsRessponse.refetch()
-          playCommentSound()
-          reset()
-          setImgs([])
-        },
-        onError: () => {
-          toast.error("Có lỗi xảy ra! vui lòng thử lại.")
-        },
+        loading: "Đang gửi đánh giá...",
+        success: "Đã gửi đánh giá!",
+        error: "Có lỗi xảy ra! vui lòng thử lại.",
       }
-    ), {
-      loading: 'Đang gửi đánh giá...',
-      success: 'Đã gửi đánh giá!',
-      error: 'Có lỗi xảy ra! vui lòng thử lại.'
-    })
-
-
+    )
   }
 
   const handleBtnClickDeleteComment = (commentId: string) => {
@@ -292,7 +329,6 @@ export const ProductDetail = ({ slug }: Iprops) => {
       }
     }
   }
-
 
   const handleAddToCart = () => {
     if (data?.data?.productDetail) {
@@ -423,7 +459,16 @@ export const ProductDetail = ({ slug }: Iprops) => {
     const { formatNumberToVND } = useFormatNumberToVND()
 
     const {
-      productDetail: { discount, colors, brand_id, des, name, price, sizes, totalQuantity },
+      productDetail: {
+        discount,
+        colors,
+        brand_id,
+        des,
+        name,
+        price,
+        sizes,
+        totalQuantity,
+      },
       sellerInfo: {
         businessName,
         averageRating,
@@ -442,8 +487,6 @@ export const ProductDetail = ({ slug }: Iprops) => {
         return prev?.filter((_, i) => i !== index)
       })
     }
-
-
 
     return (
       <LayoutWapper>
@@ -489,23 +532,32 @@ export const ProductDetail = ({ slug }: Iprops) => {
                   {(discount?.length ?? 0) == 0 && (
                     <span className="text-2xl font-bold h-0">
                       {formatNumberToVND(price)}
-                    </span>)}
+                    </span>
+                  )}
 
                   {(discount?.length ?? 0) > 0 && (
                     <>
                       <span className="text-2xl text-destructive font-medium h-0">
-                        {discount && discount.length > 0 && formatNumberToVND(calculatePercentage(discount[0].discount_percentage, price))}
+                        {discount &&
+                          discount.length > 0 &&
+                          formatNumberToVND(
+                            calculatePercentage(
+                              discount[0].discount_percentage,
+                              price
+                            )
+                          )}
                       </span>
                       <span className="ml-2 text-gray-500 line-through">
                         {formatNumberToVND(price)}
                       </span>
                     </>
-                  )
-                  }
+                  )}
 
-                  {(discount?.length ?? 0) > 0 && <span className="ml-2 rounded-full bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">
-                    -{discount?.[0]?.discount_percentage ?? 0} %
-                  </span>}
+                  {(discount?.length ?? 0) > 0 && (
+                    <span className="ml-2 rounded-full bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">
+                      -{discount?.[0]?.discount_percentage ?? 0} %
+                    </span>
+                  )}
                 </div>
 
                 <form className="grid gap-2">
@@ -586,7 +638,9 @@ export const ProductDetail = ({ slug }: Iprops) => {
                     >
                       <PlusIcon className="h-4 w-4" />
                     </Button>
-                    <span className="ml-2 font-light">{totalQuantity + ' sản phẩm có sẵn'}</span>
+                    <span className="ml-2 font-light">
+                      {totalQuantity + " sản phẩm có sẵn"}
+                    </span>
                   </div>
                 </div>
                 <Button
@@ -621,7 +675,8 @@ export const ProductDetail = ({ slug }: Iprops) => {
                     <div className="flex items-center">
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                       <span className="ml-1 text-sm">
-                        {averageRating.toFixed(1)} ({totalComments + " đánh giá"})
+                        {averageRating.toFixed(1)} (
+                        {totalComments + " đánh giá"})
                       </span>
                     </div>
                     <Button
@@ -729,14 +784,37 @@ export const ProductDetail = ({ slug }: Iprops) => {
               <TabsContent value="reviews">
                 {(commentsRessponse?.data?.data?.length ?? 0) > 0 && (
                   <div className="flex items-center gap-3 flex-wrap mb-10">
-                    <Button onClick={() => setQueryKeyComments({ ...queryKeyComment, rating: undefined })} variant={queryKeyComment.rating ? 'outline' : 'default'}>{'Tất cả'}</Button>
-                    {optionsFilterComments.map((value, index) =>
+                    <Button
+                      onClick={() =>
+                        setQueryKeyComments({
+                          ...queryKeyComment,
+                          rating: undefined,
+                        })
+                      }
+                      variant={queryKeyComment.rating ? "outline" : "default"}
+                    >
+                      {"Tất cả"}
+                    </Button>
+                    {optionsFilterComments.map((value, index) => (
                       <Button
-                        onClick={() => setQueryKeyComments({ ...queryKeyComment, rating: value })}
-                        variant={(queryKeyComment.rating && queryKeyComment.rating === value) ? 'default' : 'outline'}>{value + ' sao'}</Button>)}
+                        onClick={() =>
+                          setQueryKeyComments({
+                            ...queryKeyComment,
+                            rating: value,
+                          })
+                        }
+                        variant={
+                          queryKeyComment.rating &&
+                          queryKeyComment.rating === value
+                            ? "default"
+                            : "outline"
+                        }
+                      >
+                        {value + " sao"}
+                      </Button>
+                    ))}
                   </div>
                 )}
-
 
                 <div className="space-y-3">
                   {commentsRessponse?.data?.data?.length == 0 && (
@@ -773,7 +851,7 @@ export const ProductDetail = ({ slug }: Iprops) => {
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24"
-                                    fill={`${index < comment.rating ? '#fde047' : 'none'} `}
+                                    fill={`${index < comment.rating ? "#fde047" : "none"} `}
                                     stroke="currentColor"
                                     key={index}
                                     className="size-4"
@@ -791,14 +869,16 @@ export const ProductDetail = ({ slug }: Iprops) => {
                               {comment.comment}
                             </p>
                             <div className="flex items-center gap-3 mt-3">
-                              {(comment?.imgs && comment?.imgs.length > 0) && comment.imgs?.map((img, index) => (
-                                <img
-                                  key={index}
-                                  src={img}
-                                  alt="comment"
-                                  className="w-20 h-20 object-cover rounded-lg"
-                                />
-                              ))}
+                              {comment?.imgs &&
+                                comment?.imgs.length > 0 &&
+                                comment.imgs?.map((img, index) => (
+                                  <img
+                                    key={index}
+                                    src={img}
+                                    alt="comment"
+                                    className="w-20 h-20 object-cover rounded-lg"
+                                  />
+                                ))}
                             </div>
                           </div>
                         </div>
@@ -826,14 +906,16 @@ export const ProductDetail = ({ slug }: Iprops) => {
                                   >
                                     Chỉnh sửa
                                   </DropdownMenuItem>
-                                  {comment?.imgs.length > 0 && (<DropdownMenuItem
-                                    className="cursor-pointer"
-                                    onClick={() =>
-                                      handleBtnClickDeleteComment(comment._id)
-                                    }
-                                  >
-                                    Thay đổi ảnh
-                                  </DropdownMenuItem>)}
+                                  {comment?.imgs.length > 0 && (
+                                    <DropdownMenuItem
+                                      className="cursor-pointer"
+                                      onClick={() =>
+                                        handleBtnClickDeleteComment(comment._id)
+                                      }
+                                    >
+                                      Thay đổi ảnh
+                                    </DropdownMenuItem>
+                                  )}
                                 </>
                               )}
                               {comment.userId._id !== auth.user?._id && (
@@ -847,7 +929,9 @@ export const ProductDetail = ({ slug }: Iprops) => {
                     ))}
 
                   <div className="flex justify-end mt-12">
-                    {Math.ceil((commentsRessponse?.data?.total ?? 0) / limitComment) >= 2 && (
+                    {Math.ceil(
+                      (commentsRessponse?.data?.total ?? 0) / limitComment
+                    ) >= 2 && (
                       <Pagination>
                         <PaginationContent>
                           <PaginationItem>
@@ -861,7 +945,9 @@ export const ProductDetail = ({ slug }: Iprops) => {
                             />
                           </PaginationItem>
                           {Array.from({
-                            length: Math.ceil(commentsRessponse?.data?.total! / limitComment),
+                            length: Math.ceil(
+                              commentsRessponse?.data?.total! / limitComment
+                            ),
                           }).map((_, p) => (
                             <PaginationItem className="cursor-pointer" key={p}>
                               <PaginationLink
@@ -876,7 +962,9 @@ export const ProductDetail = ({ slug }: Iprops) => {
                             <PaginationNext
                               className={
                                 pageComment ===
-                                  Math.ceil(commentsRessponse?.data?.total! / limitComment)
+                                Math.ceil(
+                                  commentsRessponse?.data?.total! / limitComment
+                                )
                                   ? "pointer-events-none opacity-50"
                                   : "cursor-pointer"
                               }
@@ -930,11 +1018,12 @@ export const ProductDetail = ({ slug }: Iprops) => {
                               />
                             )}
                           />
-
                         </div>
                       </div>
                       {errors.commentText && (
-                        <span className="text-red-400">{errors.commentText.message}</span>
+                        <span className="text-red-400">
+                          {errors.commentText.message}
+                        </span>
                       )}
                       <div className="flex items-center gap-2">
                         <Label className="max-sm:hidden" htmlFor="rating">
@@ -951,7 +1040,10 @@ export const ProductDetail = ({ slug }: Iprops) => {
                               {...field}
                               defaultValue="3"
                             >
-                              <ToggleGroupItem value="1" className="px-2 space-x-1">
+                              <ToggleGroupItem
+                                value="1"
+                                className="px-2 space-x-1"
+                              >
                                 {Array.from({ length: 1 }).map((i, j) => (
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -969,7 +1061,10 @@ export const ProductDetail = ({ slug }: Iprops) => {
                                   </svg>
                                 ))}
                               </ToggleGroupItem>
-                              <ToggleGroupItem value="2" className="px-2 space-x-1">
+                              <ToggleGroupItem
+                                value="2"
+                                className="px-2 space-x-1"
+                              >
                                 {Array.from({ length: 2 }).map((i, j) => (
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -987,7 +1082,10 @@ export const ProductDetail = ({ slug }: Iprops) => {
                                   </svg>
                                 ))}
                               </ToggleGroupItem>
-                              <ToggleGroupItem value="3" className="px-2 space-x-1">
+                              <ToggleGroupItem
+                                value="3"
+                                className="px-2 space-x-1"
+                              >
                                 {Array.from({ length: 3 }).map((i, j) => (
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -1005,7 +1103,10 @@ export const ProductDetail = ({ slug }: Iprops) => {
                                   </svg>
                                 ))}
                               </ToggleGroupItem>
-                              <ToggleGroupItem value="4" className="px-2 space-x-1">
+                              <ToggleGroupItem
+                                value="4"
+                                className="px-2 space-x-1"
+                              >
                                 {Array.from({ length: 4 }).map((i, j) => (
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -1023,7 +1124,10 @@ export const ProductDetail = ({ slug }: Iprops) => {
                                   </svg>
                                 ))}
                               </ToggleGroupItem>
-                              <ToggleGroupItem value="5" className="px-2 space-x-1">
+                              <ToggleGroupItem
+                                value="5"
+                                className="px-2 space-x-1"
+                              >
                                 {Array.from({ length: 5 }).map((i, j) => (
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -1045,7 +1149,11 @@ export const ProductDetail = ({ slug }: Iprops) => {
                           )}
                         />
                       </div>
-                      {errors.rating && <span className="text-red-400">{errors.rating.message}</span>}
+                      {errors.rating && (
+                        <span className="text-red-400">
+                          {errors.rating.message}
+                        </span>
+                      )}
 
                       <div className="flex items-center gap-5">
                         <div className="flex">
@@ -1064,17 +1172,22 @@ export const ProductDetail = ({ slug }: Iprops) => {
                           />
                         </div>
                         <div className="flex flex-wrap gap-4">
-                          {(imgs && imgs.length > 0) && imgs.map((img, index) => (
-                            <div key={index} className="relative group">
-                              <img
-                                src={img.img}
-                                alt={`Image ${index + 1}`}
-                                className="min-w-[90px] max-w-[90px] min-h-24 max-h-24 object-cover rounded-[8px]"
-                              />
-                              <X onClick={() => handleRemoveImage(index)} color="#ffff" className="p-1 bg-slate-300 rounded-full absolute top-[2px] right-[2px] cursor-pointer" />
-
-                            </div>
-                          ))}
+                          {imgs &&
+                            imgs.length > 0 &&
+                            imgs.map((img, index) => (
+                              <div key={index} className="relative group">
+                                <img
+                                  src={img.img}
+                                  alt={`Image ${index + 1}`}
+                                  className="min-w-[90px] max-w-[90px] min-h-24 max-h-24 object-cover rounded-[8px]"
+                                />
+                                <X
+                                  onClick={() => handleRemoveImage(index)}
+                                  color="#ffff"
+                                  className="p-1 bg-slate-300 rounded-full absolute top-[2px] right-[2px] cursor-pointer"
+                                />
+                              </div>
+                            ))}
                         </div>
                       </div>
 
@@ -1095,14 +1208,19 @@ export const ProductDetail = ({ slug }: Iprops) => {
             </Tabs>
           </div>
           <>
-            <h2 className="text-2xl font-semibold ">Sản phẩm liên quan của shop</h2>
+            <h2 className="text-2xl font-semibold mt-10 max-sm:text-center">
+              Sản phẩm liên quan của shop
+            </h2>
             <div className="flex flex-wrap">
               {data?.data?.productCurrentShops?.data?.map((product) => (
                 <Product product={product} key={product._id} />
               ))}
             </div>
             <div className="flex justify-end mt-12">
-              {Math.ceil((data?.data?.productCurrentShops?.total ?? 0) / data?.data?.productCurrentShops?.limit) >= 2 && (
+              {Math.ceil(
+                (data?.data?.productCurrentShops?.total ?? 0) /
+                  data?.data?.productCurrentShops?.limit
+              ) >= 2 && (
                 <Pagination>
                   <PaginationContent>
                     <PaginationItem>
@@ -1112,11 +1230,16 @@ export const ProductDetail = ({ slug }: Iprops) => {
                             ? "pointer-events-none opacity-50"
                             : "cursor-pointer"
                         }
-                        onClick={() => setPageProductCurrentShop(pageProductCrrentShop - 1)}
+                        onClick={() =>
+                          setPageProductCurrentShop(pageProductCrrentShop - 1)
+                        }
                       />
                     </PaginationItem>
                     {Array.from({
-                      length: Math.ceil(data?.data?.productCurrentShops?.total! / data?.data?.productCurrentShops?.limit),
+                      length: Math.ceil(
+                        data?.data?.productCurrentShops?.total! /
+                          data?.data?.productCurrentShops?.limit
+                      ),
                     }).map((_, p) => (
                       <PaginationItem className="cursor-pointer" key={p}>
                         <PaginationLink
@@ -1131,11 +1254,16 @@ export const ProductDetail = ({ slug }: Iprops) => {
                       <PaginationNext
                         className={
                           pageComment ===
-                            Math.ceil(data?.data?.productCurrentShops?.total! / data?.data?.productCurrentShops?.limit)
+                          Math.ceil(
+                            data?.data?.productCurrentShops?.total! /
+                              data?.data?.productCurrentShops?.limit
+                          )
                             ? "pointer-events-none opacity-50"
                             : "cursor-pointer"
                         }
-                        onClick={() => setPageProductCurrentShop(pageProductCrrentShop + 1)}
+                        onClick={() =>
+                          setPageProductCurrentShop(pageProductCrrentShop + 1)
+                        }
                       />
                     </PaginationItem>
                   </PaginationContent>
@@ -1143,15 +1271,18 @@ export const ProductDetail = ({ slug }: Iprops) => {
               )}
             </div>
           </>
-          <div className="mt-3">
-            <h2 className="text-2xl font-semibold">Có thể bạn cũng thích</h2>
+          <div className="mt-1">
+            <h2 className="text-2xl font-semibold max-sm:text-center">Có thể bạn cũng thích</h2>
             <div className="flex items-center flex-wrap">
               {data?.data?.productSimilars?.data?.map((product) => (
                 <Product key={product._id} product={product} />
               ))}
             </div>
             <div className="flex justify-end mt-12">
-              {Math.ceil((data?.data?.productSimilars?.total ?? 0) / data?.data?.productSimilars.limit) >= 2 && (
+              {Math.ceil(
+                (data?.data?.productSimilars?.total ?? 0) /
+                  data?.data?.productSimilars.limit
+              ) >= 2 && (
                 <Pagination>
                   <PaginationContent>
                     <PaginationItem>
@@ -1161,11 +1292,16 @@ export const ProductDetail = ({ slug }: Iprops) => {
                             ? "pointer-events-none opacity-50"
                             : "cursor-pointer"
                         }
-                        onClick={() => setPageProductSimilar(pageProductSimilar - 1)}
+                        onClick={() =>
+                          setPageProductSimilar(pageProductSimilar - 1)
+                        }
                       />
                     </PaginationItem>
                     {Array.from({
-                      length: Math.ceil(data?.data?.productSimilars?.total! / data?.data?.productSimilars?.limit),
+                      length: Math.ceil(
+                        data?.data?.productSimilars?.total! /
+                          data?.data?.productSimilars?.limit
+                      ),
                     }).map((_, p) => (
                       <PaginationItem className="cursor-pointer" key={p}>
                         <PaginationLink
@@ -1180,11 +1316,16 @@ export const ProductDetail = ({ slug }: Iprops) => {
                       <PaginationNext
                         className={
                           pageComment ===
-                            Math.ceil(data?.data?.productSimilars?.total / data?.data?.productSimilars?.limit)
+                          Math.ceil(
+                            data?.data?.productSimilars?.total /
+                              data?.data?.productSimilars?.limit
+                          )
                             ? "pointer-events-none opacity-50"
                             : "cursor-pointer"
                         }
-                        onClick={() => setPageProductSimilar(pageProductSimilar + 1)}
+                        onClick={() =>
+                          setPageProductSimilar(pageProductSimilar + 1)
+                        }
                       />
                     </PaginationItem>
                   </PaginationContent>
@@ -1199,13 +1340,9 @@ export const ProductDetail = ({ slug }: Iprops) => {
             className="min-h-[500px]"
           >
             <AlertDialogHeader>
-              <AlertDialogTitle>
-                Cập nhật đánh giá
-              </AlertDialogTitle>
+              <AlertDialogTitle>Cập nhật đánh giá</AlertDialogTitle>
             </AlertDialogHeader>
-            <div>
-              suaw cap nhat
-            </div>
+            <div>suaw cap nhat</div>
 
             <AlertDialogFooter>
               <AlertDialogCancel onClick={() => setOpen(false)}>

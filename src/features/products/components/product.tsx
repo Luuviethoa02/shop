@@ -16,10 +16,13 @@ function Product({ product }: Iprops) {
   const { formatNumberToVND } = useFormatNumberToVND()
   const navigate = useNavigate()
   const [slug, setSlug] = useState<string | undefined>(undefined)
-  const { data: response, error } = useDetailProduct({ slug,params:{
-    pageCurrentShop: 1,
-    pageSimilar:1
-  } })
+  const { data: response, error } = useDetailProduct({
+    slug,
+    params: {
+      pageCurrentShop: 1,
+      pageSimilar: 1,
+    },
+  })
 
   const [hoveredImage, setHoveredImage] = useState<string | null>(null)
 
@@ -100,7 +103,9 @@ function Product({ product }: Iprops) {
                   {formatNumberToVND(price)}
                 </p>
                 <p className="text-lg text-destructive block font-medium">
-                  {formatNumberToVND(calculatePercentage(discount[0].discount_percentage, price))}
+                  {formatNumberToVND(
+                    calculatePercentage(discount[0].discount_percentage, price)
+                  )}
                 </p>
               </>
             )}

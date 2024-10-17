@@ -121,9 +121,12 @@ export default function DialogDetail({ open, setOpen, productDetail }: Iprops) {
                           disabled
                           value={size.name}
                         />
-                        {size?.weight && <p className="text-nowrap">{`${size.name.toUpperCase()}<${size.weight}kg>`}</p>}
-                        {!size?.weight && <p className="text-nowrap">{`${size.name.toUpperCase()}`}</p>}
-                        
+                        {size?.weight && (
+                          <p className="text-nowrap">{`${size.name.toUpperCase()}<${size.weight}kg>`}</p>
+                        )}
+                        {!size?.weight && (
+                          <p className="text-nowrap">{`${size.name.toUpperCase()}`}</p>
+                        )}
                       </Label>
                     ))}
                   </RadioGroup>

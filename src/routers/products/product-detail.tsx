@@ -19,9 +19,5 @@ import { useParams } from "react-router-dom"
 export const ProductDetailRoute = () => {
   const { slug } = useParams()
 
-  return (
-    <ProductDetail
-      slug={slug}
-    />
-  )
+  return <ProductDetail slug={slug} />
 }

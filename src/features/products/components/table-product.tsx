@@ -58,7 +58,7 @@ const TableProduct = ({ status }: { status: "active" | "inactive" }) => {
     status: statusGet,
     refetch,
   } = useProductSellerId(queryKey)
-  
+
   const delelteProductBin = useUpdateProductStatus(queryKey)
   const restoreDelelteProductBin = useUpdateProductStatus(queryKey)
   const delelteProductPermanetly = useDeleteProduct(queryKey)

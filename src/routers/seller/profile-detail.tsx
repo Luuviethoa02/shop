@@ -74,7 +74,9 @@ export const ProfileDetailRoute = () => {
               className="brightness-50 min-h-full min-w-full max-h-full bg-slate-500 object-cover"
             />
           )}
-          {!img_cover && <div className="min-w-full min-h-full max-h-full bg-slate-500" />}
+          {!img_cover && (
+            <div className="min-w-full min-h-full max-h-full bg-slate-500" />
+          )}
           <div className="absolute top-20 inset-0 flex  items-center justify-center">
             <div className="text-center flex flex-col items-center">
               <Avatar className="size-14 border">

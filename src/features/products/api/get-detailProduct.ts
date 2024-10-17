@@ -9,15 +9,19 @@ type UseProductOptions = {
   params?: { [key: string]: number }
 }
 
-export const getDetailProduct = (
-  { slug, params }: UseProductOptions
-): Promise<productDetailResponse> => {
+export const getDetailProduct = ({
+  slug,
+  params,
+}: UseProductOptions): Promise<productDetailResponse> => {
   return api.get(`/product/detail/${slug}`, {
     params,
   })
 }
 
-export const getProductDetailQueryOptions = ({ slug, params }: UseProductOptions) => {
+export const getProductDetailQueryOptions = ({
+  slug,
+  params,
+}: UseProductOptions) => {
   return {
     queryKey: ["productDetail", slug, params],
     queryFn: () => getDetailProduct({ slug, params }),

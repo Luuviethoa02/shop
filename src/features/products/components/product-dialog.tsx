@@ -150,7 +150,7 @@ export const ProductDialog = ({ open, queryKey, setOpen, product }: Iprops) => {
     resolver: zodResolver(
       formProductSchema(statusSize, !!product, statusWeight)
     ),
-    defaultValues: { publish: true }
+    defaultValues: { publish: true },
   })
 
   const onSubmit = (values: z.infer<typeof formColorSchema>) => {
@@ -192,7 +192,6 @@ export const ProductDialog = ({ open, queryKey, setOpen, product }: Iprops) => {
   const onSubmitProduct = (
     values: z.infer<ReturnType<typeof formProductSchema>>
   ) => {
-
     if (!product) {
       const form = new FormData() as unknown as globalThis.FormData
       for (const key in values) {
@@ -263,7 +262,7 @@ export const ProductDialog = ({ open, queryKey, setOpen, product }: Iprops) => {
         if (
           key in dataCompare &&
           dataUpdate[key as keyof typeof dataUpdate] !==
-          dataCompare[key as keyof typeof dataCompare]
+            dataCompare[key as keyof typeof dataCompare]
         ) {
           formDataUpdate.append(
             key,

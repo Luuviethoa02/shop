@@ -97,10 +97,10 @@ export type productDetailResponse = ResponseSuccess<{
 }>
 
 export type topSellers = Seller & {
-  productsTotal: number,
-  totalComments: number,
-  averageRating: number,
-  followers: { _id: string, createdAt: string }
+  productsTotal: number
+  totalComments: number
+  averageRating: number
+  followers: { _id: string; createdAt: string }
 }
 
 export type sellerResponse = ResponseSuccess<{

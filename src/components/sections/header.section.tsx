@@ -50,6 +50,7 @@ import { useGetHistoryByUserId } from "@/features/search/api/get-history"
 import { useGetTopSearch } from "@/features/search/api/get-top-search"
 import { navbarHomes } from "@/constants"
 import { useDeleteHistory } from "@/features/search/api/delete.history"
+import { Badge } from "../ui/badge"
 
 const Header = () => {
   const [open, setOpen] = useState<boolean>(false)
@@ -452,6 +453,30 @@ const Header = () => {
                   >
                     <Link to={"/seller"}>Kênh người bán</Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="max-sm:block hidden "
+                    onPointerLeave={(event) => event.preventDefault()}
+                    onPointerMove={(event) => event.preventDefault()}
+                    onClick={() => setIsCartOpen(true)}
+                  >
+                    <div className="flex items-center w-full justify-between">
+                      <p className="block">Giỏ hàng</p>
+                      <Badge>{Object.keys(carts).length}</Badge>
+                    </div>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    className="max-sm:block hidden"
+                    onPointerLeave={(event) => event.preventDefault()}
+                    onPointerMove={(event) => event.preventDefault()}
+                    onClick={() => setIsNotificationOpen(true)}
+                  >
+                    <div className="flex items-center w-full justify-between">
+                      <p className="block">Thông báo</p>
+                      <Badge>{notifications?.data?.data?.length || 0}</Badge>
+                    </div>
+                  </DropdownMenuItem>
+
                   <DropdownMenuItem
                     onPointerLeave={(event) => event.preventDefault()}
                     onPointerMove={(event) => event.preventDefault()}

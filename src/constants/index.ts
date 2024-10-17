@@ -78,11 +78,6 @@ export const navLinkSeller: {
     lable: "Mã giảm giá",
   },
   {
-    path: "/seller/customers",
-    Icon: CircleUser,
-    lable: "Khách hàng",
-  },
-  {
     path: "/seller/profile",
     Icon: SlidersHorizontal,
     lable: "Tài khoản",

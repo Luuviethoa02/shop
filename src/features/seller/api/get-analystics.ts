@@ -11,6 +11,16 @@ export type UseGetShopBySlugOptions = {
   status?: string
 }
 
+type YearlyStatistics = {
+  [month: string]: {
+    pending: number;
+    shipping: number;
+    success: number;
+    canceled: number;
+  };
+};
+
+
 export type analysticsType = Seller & {
   totalProducts: number
   totalOrders: {
@@ -21,7 +31,7 @@ export type analysticsType = Seller & {
   }
   totalComments: number
   totalFollowers: number
-  revenueProducts: number
+  statistics: YearlyStatistics 
 }
 
 export const getAnalysticsBySellerId = ({

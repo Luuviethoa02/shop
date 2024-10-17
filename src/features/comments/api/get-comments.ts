@@ -4,7 +4,7 @@ import { api } from "@/lib/api-client"
 import { commentsResponse } from "@/types/api"
 
 type UseCommentsOptions = {
-  productId?: string 
+  productId?: string
 }
 
 export const getCommentsByProduct = ({
@@ -15,21 +15,19 @@ export const getCommentsByProduct = ({
 }): Promise<commentsResponse> => {
   return api.get(`/comment/product/${productId}`, {
     params: {
-      ...args
+      ...args,
     },
   })
 }
 
-export const getProductDetailQueryOptions = (
-  {
-    productId,
-    ...args
-  }: {
-    productId?: string 
-  } 
-) => {
+export const getProductDetailQueryOptions = ({
+  productId,
+  ...args
+}: {
+  productId?: string
+}) => {
   return {
-    queryKey: ["comments", productId, {...args}],
+    queryKey: ["comments", productId, { ...args }],
     queryFn: () => getCommentsByProduct({ productId, ...args }),
     enabled: !!productId,
   }

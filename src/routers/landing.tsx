@@ -6,9 +6,6 @@ import CategoryList from "@/features/categories/components/categories-list"
 import ProductList from "@/features/products/components/product-list"
 import ShopsList from "@/features/seller/components/shopsList"
 
-
-
-
 export const LandingRoute = () => {
   return (
     <>

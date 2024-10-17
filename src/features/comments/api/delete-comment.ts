@@ -20,8 +20,7 @@ export const useDeleteComment = ({
   return useMutation({
     onSuccess: (...args) => {
       queryClient.invalidateQueries({
-        queryKey: getProductDetailQueryOptions({ productId, ...args })
-          .queryKey,
+        queryKey: getProductDetailQueryOptions({ productId, ...args }).queryKey,
       })
     },
     mutationFn: deleteComment,

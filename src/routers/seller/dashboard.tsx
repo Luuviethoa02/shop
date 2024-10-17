@@ -23,26 +23,24 @@ import { useGetAnalysticsBySellerId } from "@/features/seller/api/get-analystics
 import { Skeleton } from "@/components/ui/skeleton"
 export const description = "A bar chart"
 
-const chartData = [
-  { month: "January", desktop: 1806 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
-]
-
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  pending: {
+    label: "Chờ xác nhận",
+    color: "hsl(var(--chart-3))",
+  },
+  shipping: {
+    label: "Vận chuyển",
+    color: "hsl(var(--chart-2))",
+  },
+  success: {
+    label: "Thành công",
     color: "hsl(var(--chart-1))",
   },
+  canceled: {
+    label: "Đã hủy",
+    color: "hsl(var(--chart-4))",
+  }
+
 } satisfies ChartConfig
 
 export const DashboardRoute = () => {
@@ -73,9 +71,14 @@ export const DashboardRoute = () => {
       totalProducts,
       totalComments,
       totalFollowers,
-      revenueProducts,
+      statistics,
     } = data?.data?.data
 
+    const chartData = Object.keys(statistics).map((month) => ({
+      month,
+      ...statistics[month], 
+    }))
+    
     return (
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -110,21 +113,21 @@ export const DashboardRoute = () => {
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle>Khách hàng</CardTitle>
+              <CardTitle>Tổng sản phẩm</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold">50</div>
+              <div className="text-4xl font-bold">{totalProducts}</div>
             </CardContent>
           </Card>
         </div>
         <div className="w-full flex items-center mb-96">
           <Card className="h-[600px] min-w-full">
             <CardHeader>
-              <CardTitle>Thống kê doanh thu</CardTitle>
+              <CardTitle>Thống kê đơn hàng</CardTitle>
             </CardHeader>
             <CardContent>
               <ChartContainer
-                className="max-h-[500px] min-w-full"
+                className="max-h-[400px] min-w-full"
                 config={chartConfig}
               >
                 <BarChart accessibilityLayer data={chartData}>
@@ -141,8 +144,23 @@ export const DashboardRoute = () => {
                     content={<ChartTooltipContent hideLabel />}
                   />
                   <Bar
-                    dataKey="desktop"
-                    fill="var(--color-desktop)"
+                    dataKey="pending"
+                    fill="var(--color-pending)"
+                    radius={8}
+                  />
+                  <Bar
+                    dataKey="shipping"
+                    fill="var(--color-shipping)"
+                    radius={8}
+                  />
+                  <Bar
+                    dataKey="success"
+                    fill="var(--color-success)"
+                    radius={8}
+                  />
+                  <Bar
+                    dataKey="canceled"
+                    fill="var(--color-canceled)"
                     radius={8}
                   />
                 </BarChart>
