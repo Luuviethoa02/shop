@@ -1272,7 +1272,9 @@ export const ProductDetail = ({ slug }: Iprops) => {
             </div>
           </>
           <div className="mt-1">
-            <h2 className="text-2xl font-semibold max-sm:text-center">Có thể bạn cũng thích</h2>
+            <h2 className="text-2xl font-semibold max-sm:text-center">
+              Có thể bạn cũng thích
+            </h2>
             <div className="flex items-center flex-wrap">
               {data?.data?.productSimilars?.data?.map((product) => (
                 <Product key={product._id} product={product} />

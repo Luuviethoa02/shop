@@ -39,8 +39,7 @@ const chartConfig = {
   canceled: {
     label: "Đã hủy",
     color: "hsl(var(--chart-4))",
-  }
-
+  },
 } satisfies ChartConfig
 
 export const DashboardRoute = () => {
@@ -76,9 +75,9 @@ export const DashboardRoute = () => {
 
     const chartData = Object.keys(statistics).map((month) => ({
       month,
-      ...statistics[month], 
+      ...statistics[month],
     }))
-    
+
     return (
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

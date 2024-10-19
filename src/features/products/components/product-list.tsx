@@ -21,7 +21,12 @@ const ProductList = () => {
 
   useEffect(() => {
     if (productsApi?.data) {
-      setProducts((prevProducts) => [...prevProducts, ...productsApi.data.filter(product => !prevProducts.includes(product))])
+      setProducts((prevProducts) => [
+        ...prevProducts,
+        ...productsApi.data.filter(
+          (product) => !prevProducts.includes(product)
+        ),
+      ])
       if (page >= maxPage) {
         setHasMore(false)
       }

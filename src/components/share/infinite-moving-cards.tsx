@@ -46,7 +46,7 @@ export const InfiniteMovingCards = ({
 
       getDirection()
       getSpeed()
-      if (topShops.status === 'pending') {
+      if (topShops.status === "pending") {
         setStart(false)
       } else {
         setStart(true)
@@ -107,7 +107,7 @@ export const InfiniteMovingCards = ({
   }
 
   useEffect(() => {
-    if (topShops.status === 'pending') {
+    if (topShops.status === "pending") {
       setStart(false)
     } else {
       setStart(true)
@@ -133,9 +133,13 @@ export const InfiniteMovingCards = ({
         {topShops?.status === "pending" ? (
           <>
             {Array.from({ length: 3 }).map((_, idx) => (
-              <Skeleton key={idx} className={`w-[350px] h-64 rounded-[8px] ${start ? 'hidden' : undefined}`} />
+              <Skeleton
+                key={idx}
+                className={`w-[350px] h-64 rounded-[8px] ${start ? "hidden" : undefined}`}
+              />
             ))}
-          </>) : (
+          </>
+        ) : (
           <>
             {topShops?.data?.data
               .filter((shop) => shop._id !== (user?.sellerId as Seller)?._id)
@@ -202,5 +206,4 @@ export const InfiniteMovingCards = ({
       </div>
     </div>
   )
-
 }
